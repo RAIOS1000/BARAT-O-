@@ -1,60 +1,74 @@
-# 🏷️ BARATÃO
+# 🏷️ BARATÃO — caça-ofertas inteligente
 
-Busca o **menor preço** de produtos no **Paraná** usando dados **oficiais de nota fiscal (NFC-e)** do programa **Menor Preço — Nota Paraná** (SEFA/PR), atualizados em tempo real. App de página única, sem build, pronto para o GitHub Pages.
+Escolha **qualquer localidade** (GPS ou busca de cidade) e ache os **melhores preços** de qualquer produto. Não fica preso a código de barras / nota fiscal — varre a internet de verdade. App estático, pronto pro GitHub Pages.
 
-- 📍 Usa sua **localização** e mostra distância até cada estabelecimento
-- 🧾 Preços reais de **+109 mil estabelecimentos**, do valor da última nota fiscal
-- 🔀 Ordena por **menor preço** ou **mais perto**, raio de 1 a 20 km
-- 🗺️ Botão **Como chegar** (Google Maps) e badge de **frescor** do preço (há Xh/dias)
-- 🕘 Histórico de buscas (salvo no próprio navegador)
+## ✨ O que ele faz
 
----
+- 📍 **Escolha o local** — sua posição por GPS ou busque qualquer cidade
+- 🗂️ **Categorias** — Mercado, Combustível, Farmácia, Eletrônicos, Casa, Pet…
+- 🧠 **Dois motores de busca:**
+  - **Comparador (grátis, já funciona)** — dispara buscas certeiras em Google Shopping, Mercado Livre, Zoom, Buscapé e fontes por categoria
+  - **Inteligente (com Worker)** — traz **preços reais na tela** (loja, valor, link da oferta), buscando na web na hora
+- 📡 **Radar de Preço** — salve um produto com **preço-alvo**; quando a busca achar igual ou mais barato, ele acende 🎯
+- 🧮 **Calculadora de preço por unidade** — descobre se o pacote maior compensa mesmo
+- 🔗 **Compartilhar** a oferta no WhatsApp
 
-## 🚀 Publicar no GitHub Pages
-
-1. Crie um repositório (ex: `BARATAO`) na conta `raios1000`.
-2. Suba o arquivo **`index.html`** (e, opcionalmente, `worker.js` e este README).
-3. No GitHub: **Settings → Pages → Branch: `main` / `root` → Save**.
-4. Em ~1 min fica no ar em: `https://raios1000.github.io/BARATAO/`
+Tudo salvo no seu navegador (radar, local, cache). Nada vai pra servidor nenhum sem ser você.
 
 ---
 
-## ⚠️ O ponto crítico: CORS
+## 🚀 Passo 1 — publicar no GitHub Pages
 
-A API do governo **não envia cabeçalhos CORS**, então o navegador **bloqueia** a chamada direta a partir de um site hospedado (GitHub Pages). O app já contorna isso com uma cadeia de "canos" que ele tenta em ordem:
+1. Suba **`index.html`** (e opcionalmente `worker.js` e este README) na **raiz** do repositório.
+2. Adicione um arquivo vazio chamado **`.nojekyll`** na raiz (evita o Jekyll atrapalhar).
+3. **Settings → Pages → Branch `main` / root → Save**.
+4. No ar em `https://SEU-USER.github.io/SEU-REPO/`.
 
-1. **direto** — funciona ao abrir o `index.html` localmente, ou se o gov liberar CORS
-2. **seu Cloudflare Worker** — o caminho recomendado (rápido e confiável)
-3. **proxies públicos** (allorigins / corsproxy) — reserva automática, mas podem ficar instáveis
-
-### Recomendado: seu próprio Worker (grátis, ~2 min)
-
-1. Conta em <https://dash.cloudflare.com> (plano free basta)
-2. **Workers & Pages → Create → Worker** → cole o conteúdo de **`worker.js`** → **Deploy**
-3. Copie a URL gerada (ex: `https://baratao.SEU-USER.workers.dev`)
-4. No `index.html`, ajuste:
-
-```js
-const CONFIG = {
-  ...
-  PROXY_URL: "https://baratao.SEU-USER.workers.dev/?url=",
-  ...
-};
-```
-
-Pronto — o app passa a usar seu cano oficial e ignora os proxies públicos.
+> Já funciona assim no modo **Comparador**. Pra ligar o motor inteligente, siga o passo 2.
 
 ---
 
-## 🔧 Ajustar o mapeamento de campos (se precisar)
+## 🧠 Passo 2 — ligar o Motor Inteligente (preços reais na tela)
 
-Não consegui bater no endpoint ao vivo durante a construção, então o mapeamento dos campos da resposta foi feito de forma **defensiva** (aceita vários nomes possíveis). Se algum dado vier vazio na primeira busca:
+O GitHub Pages é estático, então a chave da IA não pode ficar no site (ficaria exposta). Por isso usamos um **Cloudflare Worker** grátis que guarda a chave e faz a busca.
 
-1. Abra **"ver resposta crua da API"** no rodapé dos resultados.
-2. Veja os nomes reais dos campos (preço, nome do estabelecimento, lat/lng, data).
-3. Ajuste o objeto **`F`** no topo do `<script>` do `index.html` — é só adicionar o nome certo na lista.
+1. Conta em <https://dash.cloudflare.com> (plano free serve).
+2. **Workers & Pages → Create → Worker** → cole o conteúdo de **`worker.js`** → **Deploy**.
+3. **Settings → Variables and Secrets → Add:**
+   - Nome: `ANTHROPIC_API_KEY`
+   - Valor: sua chave `sk-ant-...` (marque como **Secret**)
+4. Copie a URL do Worker (ex: `https://baratao.SEU-USER.workers.dev`).
+5. Abra o BARATÃO → ícone **motor** (no topo) → cole a URL → **Ativar**.
+   - Fica salvo no navegador. (Também dá pra fixar direto no `CONFIG.API_ENDPOINT` do `index.html`.)
 
-Parâmetros da consulta (também no topo): `DATA_DIAS` (janela de 1 a 15 dias) e o raio (no seletor da tela).
+Pronto: agora a busca mostra preços reais com link.
+
+---
+
+## 💸 Custo (importante)
+
+O motor inteligente usa a API da Anthropic **com busca web**. Cada busca:
+- faz até **4 pesquisas web** (limitado no `worker.js` em `MAX_BUSCAS`)
+- + 1 chamada ao modelo (padrão **Haiku**, barato)
+
+Na prática, **poucos centavos por busca**. Pra segurar o custo, o app já:
+- **guarda cache** de buscas iguais por 6h (`CONFIG.CACHE_HORAS`) — não paga 2x pela mesma
+- respeita o teto de pesquisas por consulta
+
+Quer resultados melhores? No `worker.js`, troque `MODEL` para `"claude-sonnet-5"` (mais caro, mais preciso). Quer gastar menos? Mantenha o Haiku e aumente o cache.
+
+> Dica: no painel da Anthropic dá pra definir **limite de gastos** na conta — recomendo configurar um teto mensal.
+
+---
+
+## 🔧 Ajustes rápidos (topo do `index.html`)
+
+| Config | O que faz |
+|---|---|
+| `API_ENDPOINT` | URL do seu Worker (ou cole pela interface) |
+| `CACHE_HORAS` | por quanto tempo reaproveita buscas iguais |
+| `CATS` / `SUGGEST` | categorias e sugestões de produto |
+| `CMP` | fontes do comparador por categoria |
 
 ---
 
@@ -62,16 +76,8 @@ Parâmetros da consulta (também no topo): `DATA_DIAS` (janela de 1 a 15 dias) e
 
 | Arquivo | O que é |
 |---|---|
-| `index.html` | O app inteiro (HTML + CSS + JS, sem dependências de build) |
-| `worker.js` | Proxy CORS opcional para Cloudflare Workers |
+| `index.html` | O app inteiro |
+| `worker.js` | Motor inteligente (Cloudflare Worker) |
 | `README.md` | Este guia |
 
----
-
-## 📌 Observações
-
-- O valor exibido é o da **última nota fiscal** do produto — pode não ser o preço atual. O app deixa isso claro e sugere confirmar no local.
-- A base cobre **apenas o Paraná**. Fora do estado, o app oferece buscar a partir do **centro de Curitiba**.
-- Fonte oficial: <https://menorpreco.notaparana.pr.gov.br>
-
-Feito para rodar de verdade. 🟢
+Feito pra economizar de verdade. 🟢
