@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0B1512" />
+<title>BARATÃO — menor preço oficial do Paraná</title>
+<meta name="description" content="Compare preços reais de produtos no Paraná com dados oficiais de nota fiscal (NFC-e), atualizados em tempo real." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0B1512; --bg-2:#0F1E18;
+    --surface:rgba(22,42,34,.55); --surface-solid:#15271F;
+    --line:rgba(120,200,160,.14); --line-strong:rgba(120,200,160,.28);
+    --gold:#FFC53D; --gold-deep:#F5A623;
+    --mint:#43E39B; --coral:#FF7A6B;
+    --text:#EAF2ED; --muted:#88A99A;
+    --shadow:0 24px 60px -20px rgba(0,0,0,.7);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--text);
+    background:
+      radial-gradient(120% 80% at 15% -10%, rgba(255,197,61,.10), transparent 55%),
+      radial-gradient(120% 90% at 100% 0%, rgba(67,227,155,.10), transparent 50%),
+      linear-gradient(180deg,var(--bg-2),var(--bg) 40%);
+    min-height:100dvh;-webkit-font-smoothing:antialiased;
+    padding:0 0 env(safe-area-inset-bottom);
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:16px 16px 60px}
+
+  .locbar{
+    display:flex;align-items:center;gap:10px;padding:10px 14px;
+    border:1px solid var(--line);background:var(--surface);backdrop-filter:blur(14px);
+    border-radius:999px;font-size:13.5px;font-weight:600;
+  }
+  .locbar .pin{color:var(--mint);display:flex}
+  .locbar .city{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .locbar .city.loading{color:var(--muted);font-weight:500}
+  .locbar button{border:0;background:transparent;color:var(--gold);font:inherit;font-weight:700;font-size:12.5px;cursor:pointer;padding:4px 6px;border-radius:8px;white-space:nowrap}
+  .locbar button:hover{background:rgba(255,197,61,.10)}
+
+  .hero{text-align:center;padding:30px 0 14px}
+  .logo{font-family:"Anton",sans-serif;font-size:clamp(56px,16vw,100px);line-height:.86;letter-spacing:.5px;position:relative;display:inline-block}
+  .logo .a-hi{color:var(--gold);text-shadow:0 0 30px rgba(255,197,61,.35)}
+  .logo::after{content:"";position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);width:64%;height:4px;border-radius:4px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.7}
+  .tag{margin-top:12px;color:var(--muted);font-weight:600;font-size:14px}
+  .tag b{color:var(--mint);font-weight:700}
+  .trust{margin-top:8px;display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;color:var(--muted);padding:5px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+  .trust .dotlive{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 0 rgba(67,227,155,.6);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(67,227,155,.5)}70%{box-shadow:0 0 0 7px rgba(67,227,155,0)}100%{box-shadow:0 0 0 0 rgba(67,227,155,0)}}
+
+  .searchbox{margin-top:20px;display:flex;align-items:center;gap:8px;padding:7px 7px 7px 16px;border-radius:16px;background:var(--surface-solid);border:1px solid var(--line-strong);box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
+  .searchbox:focus-within{border-color:var(--gold);box-shadow:0 0 0 4px rgba(255,197,61,.12),var(--shadow)}
+  .searchbox svg.mg{color:var(--muted);flex:none}
+  .searchbox input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:inherit;font-size:16px;font-weight:600;padding:10px 0}
+  .searchbox input::placeholder{color:var(--muted);font-weight:500}
+  .go{flex:none;border:0;cursor:pointer;height:46px;padding:0 20px;border-radius:11px;font-family:"Anton",sans-serif;font-size:17px;letter-spacing:.6px;color:#1a1205;background:linear-gradient(180deg,var(--gold),var(--gold-deep));box-shadow:0 8px 20px -6px rgba(245,166,35,.6);transition:transform .12s,filter .2s}
+  .go:hover{filter:brightness(1.06)}
+  .go:active{transform:translateY(1px) scale(.99)}
+  .go:disabled{opacity:.55;cursor:not-allowed;filter:grayscale(.3)}
+
+  .controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+  .seg{display:flex;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--surface)}
+  .seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;padding:8px 12px;cursor:pointer;transition:.15s}
+  .seg button.on{background:rgba(255,197,61,.14);color:var(--gold)}
+  .ctl-label{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-left:2px}
+  select.raio{border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;font-weight:700;font-size:12.5px;padding:8px 10px;border-radius:11px;cursor:pointer}
+
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
+  .chip{border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;font-size:13px;font-weight:600;padding:8px 13px;border-radius:999px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+  .chip:hover{border-color:var(--gold);color:var(--gold)}
+  .chip.hist{color:var(--muted);font-weight:500}
+  .chip .x{opacity:.5}
+
+  .panel{margin-top:24px}
+  .hint{color:var(--muted);text-align:center;font-size:14px;line-height:1.6;padding:8px 6px}
+
+  .loading{padding:26px 0;text-align:center}
+  .barcode{position:relative;width:220px;height:74px;margin:0 auto;display:flex;align-items:stretch;gap:3px;justify-content:center;padding:0 4px;overflow:hidden;border-radius:6px}
+  .barcode i{display:block;background:var(--muted);opacity:.55;border-radius:1px}
+  .scanline{position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);box-shadow:0 0 14px 2px rgba(255,197,61,.7);animation:scan 1.15s ease-in-out infinite}
+  @keyframes scan{0%{top:2%}50%{top:94%}100%{top:2%}}
+  .loading p{margin-top:14px;color:var(--muted);font-weight:600;font-size:14px}
+  .loading p b{color:var(--text)}
+
+  .section-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin:6px 2px 12px}
+  .section-label .save{color:var(--mint);margin-left:auto;letter-spacing:.3px;text-transform:none;font-size:12.5px}
+  .section-label .save b{color:var(--mint)}
+
+  .best{position:relative;background:linear-gradient(140deg,#1b3327,#132318);border:1px solid rgba(67,227,155,.35);border-radius:20px;padding:20px 20px 18px 22px;box-shadow:0 20px 50px -22px rgba(67,227,155,.4);overflow:hidden;animation:pop .45s cubic-bezier(.2,.9,.3,1.2) both}
+  .best::before{content:"";position:absolute;inset:0;background:radial-gradient(90% 120% at 100% 0,rgba(255,197,61,.12),transparent 55%);pointer-events:none}
+  .selo{position:absolute;top:14px;right:-34px;transform:rotate(38deg);background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#1a1205;font-family:"Anton",sans-serif;font-size:11px;letter-spacing:1px;padding:5px 44px;box-shadow:0 6px 16px -6px rgba(0,0,0,.6)}
+  .best .store{font-size:18px;font-weight:800;letter-spacing:.2px;padding-right:66px}
+  .best .prod{margin-top:2px;color:#cfe9db;font-size:12.5px;font-weight:600;padding-right:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .best .meta{margin-top:6px;color:#a9d8bf;font-size:12.5px;font-weight:600;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .fresh{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700}
+  .fresh.new{background:rgba(67,227,155,.15);color:var(--mint)}
+  .fresh.mid{background:rgba(255,197,61,.14);color:var(--gold)}
+  .fresh.old{background:rgba(255,122,107,.14);color:var(--coral)}
+
+  .best-bottom{margin-top:16px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .pricetag{display:inline-flex;align-items:center;gap:10px;position:relative;padding:12px 22px 12px 30px;background:linear-gradient(180deg,#fff5d6,#ffe9a8);color:#1a1205;border-radius:8px;clip-path:polygon(0 50%,16px 0,100% 0,100% 100%,16px 100%)}
+  .pricetag::before{content:"";position:absolute;left:15px;top:50%;transform:translateY(-50%);width:9px;height:9px;border-radius:50%;background:var(--bg-2);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25)}
+  .pricetag .cur{font-family:"Anton",sans-serif;font-size:19px;margin-top:6px}
+  .pricetag .val{font-family:"Anton",sans-serif;font-size:38px;line-height:1;letter-spacing:.5px}
+  .maps{display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:#0b1512;background:var(--mint);font-weight:800;font-size:13px;padding:11px 15px;border-radius:11px;box-shadow:0 8px 18px -8px rgba(67,227,155,.6)}
+  .maps:hover{filter:brightness(1.05)}
+
+  .rows{margin-top:18px;display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);background:var(--surface);backdrop-filter:blur(8px);border-radius:14px;animation:pop .4s ease both}
+  .row .rank{font-family:"Anton",sans-serif;font-size:15px;color:var(--muted);width:22px;text-align:center;flex:none}
+  .row .info{flex:1;min-width:0}
+  .row .info .n{font-weight:700;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .info .d{color:var(--muted);font-size:12px;font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .p{font-family:"Anton",sans-serif;font-size:23px;flex:none;color:var(--text);text-align:right}
+  .row .p small{font-size:11px;color:var(--muted);margin-right:2px}
+  .row.high .p{color:var(--coral)}
+  .row a.mini{color:var(--mint);flex:none;display:flex;padding:6px;border-radius:8px}
+  .row a.mini:hover{background:rgba(67,227,155,.1)}
+
+  .source{margin-top:18px;padding:12px 15px;border-radius:14px;background:rgba(255,197,61,.06);border:1px solid rgba(255,197,61,.2);color:#e7cf98;font-size:12px;line-height:1.55;font-weight:500}
+  .source b{color:var(--gold)}
+  .err{margin-top:18px;padding:16px;border-radius:14px;background:rgba(255,122,107,.08);border:1px solid rgba(255,122,107,.3);color:#ffd0c8;font-size:14px;font-weight:600;line-height:1.5;text-align:center}
+  .err button{margin-top:10px;border:1px solid rgba(255,122,107,.4);background:transparent;color:#ffd0c8;font:inherit;font-weight:700;padding:9px 16px;border-radius:10px;cursor:pointer}
+
+  .debug{margin-top:14px}
+  .debug summary{cursor:pointer;color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;list-style:none}
+  .debug summary::-webkit-details-marker{display:none}
+  .debug pre{margin-top:8px;max-height:240px;overflow:auto;background:#08120E;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:11px;color:#9fc7b3;white-space:pre-wrap;word-break:break-word}
+
+  .modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(5,10,8,.6);backdrop-filter:blur(4px)}
+  .modal.open{display:flex}
+  .modal .card{width:100%;max-width:380px;background:var(--surface-solid);border:1px solid var(--line-strong);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+  .modal h3{font-family:"Anton",sans-serif;font-size:22px;letter-spacing:.5px;margin-bottom:4px}
+  .modal p{color:var(--muted);font-size:13px;margin-bottom:14px;line-height:1.5}
+  .modal input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);font:inherit;font-size:15px;font-weight:600;outline:0}
+  .modal input:focus{border-color:var(--gold)}
+  .modal .acts{display:flex;gap:10px;margin-top:14px}
+  .modal .acts button{flex:1;padding:12px;border-radius:12px;border:0;font:inherit;font-weight:700;cursor:pointer}
+  .modal .acts .ok{background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#1a1205}
+  .modal .acts .cancel{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  .modal .alt{margin-top:10px;text-align:center}
+  .modal .alt button{background:transparent;border:0;color:var(--mint);font:inherit;font-weight:700;font-size:13px;cursor:pointer;text-decoration:underline}
+
+  .foot{margin-top:32px;text-align:center;color:var(--muted);font-size:11px;font-weight:500;line-height:1.6}
+  .foot a{color:var(--muted)}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="locbar">
+    <span class="pin" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
+    <span class="city loading" id="cityLabel">localizando você…</span>
+    <button id="changeCity" type="button">alterar</button>
+  </div>
+
+  <header class="hero">
+    <div class="logo">BAR<span class="a-hi">A</span>TÃO</div>
+    <p class="tag">o <b>menor preço</b> perto de você — dado oficial, em tempo real</p>
+    <div class="trust"><span class="dotlive"></span> Base NFC-e · Menor Preço Nota Paraná</div>
+  </header>
+
+  <div class="searchbox">
+    <svg class="mg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input id="q" type="text" placeholder="produto, marca ou código de barras" autocomplete="off" enterkeyhint="search" />
+    <button class="go" id="goBtn" type="button">BUSCAR</button>
+  </div>
+
+  <div class="controls">
+    <div class="seg" role="tablist" aria-label="Ordenar por">
+      <button id="sortPrice" class="on" type="button">Menor preço</button>
+      <button id="sortDist" type="button">Mais perto</button>
+    </div>
+    <span class="ctl-label">Raio</span>
+    <select class="raio" id="raio" aria-label="Raio de busca">
+      <option value="1">1 km</option>
+      <option value="3">3 km</option>
+      <option value="5" selected>5 km</option>
+      <option value="10">10 km</option>
+      <option value="15">15 km</option>
+      <option value="20">20 km</option>
+    </select>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <main class="panel" id="panel">
+    <p class="hint" id="idleHint">Busque um produto e o Baratão compara os preços registrados em nota fiscal na sua região do Paraná.</p>
+  </main>
+
+  <p class="foot">
+    BARATÃO · dados do programa <a href="https://menorpreco.notaparana.pr.gov.br" target="_blank" rel="noopener">Menor Preço — Nota Paraná</a> (SEFA/PR).<br>
+    O valor é o da última nota fiscal do produto — pode não ser o preço atual. Confirme no estabelecimento.
+  </p>
+</div>
+
+<div class="modal" id="cityModal">
+  <div class="card">
+    <h3>SUA LOCALIZAÇÃO</h3>
+    <p>Não consegui te localizar automaticamente. Como a base é do Paraná, você pode buscar a partir do centro de Curitiba ou informar coordenadas.</p>
+    <input id="cityInput" type="text" placeholder="ex: -25.4284, -49.2733 (lat, lng)" />
+    <div class="acts">
+      <button class="cancel" id="cityCancel" type="button">Cancelar</button>
+      <button class="ok" id="citySave" type="button">Usar</button>
+    </div>
+    <div class="alt"><button id="useCwb" type="button">Usar centro de Curitiba</button></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   BARATÃO — configuração
+   ------------------------------------------------------------
+   A API do Menor Preço (governo) normalmente NÃO envia cabeçalho
+   CORS, então o navegador bloqueia a chamada direta a partir do
+   GitHub Pages. Por isso o app tenta uma cadeia de "canos":
+     1. direto (funciona se você abrir o arquivo local / se o gov liberar CORS)
+     2. seu Cloudflare Worker (recomendado — veja worker.js e README)
+     3. proxies públicos (allorigins / corsproxy) como reserva
+   Basta colar a URL do seu Worker em PROXY_URL para ter o cano oficial.
+   ============================================================ */
+const CONFIG = {
+  API_BASE: "https://menorpreco.notaparana.pr.gov.br/api/v1/produtos",
+  PROXY_URL: "",            // ex: "https://baratao.SEU-USER.workers.dev/?url="
+  DATA_DIAS: 3,             // janela: nota emitida nos últimos N dias (1 a 15)
+  CURITIBA: { lat: -25.4284, lng: -49.2733 }
+};
+
+/* mapa de campos: se a resposta tiver nomes diferentes, ajuste aqui
+   (abra "ver resposta crua" no rodapé dos resultados p/ conferir) */
+const F = {
+  lista:  ["produtos","itens","data","results"],
+  preco:  ["valor","vlr","preco","valArredondado","vl_venda"],
+  desc:   ["desc","descricao","nm_prod","produto","nome"],
+  estab:  ["estabelecimento","estab","emitente","local"],
+  nome:   ["nm_fan","nm_fanta","nm_fantasia","fantasia","nm_emp","nm_razao","razao","nome"],
+  lat:    ["nu_lat","lat","latitude","vl_lat"],
+  lng:    ["nu_lng","nu_long","lng","lon","longitude","vl_lng"],
+  logr:   ["nm_logr","logradouro","endereco"],
+  tplogr: ["tp_logr","tipo_logr"],
+  nrlogr: ["nr_logr","numero","nr"],
+  bairro: ["bairro","nm_bairro"],
+  mun:    ["mun","municipio","cidade","nm_mun"],
+  data:   ["datahora","dthr","data","dt_emissao","dt_venda","dh_emi"]
+};
+
+const PROXIES = [
+  { name:"direto",     wrap:u=>u },
+  { name:"worker",     wrap:u=>CONFIG.PROXY_URL ? CONFIG.PROXY_URL+encodeURIComponent(u) : null },
+  { name:"allorigins", wrap:u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u) },
+  { name:"corsproxy",  wrap:u=>"https://corsproxy.io/?url="+encodeURIComponent(u) }
+];
+
+const SUGGEST = ["Arroz 5kg","Café 500g","Leite 1L","Óleo de soja","Feijão 1kg","Açúcar 1kg","Cerveja lata","Gasolina","Botijão gás","Sabão em pó"];
+let coords=null, place=null, lastRaw=null;
+let sortMode="preco";
+
+const $=s=>document.querySelector(s);
+const cityLabel=$("#cityLabel"), panel=$("#panel");
+
+/* ---------- histórico + sugestões ---------- */
+function history(){ try{return JSON.parse(localStorage.getItem("baratao_hist")||"[]")}catch(e){return[]} }
+function pushHistory(t){
+  let h=history().filter(x=>x.toLowerCase()!==t.toLowerCase());
+  h.unshift(t); h=h.slice(0,4);
+  localStorage.setItem("baratao_hist",JSON.stringify(h)); renderChips();
+}
+function renderChips(){
+  const h=history();
+  const hist=h.map(t=>`<button class="chip hist" data-t="${esc(t)}" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>${esc(t)}</button>`).join("");
+  const sug=SUGGEST.map(s=>`<button class="chip" data-t="${s}" type="button">${s}</button>`).join("");
+  $("#chips").innerHTML=hist+sug;
+}
+$("#chips").addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b)return;
+  $("#q").value=b.dataset.t; buscar();
+});
+
+/* ---------- localização ---------- */
+function setCity(txt,loading=false){ place=loading?null:txt; cityLabel.textContent=txt; cityLabel.classList.toggle("loading",loading); }
+async function reverseGeocode(lat,lng){
+  try{
+    const r=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=pt`);
+    const d=await r.json();
+    const bairro=d.locality||d.city||"", cidade=d.city||d.principalSubdivision||"";
+    const uf=(d.principalSubdivisionCode||"").replace("BR-","");
+    let out=[bairro,cidade].filter((v,i,a)=>v&&a.indexOf(v)===i).join(", ");
+    if(uf) out+=` - ${uf}`;
+    return {label:out||null, uf};
+  }catch(e){ return {label:null,uf:""}; }
+}
+function locate(){
+  setCity("localizando você…",true);
+  if(!navigator.geolocation){ openCityModal(); return; }
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    coords={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    const g=await reverseGeocode(coords.lat,coords.lng);
+    setCity(g.label||"localização obtida");
+    if(g.uf && g.uf!=="PR") noticePR();
+  },err=>{ setCity("defina sua posição",true); openCityModal(); },
+  {enableHighAccuracy:true,timeout:9000,maximumAge:60000});
+}
+function noticePR(){
+  panel.innerHTML=`<div class="source" style="background:rgba(67,227,155,.06);border-color:rgba(67,227,155,.25);color:#bfe9d3">
+    <b style="color:var(--mint)">Fora do Paraná?</b> A base de preços é oficial do estado do Paraná (NFC-e). Fora dele, use “alterar” e escolha o centro de Curitiba para testar, ou coordenadas dentro do PR.</div>`;
+}
+
+const modal=$("#cityModal");
+function openCityModal(){ modal.classList.add("open"); setTimeout(()=>$("#cityInput").focus(),80); }
+function closeCityModal(){ modal.classList.remove("open"); }
+$("#changeCity").onclick=openCityModal;
+$("#cityCancel").onclick=closeCityModal;
+$("#useCwb").onclick=()=>{ coords={...CONFIG.CURITIBA}; setCity("Centro, Curitiba - PR"); closeCityModal(); };
+$("#citySave").onclick=()=>{
+  const v=$("#cityInput").value.trim();
+  const m=v.match(/(-?\d+[.,]\d+)\s*,\s*(-?\d+[.,]\d+)/);
+  if(m){ coords={lat:parseFloat(m[1].replace(",",".")),lng:parseFloat(m[2].replace(",","."))}; setCity(`posição ${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}`); }
+  else if(v){ setCity(v); }
+  closeCityModal();
+};
+$("#cityInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("#citySave").click(); });
+modal.addEventListener("click",e=>{ if(e.target===modal) closeCityModal(); });
+
+/* ---------- ordenação e raio ---------- */
+$("#sortPrice").onclick=()=>{ sortMode="preco"; $("#sortPrice").classList.add("on"); $("#sortDist").classList.remove("on"); if($("#q").value.trim()) buscar(); };
+$("#sortDist").onclick=()=>{ sortMode="distancia"; $("#sortDist").classList.add("on"); $("#sortPrice").classList.remove("on"); if($("#q").value.trim()) buscar(); };
+$("#raio").onchange=()=>{ if($("#q").value.trim()) buscar(); };
+
+/* ---------- busca ---------- */
+$("#goBtn").onclick=buscar;
+$("#q").addEventListener("keydown",e=>{ if(e.key==="Enter") buscar(); });
+
+function loadingView(produto){
+  const bars=Array.from({length:32},()=>`<i style="width:${(Math.random()*3+1).toFixed(1)}px"></i>`).join("");
+  panel.innerHTML=`<div class="loading"><div class="barcode">${bars}<div class="scanline"></div></div><p>consultando notas fiscais de <b>${esc(produto)}</b>…</p></div>`;
+}
+
+function buildUrl(termo){
+  const c=coords||CONFIG.CURITIBA;
+  const p=new URLSearchParams({
+    local:`${c.lat},${c.lng}`, termo, raio:$("#raio").value,
+    data:CONFIG.DATA_DIAS, offset:0, ordenar: sortMode==="distancia"?"distancia.asc":"preco.asc"
+  });
+  return `${CONFIG.API_BASE}?${p.toString()}`;
+}
+
+async function fetchWithProxies(url){
+  let lastErr;
+  for(const px of PROXIES){
+    const target=px.wrap(url); if(!target) continue;
+    try{
+      const r=await fetch(target,{headers:{"Accept":"application/json"}});
+      if(!r.ok) throw new Error("http "+r.status);
+      const txt=await r.text();
+      const json=JSON.parse(txt);
+      return {json, via:px.name};
+    }catch(e){ lastErr=e; }
+  }
+  throw lastErr||new Error("falha em todos os canos");
+}
+
+async function buscar(){
+  const produto=$("#q").value.trim();
+  if(!produto){ $("#q").focus(); return; }
+  if(!coords){ openCityModal(); return; }
+  $("#goBtn").disabled=true; loadingView(produto);
+  try{
+    const {json,via}=await fetchWithProxies(buildUrl(produto));
+    lastRaw=json;
+    const items=normalize(json);
+    if(!items.length) return renderEmpty(produto);
+    renderResults(items, produto, via);
+  }catch(err){
+    renderError(err);
+  }finally{ $("#goBtn").disabled=false; }
+}
+
+/* ---------- normalização defensiva ---------- */
+function get(obj,keys){ for(const k of keys){ if(obj && obj[k]!=null && obj[k]!=="") return obj[k]; } return null; }
+function toNum(v){ if(typeof v==="number")return v; if(!v)return 0; return parseFloat(String(v).replace(/[^\d,.-]/g,"").replace(/\.(?=\d{3})/g,"").replace(",",".")) ||0; }
+function haversine(a,b,c,d){ const R=6371,p=Math.PI/180; const dLat=(c-a)*p,dLng=(d-b)*p; const x=Math.sin(dLat/2)**2+Math.cos(a*p)*Math.cos(c*p)*Math.sin(dLng/2)**2; return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)); }
+
+function normalize(json){
+  let arr=get(json,F.lista); if(!Array.isArray(arr)) arr=Array.isArray(json)?json:[];
+  const c=coords||CONFIG.CURITIBA;
+  const out=arr.map(it=>{
+    const est=get(it,F.estab)||it;
+    const lat=toNum(get(est,F.lat)), lng=toNum(get(est,F.lng));
+    const end=[get(est,F.tplogr),get(est,F.logr),get(est,F.nrlogr)].filter(Boolean).join(" ").trim();
+    const bairro=get(est,F.bairro)||"", mun=get(est,F.mun)||"";
+    const dist=(lat&&lng)?haversine(c.lat,c.lng,lat,lng):null;
+    return {
+      preco:toNum(get(it,F.preco)),
+      produto:get(it,F.desc)||"",
+      loja:get(est,F.nome)||"Estabelecimento",
+      endereco:[end,bairro].filter(Boolean).join(" · "),
+      cidade:mun, lat, lng,
+      dist, distTxt: dist!=null?(dist<1?Math.round(dist*1000)+" m":dist.toFixed(1).replace(".",",")+" km"):null,
+      data:get(it,F.data)
+    };
+  }).filter(x=>x.preco>0);
+  out.sort((a,b)=> sortMode==="distancia" ? ((a.dist??1e9)-(b.dist??1e9)) : (a.preco-b.preco));
+  return out;
+}
+
+function freshness(d){
+  if(!d) return null;
+  const t=new Date(d); if(isNaN(t)) return null;
+  const h=(Date.now()-t.getTime())/36e5;
+  if(h<0) return {cls:"new",txt:"agora"};
+  if(h<24) return {cls:"new",txt:`há ${Math.max(1,Math.round(h))}h`};
+  const dias=Math.round(h/24);
+  return {cls:dias<=3?"mid":"old", txt:`há ${dias}d`};
+}
+function mapsLink(x){
+  if(x.lat&&x.lng) return `https://www.google.com/maps/dir/?api=1&destination=${x.lat},${x.lng}`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(x.loja+" "+x.cidade)}`;
+}
+
+/* ---------- render ---------- */
+function renderResults(items,produto,via){
+  pushHistory(produto);
+  const best=items[0];
+  const byPrice=[...items].sort((a,b)=>a.preco-b.preco);
+  const worst=byPrice[byPrice.length-1];
+  const economia=worst.preco-byPrice[0].preco, pct=worst.preco>0?Math.round(economia/worst.preco*100):0;
+  const save = items.length>1&&economia>0.009?`<span class="save">economize até <b>${money(economia)}</b> (${pct}%)</span>`:"";
+
+  const fB=freshness(best.data);
+  const bestMeta=[
+    best.distTxt?`📍 ${best.distTxt}`:"",
+    best.endereco?esc(best.endereco):(best.cidade?esc(best.cidade):""),
+    fB?`<span class="fresh ${fB.cls}">${fB.txt}</span>`:""
+  ].filter(Boolean).join(`<span style="opacity:.4">•</span>`);
+
+  const others=items.slice(1,8).map((r,i)=>{
+    const f=freshness(r.data);
+    const sub=[r.distTxt?`📍 ${r.distTxt}`:"", r.endereco||r.cidade, f?f.txt:""].filter(Boolean).map(esc).join(" · ");
+    return `<div class="row ${r===worst&&items.length>2?"high":""}" style="animation-delay:${i*55}ms">
+      <span class="rank">${i+2}º</span>
+      <div class="info"><div class="n">${esc(r.loja)}</div><div class="d">${sub||"—"}</div></div>
+      <div class="p"><small>R$</small>${money(r.preco,false)}</div>
+      <a class="mini" href="${mapsLink(r)}" target="_blank" rel="noopener" aria-label="Como chegar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg></a>
+    </div>`;
+  }).join("");
+
+  panel.innerHTML=`
+    <div class="section-label">Menor preço encontrado ${save}</div>
+    <div class="best">
+      <div class="selo">BARATÃO</div>
+      <div class="store">${esc(best.loja)}</div>
+      ${best.produto?`<div class="prod">${esc(best.produto)}</div>`:""}
+      <div class="meta">${bestMeta||"—"}</div>
+      <div class="best-bottom">
+        <div class="pricetag"><span class="cur">R$</span><span class="val">${money(best.preco,false)}</span></div>
+        <a class="maps" href="${mapsLink(best)}" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+          Como chegar
+        </a>
+      </div>
+    </div>
+    ${others?`<div class="section-label" style="margin-top:22px">Outros preços · ${items.length} no total</div><div class="rows">${others}</div>`:""}
+    <div class="source"><b>Fonte:</b> Menor Preço — Nota Paraná (NFC-e), preço da última nota do produto no raio de ${$("#raio").value} km. Pode não ser o valor atual — confirme no local.</div>
+    <details class="debug"><summary>ver resposta crua da API (${via})</summary><pre>${esc(JSON.stringify(lastRaw,null,2).slice(0,4000))}</pre></details>`;
+}
+
+function renderEmpty(produto){
+  panel.innerHTML=`<div class="err" style="background:rgba(120,200,160,.06);border-color:var(--line);color:var(--muted)">
+    Nada encontrado para <b style="color:var(--text)">${esc(produto)}</b> nesse raio.<br>
+    <span style="font-weight:500">Tente aumentar o raio, usar o nome de marca, ou o código de barras.</span>
+    <details class="debug" style="text-align:left;margin-top:12px"><summary>ver resposta crua</summary><pre>${esc(JSON.stringify(lastRaw,null,2).slice(0,3000))}</pre></details>
+  </div>`;
+}
+function renderError(err){
+  panel.innerHTML=`<div class="err">
+    Não consegui falar com a base do Menor Preço agora.<br>
+    <span style="font-weight:500;color:#ffb8ac">Isso costuma ser bloqueio de CORS. Configure seu Worker em <b>CONFIG.PROXY_URL</b> (veja o README) ou tente de novo.</span><br>
+    <button id="retry" type="button">Tentar de novo</button>
+  </div>`;
+  $("#retry").onclick=buscar;
+}
+
+/* ---------- utils ---------- */
+function money(n,sign=true){ const s=(Math.round(n*100)/100).toFixed(2).replace(".",","); return sign?"R$ "+s:s; }
+function esc(s){ return String(s??"").replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c])); }
+
+/* ---------- go ---------- */
+renderChips();
+locate();
+</script>
+</body>
+</html>
