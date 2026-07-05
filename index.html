@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0B1512" />
-<title>BARATÃO — menor preço oficial do Paraná</title>
-<meta name="description" content="Compare preços reais de produtos no Paraná com dados oficiais de nota fiscal (NFC-e), atualizados em tempo real." />
+<title>BARATÃO — caça-ofertas inteligente</title>
+<meta name="description" content="Escolha o local e ache os melhores preços na internet. Radar de preço, comparadores e busca inteligente." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -15,139 +15,170 @@
     --surface:rgba(22,42,34,.55); --surface-solid:#15271F;
     --line:rgba(120,200,160,.14); --line-strong:rgba(120,200,160,.28);
     --gold:#FFC53D; --gold-deep:#F5A623;
-    --mint:#43E39B; --coral:#FF7A6B;
+    --mint:#43E39B; --coral:#FF7A6B; --sky:#5AB0FF;
     --text:#EAF2ED; --muted:#88A99A;
     --shadow:0 24px 60px -20px rgba(0,0,0,.7);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
-  body{
-    font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--text);
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--text);
     background:
-      radial-gradient(120% 80% at 15% -10%, rgba(255,197,61,.10), transparent 55%),
+      radial-gradient(120% 80% at 12% -10%, rgba(255,197,61,.10), transparent 55%),
       radial-gradient(120% 90% at 100% 0%, rgba(67,227,155,.10), transparent 50%),
-      linear-gradient(180deg,var(--bg-2),var(--bg) 40%);
-    min-height:100dvh;-webkit-font-smoothing:antialiased;
-    padding:0 0 env(safe-area-inset-bottom);
-  }
-  .wrap{max-width:720px;margin:0 auto;padding:16px 16px 60px}
+      linear-gradient(180deg,var(--bg-2),var(--bg) 42%);
+    min-height:100dvh;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
+  .wrap{max-width:720px;margin:0 auto;padding:16px 16px 100px}
+  a{color:inherit}
+  button{font-family:inherit}
 
-  .locbar{
-    display:flex;align-items:center;gap:10px;padding:10px 14px;
-    border:1px solid var(--line);background:var(--surface);backdrop-filter:blur(14px);
-    border-radius:999px;font-size:13.5px;font-weight:600;
-  }
+  /* topo */
+  .topbar{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .brand{font-family:"Anton",sans-serif;font-size:30px;letter-spacing:.5px;line-height:1}
+  .brand .hi{color:var(--gold)}
+  .engine{margin-left:auto;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px}
+  .engine .d{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+  .engine.on{color:var(--mint);border-color:rgba(67,227,155,.3)}
+  .engine.on .d{background:var(--mint);box-shadow:0 0 8px var(--mint)}
+
+  .locbar{display:flex;align-items:center;gap:10px;padding:11px 14px;margin-top:12px;border:1px solid var(--line);background:var(--surface);backdrop-filter:blur(14px);border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;transition:border-color .15s}
+  .locbar:hover{border-color:var(--line-strong)}
   .locbar .pin{color:var(--mint);display:flex}
   .locbar .city{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .locbar .city.loading{color:var(--muted);font-weight:500}
-  .locbar button{border:0;background:transparent;color:var(--gold);font:inherit;font-weight:700;font-size:12.5px;cursor:pointer;padding:4px 6px;border-radius:8px;white-space:nowrap}
-  .locbar button:hover{background:rgba(255,197,61,.10)}
+  .locbar .city small{display:block;color:var(--muted);font-weight:500;font-size:11.5px;margin-top:1px}
+  .locbar .chg{color:var(--gold);font-size:12px}
 
-  .hero{text-align:center;padding:30px 0 14px}
-  .logo{font-family:"Anton",sans-serif;font-size:clamp(56px,16vw,100px);line-height:.86;letter-spacing:.5px;position:relative;display:inline-block}
-  .logo .a-hi{color:var(--gold);text-shadow:0 0 30px rgba(255,197,61,.35)}
-  .logo::after{content:"";position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);width:64%;height:4px;border-radius:4px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.7}
-  .tag{margin-top:12px;color:var(--muted);font-weight:600;font-size:14px}
-  .tag b{color:var(--mint);font-weight:700}
-  .trust{margin-top:8px;display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;color:var(--muted);padding:5px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
-  .trust .dotlive{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 0 rgba(67,227,155,.6);animation:pulse 2s infinite}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(67,227,155,.5)}70%{box-shadow:0 0 0 7px rgba(67,227,155,0)}100%{box-shadow:0 0 0 0 rgba(67,227,155,0)}}
-
-  .searchbox{margin-top:20px;display:flex;align-items:center;gap:8px;padding:7px 7px 7px 16px;border-radius:16px;background:var(--surface-solid);border:1px solid var(--line-strong);box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
+  /* busca */
+  .searchbox{margin-top:12px;display:flex;align-items:center;gap:8px;padding:7px 7px 7px 16px;border-radius:16px;background:var(--surface-solid);border:1px solid var(--line-strong);box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
   .searchbox:focus-within{border-color:var(--gold);box-shadow:0 0 0 4px rgba(255,197,61,.12),var(--shadow)}
   .searchbox svg.mg{color:var(--muted);flex:none}
-  .searchbox input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:inherit;font-size:16px;font-weight:600;padding:10px 0}
+  .searchbox input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font:inherit;font-size:16px;font-weight:600;padding:11px 0}
   .searchbox input::placeholder{color:var(--muted);font-weight:500}
   .go{flex:none;border:0;cursor:pointer;height:46px;padding:0 20px;border-radius:11px;font-family:"Anton",sans-serif;font-size:17px;letter-spacing:.6px;color:#1a1205;background:linear-gradient(180deg,var(--gold),var(--gold-deep));box-shadow:0 8px 20px -6px rgba(245,166,35,.6);transition:transform .12s,filter .2s}
-  .go:hover{filter:brightness(1.06)}
-  .go:active{transform:translateY(1px) scale(.99)}
+  .go:hover{filter:brightness(1.06)}.go:active{transform:translateY(1px) scale(.99)}
   .go:disabled{opacity:.55;cursor:not-allowed;filter:grayscale(.3)}
 
-  .controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
-  .seg{display:flex;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--surface)}
-  .seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;padding:8px 12px;cursor:pointer;transition:.15s}
-  .seg button.on{background:rgba(255,197,61,.14);color:var(--gold)}
-  .ctl-label{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-left:2px}
-  select.raio{border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;font-weight:700;font-size:12.5px;padding:8px 10px;border-radius:11px;cursor:pointer}
+  .cats{display:flex;gap:7px;overflow-x:auto;margin-top:12px;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .cat{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:13px;font-weight:600;padding:8px 13px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:.15s;display:flex;align-items:center;gap:6px}
+  .cat.on{border-color:var(--gold);color:var(--gold);background:rgba(255,197,61,.1)}
 
-  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:center}
-  .chip{border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;font-size:13px;font-weight:600;padding:8px 13px;border-radius:999px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .chip{border:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:999px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
   .chip:hover{border-color:var(--gold);color:var(--gold)}
-  .chip.hist{color:var(--muted);font-weight:500}
-  .chip .x{opacity:.5}
 
-  .panel{margin-top:24px}
-  .hint{color:var(--muted);text-align:center;font-size:14px;line-height:1.6;padding:8px 6px}
+  .panel{margin-top:20px}
+  .hint{color:var(--muted);text-align:center;font-size:14px;line-height:1.6;padding:10px 6px}
 
-  .loading{padding:26px 0;text-align:center}
-  .barcode{position:relative;width:220px;height:74px;margin:0 auto;display:flex;align-items:stretch;gap:3px;justify-content:center;padding:0 4px;overflow:hidden;border-radius:6px}
+  /* loading */
+  .loading{padding:24px 0;text-align:center}
+  .barcode{position:relative;width:210px;height:70px;margin:0 auto;display:flex;align-items:stretch;gap:3px;justify-content:center;padding:0 4px;overflow:hidden;border-radius:6px}
   .barcode i{display:block;background:var(--muted);opacity:.55;border-radius:1px}
   .scanline{position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);box-shadow:0 0 14px 2px rgba(255,197,61,.7);animation:scan 1.15s ease-in-out infinite}
   @keyframes scan{0%{top:2%}50%{top:94%}100%{top:2%}}
   .loading p{margin-top:14px;color:var(--muted);font-weight:600;font-size:14px}
   .loading p b{color:var(--text)}
 
-  .section-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin:6px 2px 12px}
-  .section-label .save{color:var(--mint);margin-left:auto;letter-spacing:.3px;text-transform:none;font-size:12.5px}
+  .section-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);margin:6px 2px 12px}
+  .section-label .save{margin-left:auto;letter-spacing:.3px;text-transform:none;font-size:12.5px;color:var(--mint)}
   .section-label .save b{color:var(--mint)}
 
   .best{position:relative;background:linear-gradient(140deg,#1b3327,#132318);border:1px solid rgba(67,227,155,.35);border-radius:20px;padding:20px 20px 18px 22px;box-shadow:0 20px 50px -22px rgba(67,227,155,.4);overflow:hidden;animation:pop .45s cubic-bezier(.2,.9,.3,1.2) both}
   .best::before{content:"";position:absolute;inset:0;background:radial-gradient(90% 120% at 100% 0,rgba(255,197,61,.12),transparent 55%);pointer-events:none}
   .selo{position:absolute;top:14px;right:-34px;transform:rotate(38deg);background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#1a1205;font-family:"Anton",sans-serif;font-size:11px;letter-spacing:1px;padding:5px 44px;box-shadow:0 6px 16px -6px rgba(0,0,0,.6)}
-  .best .store{font-size:18px;font-weight:800;letter-spacing:.2px;padding-right:66px}
-  .best .prod{margin-top:2px;color:#cfe9db;font-size:12.5px;font-weight:600;padding-right:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .best .meta{margin-top:6px;color:#a9d8bf;font-size:12.5px;font-weight:600;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .fresh{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700}
-  .fresh.new{background:rgba(67,227,155,.15);color:var(--mint)}
-  .fresh.mid{background:rgba(255,197,61,.14);color:var(--gold)}
-  .fresh.old{background:rgba(255,122,107,.14);color:var(--coral)}
-
-  .best-bottom{margin-top:16px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  .pricetag{display:inline-flex;align-items:center;gap:10px;position:relative;padding:12px 22px 12px 30px;background:linear-gradient(180deg,#fff5d6,#ffe9a8);color:#1a1205;border-radius:8px;clip-path:polygon(0 50%,16px 0,100% 0,100% 100%,16px 100%)}
+  .best .store{font-size:18px;font-weight:800;padding-right:66px}
+  .best .loc{margin-top:3px;color:#a9d8bf;font-size:12.5px;font-weight:600}
+  .best-bottom{margin-top:15px;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .pricetag{display:inline-flex;align-items:center;gap:8px;position:relative;padding:12px 20px 12px 30px;background:linear-gradient(180deg,#fff5d6,#ffe9a8);color:#1a1205;border-radius:8px;clip-path:polygon(0 50%,16px 0,100% 0,100% 100%,16px 100%)}
   .pricetag::before{content:"";position:absolute;left:15px;top:50%;transform:translateY(-50%);width:9px;height:9px;border-radius:50%;background:var(--bg-2);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25)}
   .pricetag .cur{font-family:"Anton",sans-serif;font-size:19px;margin-top:6px}
-  .pricetag .val{font-family:"Anton",sans-serif;font-size:38px;line-height:1;letter-spacing:.5px}
-  .maps{display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:#0b1512;background:var(--mint);font-weight:800;font-size:13px;padding:11px 15px;border-radius:11px;box-shadow:0 8px 18px -8px rgba(67,227,155,.6)}
-  .maps:hover{filter:brightness(1.05)}
+  .pricetag .val{font-family:"Anton",sans-serif;font-size:36px;line-height:1}
+  .btn-oferta{display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:#0b1512;background:var(--mint);font-weight:800;font-size:13px;padding:11px 15px;border-radius:11px;box-shadow:0 8px 18px -8px rgba(67,227,155,.6)}
+  .btn-oferta:hover{filter:brightness(1.05)}
 
-  .rows{margin-top:18px;display:flex;flex-direction:column;gap:8px}
-  .row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);background:var(--surface);backdrop-filter:blur(8px);border-radius:14px;animation:pop .4s ease both}
-  .row .rank{font-family:"Anton",sans-serif;font-size:15px;color:var(--muted);width:22px;text-align:center;flex:none}
+  .rows{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);background:var(--surface);border-radius:14px;animation:pop .4s ease both}
+  .row .rank{font-family:"Anton",sans-serif;font-size:15px;color:var(--muted);width:20px;text-align:center;flex:none}
   .row .info{flex:1;min-width:0}
   .row .info .n{font-weight:700;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .row .info .d{color:var(--muted);font-size:12px;font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .row .p{font-family:"Anton",sans-serif;font-size:23px;flex:none;color:var(--text);text-align:right}
+  .row .p{font-family:"Anton",sans-serif;font-size:22px;flex:none}
   .row .p small{font-size:11px;color:var(--muted);margin-right:2px}
   .row.high .p{color:var(--coral)}
   .row a.mini{color:var(--mint);flex:none;display:flex;padding:6px;border-radius:8px}
   .row a.mini:hover{background:rgba(67,227,155,.1)}
 
-  .source{margin-top:18px;padding:12px 15px;border-radius:14px;background:rgba(255,197,61,.06);border:1px solid rgba(255,197,61,.2);color:#e7cf98;font-size:12px;line-height:1.55;font-weight:500}
+  .actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .act{flex:1;min-width:130px;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-weight:700;font-size:13px;padding:11px;border-radius:12px;cursor:pointer;text-decoration:none}
+  .act:hover{border-color:var(--gold);color:var(--gold)}
+  .act.mint:hover{border-color:var(--mint);color:var(--mint)}
+
+  .source{margin-top:16px;padding:12px 15px;border-radius:14px;background:rgba(255,197,61,.06);border:1px solid rgba(255,197,61,.2);color:#e7cf98;font-size:12px;line-height:1.55;font-weight:500}
   .source b{color:var(--gold)}
-  .err{margin-top:18px;padding:16px;border-radius:14px;background:rgba(255,122,107,.08);border:1px solid rgba(255,122,107,.3);color:#ffd0c8;font-size:14px;font-weight:600;line-height:1.5;text-align:center}
-  .err button{margin-top:10px;border:1px solid rgba(255,122,107,.4);background:transparent;color:#ffd0c8;font:inherit;font-weight:700;padding:9px 16px;border-radius:10px;cursor:pointer}
 
-  .debug{margin-top:14px}
-  .debug summary{cursor:pointer;color:var(--muted);font-size:11.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;list-style:none}
-  .debug summary::-webkit-details-marker{display:none}
-  .debug pre{margin-top:8px;max-height:240px;overflow:auto;background:#08120E;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:11px;color:#9fc7b3;white-space:pre-wrap;word-break:break-word}
+  /* comparadores */
+  .cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .cmp{display:flex;align-items:center;gap:10px;padding:14px;border:1px solid var(--line);background:var(--surface);border-radius:14px;text-decoration:none;color:var(--text);font-weight:700;font-size:14px;transition:.15s}
+  .cmp:hover{border-color:var(--gold);transform:translateY(-2px)}
+  .cmp .ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;background:rgba(255,197,61,.12)}
+  .cmp small{display:block;color:var(--muted);font-weight:500;font-size:11px;margin-top:1px}
 
-  .modal{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(5,10,8,.6);backdrop-filter:blur(4px)}
+  .setup{margin-top:14px;padding:16px;border-radius:16px;border:1px dashed var(--line-strong);background:rgba(90,176,255,.05)}
+  .setup h4{font-size:14px;font-weight:800;color:var(--sky);display:flex;align-items:center;gap:7px}
+  .setup p{color:var(--muted);font-size:12.5px;line-height:1.55;margin-top:6px}
+  .setup input{width:100%;margin-top:10px;padding:11px 13px;border-radius:11px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);font:inherit;font-weight:600;font-size:13px;outline:0}
+  .setup input:focus{border-color:var(--sky)}
+  .setup button{margin-top:9px;width:100%;padding:11px;border-radius:11px;border:0;background:var(--sky);color:#04121f;font-weight:800;cursor:pointer}
+
+  /* radar */
+  .radar-empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px;line-height:1.6}
+  .radar-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1px solid var(--line);background:var(--surface);border-radius:14px;margin-bottom:8px}
+  .radar-item .info{flex:1;min-width:0}
+  .radar-item .info .n{font-weight:700;font-size:14.5px}
+  .radar-item .info .t{color:var(--muted);font-size:12px;margin-top:2px}
+  .radar-item .info .t b{color:var(--mint)}
+  .radar-item .info .hit{color:var(--mint)}
+  .radar-item .info .miss{color:var(--muted)}
+  .radar-item button.sc{border:0;background:var(--gold);color:#1a1205;font-weight:800;font-size:12px;padding:9px 12px;border-radius:10px;cursor:pointer;flex:none}
+  .radar-item button.del{border:0;background:transparent;color:var(--muted);cursor:pointer;flex:none;padding:6px}
+
+  /* calc */
+  .calc{border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:16px}
+  .calc .lbl{font-size:12px;font-weight:700;color:var(--muted);margin:10px 0 5px}
+  .calc-row{display:flex;gap:8px}
+  .calc-row input{flex:1;min-width:0;padding:11px 12px;border-radius:11px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);font:inherit;font-weight:700;outline:0}
+  .calc-row input:focus{border-color:var(--gold)}
+  .calc-out{margin-top:16px;display:flex;gap:8px}
+  .calc-card{flex:1;padding:14px;border-radius:13px;text-align:center;border:1px solid var(--line)}
+  .calc-card.win{border-color:var(--mint);background:rgba(67,227,155,.08)}
+  .calc-card .t{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .calc-card .v{font-family:"Anton",sans-serif;font-size:24px;margin-top:6px}
+  .calc-card.win .v{color:var(--mint)}
+  .calc-badge{margin-top:12px;text-align:center;font-size:13px;font-weight:700;color:var(--mint)}
+
+  /* nav */
+  .nav{position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;justify-content:center;gap:6px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,var(--bg) 40%)}
+  .nav .inner{display:flex;gap:4px;background:var(--surface-solid);border:1px solid var(--line-strong);border-radius:16px;padding:5px;box-shadow:var(--shadow)}
+  .nav button{border:0;background:transparent;color:var(--muted);font-weight:700;font-size:12.5px;padding:9px 16px;border-radius:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .nav button.on{background:rgba(255,197,61,.14);color:var(--gold)}
+  .nav svg{width:19px;height:19px}
+
+  /* modal */
+  .modal{position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center;background:rgba(5,10,8,.65);backdrop-filter:blur(4px)}
   .modal.open{display:flex}
-  .modal .card{width:100%;max-width:380px;background:var(--surface-solid);border:1px solid var(--line-strong);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
-  .modal h3{font-family:"Anton",sans-serif;font-size:22px;letter-spacing:.5px;margin-bottom:4px}
-  .modal p{color:var(--muted);font-size:13px;margin-bottom:14px;line-height:1.5}
-  .modal input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);font:inherit;font-size:15px;font-weight:600;outline:0}
-  .modal input:focus{border-color:var(--gold)}
-  .modal .acts{display:flex;gap:10px;margin-top:14px}
-  .modal .acts button{flex:1;padding:12px;border-radius:12px;border:0;font:inherit;font-weight:700;cursor:pointer}
-  .modal .acts .ok{background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#1a1205}
-  .modal .acts .cancel{background:transparent;border:1px solid var(--line);color:var(--muted)}
-  .modal .alt{margin-top:10px;text-align:center}
-  .modal .alt button{background:transparent;border:0;color:var(--mint);font:inherit;font-weight:700;font-size:13px;cursor:pointer;text-decoration:underline}
+  .modal .card{width:100%;max-width:560px;background:var(--surface-solid);border:1px solid var(--line-strong);border-radius:20px 20px 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom));box-shadow:var(--shadow);animation:up .28s cubic-bezier(.2,.9,.3,1) both}
+  @keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+  .modal h3{font-family:"Anton",sans-serif;font-size:22px;letter-spacing:.5px;margin-bottom:12px}
+  .modal .gps{width:100%;display:flex;align-items:center;gap:10px;padding:13px 14px;border-radius:13px;border:1px solid rgba(67,227,155,.3);background:rgba(67,227,155,.07);color:var(--mint);font-weight:800;font-size:14px;cursor:pointer;margin-bottom:12px}
+  .modal .find{display:flex;gap:8px}
+  .modal .find input{flex:1;padding:13px 14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);font:inherit;font-weight:600;font-size:15px;outline:0}
+  .modal .find input:focus{border-color:var(--gold)}
+  .modal .find button{border:0;background:var(--gold);color:#1a1205;font-weight:800;padding:0 16px;border-radius:12px;cursor:pointer}
+  .results-loc{margin-top:10px;max-height:220px;overflow:auto}
+  .results-loc button{width:100%;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--text);font:inherit;font-weight:600;font-size:14px;padding:12px 4px;cursor:pointer}
+  .results-loc button small{display:block;color:var(--muted);font-weight:500;font-size:12px}
+  .modal .close{position:absolute;} 
 
-  .foot{margin-top:32px;text-align:center;color:var(--muted);font-size:11px;font-weight:500;line-height:1.6}
-  .foot a{color:var(--muted)}
+  .foot{margin-top:26px;text-align:center;color:var(--muted);font-size:11px;line-height:1.6}
 
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -156,345 +187,419 @@
 <body>
 <div class="wrap">
 
-  <div class="locbar">
-    <span class="pin" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
-    <span class="city loading" id="cityLabel">localizando você…</span>
-    <button id="changeCity" type="button">alterar</button>
+  <div class="topbar">
+    <div class="brand">BAR<span class="hi">A</span>TÃO</div>
+    <button class="engine" id="engineBtn" title="Motor inteligente"><span class="d"></span><span id="engineTxt">motor: comparador</span></button>
   </div>
 
-  <header class="hero">
-    <div class="logo">BAR<span class="a-hi">A</span>TÃO</div>
-    <p class="tag">o <b>menor preço</b> perto de você — dado oficial, em tempo real</p>
-    <div class="trust"><span class="dotlive"></span> Base NFC-e · Menor Preço Nota Paraná</div>
-  </header>
-
-  <div class="searchbox">
-    <svg class="mg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-    <input id="q" type="text" placeholder="produto, marca ou código de barras" autocomplete="off" enterkeyhint="search" />
-    <button class="go" id="goBtn" type="button">BUSCAR</button>
+  <div class="locbar" id="locbar">
+    <span class="pin"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
+    <span class="city" id="cityLabel">Escolha o local<small>toque para definir por GPS ou cidade</small></span>
+    <span class="chg">alterar</span>
   </div>
 
-  <div class="controls">
-    <div class="seg" role="tablist" aria-label="Ordenar por">
-      <button id="sortPrice" class="on" type="button">Menor preço</button>
-      <button id="sortDist" type="button">Mais perto</button>
+  <!-- ======== VIEW: BUSCAR ======== -->
+  <section id="view-buscar">
+    <div class="searchbox">
+      <svg class="mg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="q" type="text" placeholder="o que você quer comprar?" autocomplete="off" enterkeyhint="search" />
+      <button class="go" id="goBtn" type="button">BUSCAR</button>
     </div>
-    <span class="ctl-label">Raio</span>
-    <select class="raio" id="raio" aria-label="Raio de busca">
-      <option value="1">1 km</option>
-      <option value="3">3 km</option>
-      <option value="5" selected>5 km</option>
-      <option value="10">10 km</option>
-      <option value="15">15 km</option>
-      <option value="20">20 km</option>
-    </select>
-  </div>
+    <div class="cats" id="cats"></div>
+    <div class="chips" id="chips"></div>
+    <main class="panel" id="panel">
+      <p class="hint">Escolha o local, digite um produto e o Baratão caça o melhor preço.<br>Ative o <b style="color:var(--sky)">motor inteligente</b> (ícone no topo) pra ver preços reais direto na tela.</p>
+    </main>
+  </section>
 
-  <div class="chips" id="chips"></div>
+  <!-- ======== VIEW: RADAR ======== -->
+  <section id="view-radar" style="display:none">
+    <div class="section-label">Meu radar de preço</div>
+    <p class="hint" style="text-align:left;padding:0 2px 10px">Salve produtos com um <b style="color:var(--mint)">preço-alvo</b>. Quando uma busca encontrar algo igual ou mais barato, o item acende verde.</p>
+    <div id="radarList"></div>
+  </section>
 
-  <main class="panel" id="panel">
-    <p class="hint" id="idleHint">Busque um produto e o Baratão compara os preços registrados em nota fiscal na sua região do Paraná.</p>
-  </main>
+  <!-- ======== VIEW: CALCULADORA ======== -->
+  <section id="view-calc" style="display:none">
+    <div class="section-label">Preço por unidade · compare embalagens</div>
+    <div class="calc">
+      <div class="lbl">EMBALAGEM A</div>
+      <div class="calc-row"><input id="a_preco" type="number" inputmode="decimal" placeholder="preço R$" /><input id="a_qtd" type="number" inputmode="decimal" placeholder="quantidade (ex: 900)" /></div>
+      <div class="lbl">EMBALAGEM B</div>
+      <div class="calc-row"><input id="b_preco" type="number" inputmode="decimal" placeholder="preço R$" /><input id="b_qtd" type="number" inputmode="decimal" placeholder="quantidade (ex: 1000)" /></div>
+      <div class="calc-out">
+        <div class="calc-card" id="a_out"><div class="t">A · por unidade</div><div class="v">—</div></div>
+        <div class="calc-card" id="b_out"><div class="t">B · por unidade</div><div class="v">—</div></div>
+      </div>
+      <div class="calc-badge" id="calc_badge"></div>
+    </div>
+    <p class="hint" style="text-align:left;padding:14px 2px 0">Use a mesma unidade nos dois (g, ml, un...). Ele mostra qual realmente sai mais barato — o pacote maior nem sempre compensa.</p>
+  </section>
 
-  <p class="foot">
-    BARATÃO · dados do programa <a href="https://menorpreco.notaparana.pr.gov.br" target="_blank" rel="noopener">Menor Preço — Nota Paraná</a> (SEFA/PR).<br>
-    O valor é o da última nota fiscal do produto — pode não ser o preço atual. Confirme no estabelecimento.
-  </p>
+  <p class="foot">BARATÃO · caça-ofertas · os preços podem variar; confirme antes de comprar.</p>
 </div>
 
-<div class="modal" id="cityModal">
+<!-- nav -->
+<nav class="nav"><div class="inner">
+  <button class="on" data-view="buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Buscar</button>
+  <button data-view="radar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg>Radar</button>
+  <button data-view="calc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h4M8 15h2M12 15h4"/></svg>Calc</button>
+</div></nav>
+
+<!-- modal localização -->
+<div class="modal" id="locModal">
   <div class="card">
-    <h3>SUA LOCALIZAÇÃO</h3>
-    <p>Não consegui te localizar automaticamente. Como a base é do Paraná, você pode buscar a partir do centro de Curitiba ou informar coordenadas.</p>
-    <input id="cityInput" type="text" placeholder="ex: -25.4284, -49.2733 (lat, lng)" />
-    <div class="acts">
-      <button class="cancel" id="cityCancel" type="button">Cancelar</button>
-      <button class="ok" id="citySave" type="button">Usar</button>
+    <h3>ONDE VOCÊ QUER BUSCAR?</h3>
+    <button class="gps" id="gpsBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg> Usar minha localização (GPS)</button>
+    <div class="find">
+      <input id="locInput" type="text" placeholder="buscar cidade (ex: Londrina, Curitiba, São Paulo)" />
+      <button id="locFind" type="button">Buscar</button>
     </div>
-    <div class="alt"><button id="useCwb" type="button">Usar centro de Curitiba</button></div>
+    <div class="results-loc" id="locResults"></div>
   </div>
 </div>
 
 <script>
 /* ============================================================
-   BARATÃO — configuração
-   ------------------------------------------------------------
-   A API do Menor Preço (governo) normalmente NÃO envia cabeçalho
-   CORS, então o navegador bloqueia a chamada direta a partir do
-   GitHub Pages. Por isso o app tenta uma cadeia de "canos":
-     1. direto (funciona se você abrir o arquivo local / se o gov liberar CORS)
-     2. seu Cloudflare Worker (recomendado — veja worker.js e README)
-     3. proxies públicos (allorigins / corsproxy) como reserva
-   Basta colar a URL do seu Worker em PROXY_URL para ter o cano oficial.
+   CONFIG — cole a URL do seu Worker aqui p/ ligar o motor inteligente
+   (ele também pode ser colado pela própria interface e fica salvo)
    ============================================================ */
 const CONFIG = {
-  API_BASE: "https://menorpreco.notaparana.pr.gov.br/api/v1/produtos",
-  PROXY_URL: "",            // ex: "https://baratao.SEU-USER.workers.dev/?url="
-  DATA_DIAS: 3,             // janela: nota emitida nos últimos N dias (1 a 15)
-  CURITIBA: { lat: -25.4284, lng: -49.2733 }
+  API_ENDPOINT: "",                 // ex: "https://baratao.SEU-USER.workers.dev"
+  CACHE_HORAS: 6                    // reaproveita buscas iguais por N horas (economiza)
 };
 
-/* mapa de campos: se a resposta tiver nomes diferentes, ajuste aqui
-   (abra "ver resposta crua" no rodapé dos resultados p/ conferir) */
-const F = {
-  lista:  ["produtos","itens","data","results"],
-  preco:  ["valor","vlr","preco","valArredondado","vl_venda"],
-  desc:   ["desc","descricao","nm_prod","produto","nome"],
-  estab:  ["estabelecimento","estab","emitente","local"],
-  nome:   ["nm_fan","nm_fanta","nm_fantasia","fantasia","nm_emp","nm_razao","razao","nome"],
-  lat:    ["nu_lat","lat","latitude","vl_lat"],
-  lng:    ["nu_lng","nu_long","lng","lon","longitude","vl_lng"],
-  logr:   ["nm_logr","logradouro","endereco"],
-  tplogr: ["tp_logr","tipo_logr"],
-  nrlogr: ["nr_logr","numero","nr"],
-  bairro: ["bairro","nm_bairro"],
-  mun:    ["mun","municipio","cidade","nm_mun"],
-  data:   ["datahora","dthr","data","dt_emissao","dt_venda","dh_emi"]
-};
-
-const PROXIES = [
-  { name:"direto",     wrap:u=>u },
-  { name:"worker",     wrap:u=>CONFIG.PROXY_URL ? CONFIG.PROXY_URL+encodeURIComponent(u) : null },
-  { name:"allorigins", wrap:u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u) },
-  { name:"corsproxy",  wrap:u=>"https://corsproxy.io/?url="+encodeURIComponent(u) }
+const CATS = [
+  {id:"tudo", nome:"Tudo", emoji:"🛒"},
+  {id:"mercado", nome:"Mercado", emoji:"🥫"},
+  {id:"combustivel", nome:"Combustível", emoji:"⛽"},
+  {id:"farmacia", nome:"Farmácia", emoji:"💊"},
+  {id:"eletronicos", nome:"Eletrônicos", emoji:"📱"},
+  {id:"casa", nome:"Casa", emoji:"🏠"},
+  {id:"pet", nome:"Pet", emoji:"🐶"},
 ];
+const SUGGEST = {
+  tudo:["Café 500g","Air Fryer","Whey protein","Pneu aro 15","Fralda M"],
+  mercado:["Arroz 5kg","Óleo de soja","Leite 1L","Café 500g","Cerveja"],
+  combustivel:["Gasolina comum","Etanol","Diesel S10","GNV"],
+  farmacia:["Dipirona","Protetor solar","Vitamina D","Ozempic"],
+  eletronicos:["iPhone 14","Notebook","Smart TV 50","Fone bluetooth"],
+  casa:["Máquina de lavar","Colchão casal","Air fryer","Ventilador"],
+  pet:["Ração cachorro 15kg","Areia gato","Antipulgas"],
+};
+/* comparadores por categoria: {nome, sub, ico, url(produto, local)} */
+const CMP = {
+  base:[
+    {n:"Google Shopping", s:"varredura geral", i:"🔎", u:(p,l)=>`https://www.google.com/search?tbm=shop&q=${enc(p+" "+l)}`},
+    {n:"Mercado Livre", s:"marketplace", i:"🟡", u:(p)=>`https://lista.mercadolivre.com.br/${enc(p).replace(/%20/g,"-")}`},
+    {n:"Zoom", s:"comparador", i:"🔵", u:(p)=>`https://www.zoom.com.br/search?q=${enc(p)}`},
+    {n:"Buscapé", s:"comparador", i:"🟠", u:(p)=>`https://www.buscape.com.br/search?q=${enc(p)}`},
+  ],
+  combustivel:[
+    {n:"Preços locais", s:"postos na região", i:"⛽", u:(p,l)=>`https://www.google.com/search?q=${enc("preço "+p+" postos "+l)}`},
+    {n:"Menor Preço PR", s:"nota fiscal (Paraná)", i:"🧾", u:(p,l)=>`https://menorpreco.notaparana.pr.gov.br/app?termo=${enc(p)}`},
+  ],
+  farmacia:[
+    {n:"Consulta Remédios", s:"compara farmácias", i:"💊", u:(p)=>`https://consultaremedios.com.br/busca?termo=${enc(p)}`},
+    {n:"CliqueFarma", s:"preço de remédio", i:"➕", u:(p)=>`https://www.cliquefarma.com.br/busca?q=${enc(p)}`},
+  ],
+  mercado:[
+    {n:"Menor Preço PR", s:"nota fiscal (Paraná)", i:"🧾", u:(p)=>`https://menorpreco.notaparana.pr.gov.br/app?termo=${enc(p)}`},
+  ],
+};
 
-const SUGGEST = ["Arroz 5kg","Café 500g","Leite 1L","Óleo de soja","Feijão 1kg","Açúcar 1kg","Cerveja lata","Gasolina","Botijão gás","Sabão em pó"];
-let coords=null, place=null, lastRaw=null;
-let sortMode="preco";
+let loc = null;         // {label, lat, lng}
+let cat = "tudo";
+let lastBest = null;
+const $ = s=>document.querySelector(s);
+const enc = s=>encodeURIComponent(String(s||"").trim());
 
-const $=s=>document.querySelector(s);
-const cityLabel=$("#cityLabel"), panel=$("#panel");
+/* ---------- storage ---------- */
+const store = {
+  get(k,d){ try{return JSON.parse(localStorage.getItem("bt_"+k))??d}catch(e){return d} },
+  set(k,v){ try{localStorage.setItem("bt_"+k,JSON.stringify(v))}catch(e){} }
+};
+if(!CONFIG.API_ENDPOINT) CONFIG.API_ENDPOINT = store.get("endpoint","");
 
-/* ---------- histórico + sugestões ---------- */
-function history(){ try{return JSON.parse(localStorage.getItem("baratao_hist")||"[]")}catch(e){return[]} }
-function pushHistory(t){
-  let h=history().filter(x=>x.toLowerCase()!==t.toLowerCase());
-  h.unshift(t); h=h.slice(0,4);
-  localStorage.setItem("baratao_hist",JSON.stringify(h)); renderChips();
+/* ---------- init ---------- */
+function renderCats(){
+  $("#cats").innerHTML = CATS.map(c=>`<button class="cat ${c.id===cat?"on":""}" data-c="${c.id}">${c.emoji} ${c.nome}</button>`).join("");
 }
 function renderChips(){
-  const h=history();
-  const hist=h.map(t=>`<button class="chip hist" data-t="${esc(t)}" type="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>${esc(t)}</button>`).join("");
-  const sug=SUGGEST.map(s=>`<button class="chip" data-t="${s}" type="button">${s}</button>`).join("");
-  $("#chips").innerHTML=hist+sug;
+  const list = SUGGEST[cat]||SUGGEST.tudo;
+  $("#chips").innerHTML = list.map(s=>`<button class="chip" data-t="${esc(s)}">${esc(s)}</button>`).join("");
 }
-$("#chips").addEventListener("click",e=>{
-  const b=e.target.closest(".chip"); if(!b)return;
-  $("#q").value=b.dataset.t; buscar();
-});
+$("#cats").addEventListener("click",e=>{ const b=e.target.closest(".cat"); if(!b)return; cat=b.dataset.c; renderCats(); renderChips(); });
+$("#chips").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b)return; $("#q").value=b.dataset.t; buscar(); });
+
+/* ---------- engine indicator ---------- */
+function refreshEngine(){
+  const on = !!CONFIG.API_ENDPOINT;
+  $("#engineBtn").classList.toggle("on",on);
+  $("#engineTxt").textContent = on?"motor: inteligente":"motor: comparador";
+}
+$("#engineBtn").onclick=()=>{ setView("buscar"); showSetup(true); };
 
 /* ---------- localização ---------- */
-function setCity(txt,loading=false){ place=loading?null:txt; cityLabel.textContent=txt; cityLabel.classList.toggle("loading",loading); }
-async function reverseGeocode(lat,lng){
-  try{
-    const r=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=pt`);
-    const d=await r.json();
-    const bairro=d.locality||d.city||"", cidade=d.city||d.principalSubdivision||"";
-    const uf=(d.principalSubdivisionCode||"").replace("BR-","");
-    let out=[bairro,cidade].filter((v,i,a)=>v&&a.indexOf(v)===i).join(", ");
-    if(uf) out+=` - ${uf}`;
-    return {label:out||null, uf};
-  }catch(e){ return {label:null,uf:""}; }
+function loadLoc(){
+  loc = store.get("loc",null);
+  if(loc) setLocLabel(loc.label);
 }
-function locate(){
-  setCity("localizando você…",true);
-  if(!navigator.geolocation){ openCityModal(); return; }
+function setLocLabel(txt){
+  $("#cityLabel").innerHTML = `${esc(txt)}<small>toque para trocar de local</small>`;
+}
+$("#locbar").onclick=openLoc;
+const locModal=$("#locModal");
+function openLoc(){ locModal.classList.add("open"); setTimeout(()=>$("#locInput").focus(),120); }
+function closeLoc(){ locModal.classList.remove("open"); }
+locModal.addEventListener("click",e=>{ if(e.target===locModal) closeLoc(); });
+
+$("#gpsBtn").onclick=()=>{
+  if(!navigator.geolocation){ alert("GPS indisponível neste aparelho."); return; }
+  $("#gpsBtn").textContent="localizando…";
   navigator.geolocation.getCurrentPosition(async pos=>{
-    coords={lat:pos.coords.latitude,lng:pos.coords.longitude};
-    const g=await reverseGeocode(coords.lat,coords.lng);
-    setCity(g.label||"localização obtida");
-    if(g.uf && g.uf!=="PR") noticePR();
-  },err=>{ setCity("defina sua posição",true); openCityModal(); },
-  {enableHighAccuracy:true,timeout:9000,maximumAge:60000});
-}
-function noticePR(){
-  panel.innerHTML=`<div class="source" style="background:rgba(67,227,155,.06);border-color:rgba(67,227,155,.25);color:#bfe9d3">
-    <b style="color:var(--mint)">Fora do Paraná?</b> A base de preços é oficial do estado do Paraná (NFC-e). Fora dele, use “alterar” e escolha o centro de Curitiba para testar, ou coordenadas dentro do PR.</div>`;
-}
-
-const modal=$("#cityModal");
-function openCityModal(){ modal.classList.add("open"); setTimeout(()=>$("#cityInput").focus(),80); }
-function closeCityModal(){ modal.classList.remove("open"); }
-$("#changeCity").onclick=openCityModal;
-$("#cityCancel").onclick=closeCityModal;
-$("#useCwb").onclick=()=>{ coords={...CONFIG.CURITIBA}; setCity("Centro, Curitiba - PR"); closeCityModal(); };
-$("#citySave").onclick=()=>{
-  const v=$("#cityInput").value.trim();
-  const m=v.match(/(-?\d+[.,]\d+)\s*,\s*(-?\d+[.,]\d+)/);
-  if(m){ coords={lat:parseFloat(m[1].replace(",",".")),lng:parseFloat(m[2].replace(",","."))}; setCity(`posição ${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)}`); }
-  else if(v){ setCity(v); }
-  closeCityModal();
+    const {latitude:lat,longitude:lng}=pos.coords;
+    let label="Minha localização";
+    try{
+      const r=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=pt`);
+      const d=await r.json();
+      label=[d.city||d.locality, (d.principalSubdivisionCode||"").replace("BR-","")].filter(Boolean).join(" - ")||label;
+    }catch(e){}
+    loc={label,lat,lng}; store.set("loc",loc); setLocLabel(label); closeLoc();
+    $("#gpsBtn").innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg> Usar minha localização (GPS)';
+  },err=>{ alert("Não consegui pegar sua localização. Busque pela cidade."); $("#gpsBtn").innerHTML="Usar minha localização (GPS)"; },{enableHighAccuracy:true,timeout:9000});
 };
-$("#cityInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("#citySave").click(); });
-modal.addEventListener("click",e=>{ if(e.target===modal) closeCityModal(); });
-
-/* ---------- ordenação e raio ---------- */
-$("#sortPrice").onclick=()=>{ sortMode="preco"; $("#sortPrice").classList.add("on"); $("#sortDist").classList.remove("on"); if($("#q").value.trim()) buscar(); };
-$("#sortDist").onclick=()=>{ sortMode="distancia"; $("#sortDist").classList.add("on"); $("#sortPrice").classList.remove("on"); if($("#q").value.trim()) buscar(); };
-$("#raio").onchange=()=>{ if($("#q").value.trim()) buscar(); };
+$("#locFind").onclick=findCity;
+$("#locInput").addEventListener("keydown",e=>{ if(e.key==="Enter") findCity(); });
+async function findCity(){
+  const q=$("#locInput").value.trim(); if(!q) return;
+  $("#locResults").innerHTML=`<div style="color:var(--muted);padding:12px 4px;font-size:13px">buscando…</div>`;
+  try{
+    const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${enc(q)}&count=8&language=pt&format=json`);
+    const d=await r.json();
+    const arr=d.results||[];
+    if(!arr.length){ $("#locResults").innerHTML=`<div style="color:var(--muted);padding:12px 4px;font-size:13px">nada encontrado — tente outro nome.</div>`; return; }
+    $("#locResults").innerHTML=arr.map((x,i)=>{
+      const sub=[x.admin1,x.country].filter(Boolean).join(" · ");
+      return `<button data-i="${i}">${esc(x.name)}<small>${esc(sub)}</small></button>`;
+    }).join("");
+    $("#locResults").querySelectorAll("button").forEach((b,i)=>{
+      b.onclick=()=>{ const x=arr[i]; const label=[x.name,(x.country_code==="BR"&&x.admin1_id?x.admin1:x.country)].filter(Boolean).join(" - ");
+        loc={label:[x.name,x.admin1].filter(Boolean).join(" - "),lat:x.latitude,lng:x.longitude}; store.set("loc",loc); setLocLabel(loc.label); closeLoc(); };
+    });
+  }catch(e){ $("#locResults").innerHTML=`<div style="color:var(--coral);padding:12px 4px;font-size:13px">erro ao buscar cidade.</div>`; }
+}
 
 /* ---------- busca ---------- */
 $("#goBtn").onclick=buscar;
 $("#q").addEventListener("keydown",e=>{ if(e.key==="Enter") buscar(); });
 
-function loadingView(produto){
-  const bars=Array.from({length:32},()=>`<i style="width:${(Math.random()*3+1).toFixed(1)}px"></i>`).join("");
-  panel.innerHTML=`<div class="loading"><div class="barcode">${bars}<div class="scanline"></div></div><p>consultando notas fiscais de <b>${esc(produto)}</b>…</p></div>`;
-}
-
-function buildUrl(termo){
-  const c=coords||CONFIG.CURITIBA;
-  const p=new URLSearchParams({
-    local:`${c.lat},${c.lng}`, termo, raio:$("#raio").value,
-    data:CONFIG.DATA_DIAS, offset:0, ordenar: sortMode==="distancia"?"distancia.asc":"preco.asc"
-  });
-  return `${CONFIG.API_BASE}?${p.toString()}`;
-}
-
-async function fetchWithProxies(url){
-  let lastErr;
-  for(const px of PROXIES){
-    const target=px.wrap(url); if(!target) continue;
-    try{
-      const r=await fetch(target,{headers:{"Accept":"application/json"}});
-      if(!r.ok) throw new Error("http "+r.status);
-      const txt=await r.text();
-      const json=JSON.parse(txt);
-      return {json, via:px.name};
-    }catch(e){ lastErr=e; }
-  }
-  throw lastErr||new Error("falha em todos os canos");
-}
-
-async function buscar(){
+function buscar(){
   const produto=$("#q").value.trim();
   if(!produto){ $("#q").focus(); return; }
-  if(!coords){ openCityModal(); return; }
+  if(!loc){ openLoc(); return; }
+  if(CONFIG.API_ENDPOINT) buscaInteligente(produto);
+  else buscaComparador(produto);
+}
+
+/* -- motor inteligente (Worker) -- */
+function cacheKey(p){ return `${cat}|${(loc?.label||"")}|${p}`.toLowerCase(); }
+async function buscaInteligente(produto){
+  const key=cacheKey(produto);
+  const cache=store.get("cache",{});
+  const hit=cache[key];
+  if(hit && (Date.now()-hit.t) < CONFIG.CACHE_HORAS*36e5){ return renderInteligente(hit.data,produto,true); }
+
   $("#goBtn").disabled=true; loadingView(produto);
   try{
-    const {json,via}=await fetchWithProxies(buildUrl(produto));
-    lastRaw=json;
-    const items=normalize(json);
-    if(!items.length) return renderEmpty(produto);
-    renderResults(items, produto, via);
+    const u=`${CONFIG.API_ENDPOINT.replace(/\/$/,"")}/?produto=${enc(produto+(cat!=="tudo"?" "+cat:""))}&local=${enc(loc.label)}`;
+    const r=await fetch(u);
+    const d=await r.json();
+    if(!d.ok || !Array.isArray(d.resultados) || !d.resultados.length){ throw new Error(d.erro||"sem resultados"); }
+    cache[key]={t:Date.now(),data:d}; store.set("cache",cache);
+    renderInteligente(d,produto,false);
   }catch(err){
-    renderError(err);
+    panelError(produto, err.message);
   }finally{ $("#goBtn").disabled=false; }
 }
 
-/* ---------- normalização defensiva ---------- */
-function get(obj,keys){ for(const k of keys){ if(obj && obj[k]!=null && obj[k]!=="") return obj[k]; } return null; }
-function toNum(v){ if(typeof v==="number")return v; if(!v)return 0; return parseFloat(String(v).replace(/[^\d,.-]/g,"").replace(/\.(?=\d{3})/g,"").replace(",",".")) ||0; }
-function haversine(a,b,c,d){ const R=6371,p=Math.PI/180; const dLat=(c-a)*p,dLng=(d-b)*p; const x=Math.sin(dLat/2)**2+Math.cos(a*p)*Math.cos(c*p)*Math.sin(dLng/2)**2; return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)); }
-
-function normalize(json){
-  let arr=get(json,F.lista); if(!Array.isArray(arr)) arr=Array.isArray(json)?json:[];
-  const c=coords||CONFIG.CURITIBA;
-  const out=arr.map(it=>{
-    const est=get(it,F.estab)||it;
-    const lat=toNum(get(est,F.lat)), lng=toNum(get(est,F.lng));
-    const end=[get(est,F.tplogr),get(est,F.logr),get(est,F.nrlogr)].filter(Boolean).join(" ").trim();
-    const bairro=get(est,F.bairro)||"", mun=get(est,F.mun)||"";
-    const dist=(lat&&lng)?haversine(c.lat,c.lng,lat,lng):null;
-    return {
-      preco:toNum(get(it,F.preco)),
-      produto:get(it,F.desc)||"",
-      loja:get(est,F.nome)||"Estabelecimento",
-      endereco:[end,bairro].filter(Boolean).join(" · "),
-      cidade:mun, lat, lng,
-      dist, distTxt: dist!=null?(dist<1?Math.round(dist*1000)+" m":dist.toFixed(1).replace(".",",")+" km"):null,
-      data:get(it,F.data)
-    };
-  }).filter(x=>x.preco>0);
-  out.sort((a,b)=> sortMode==="distancia" ? ((a.dist??1e9)-(b.dist??1e9)) : (a.preco-b.preco));
-  return out;
-}
-
-function freshness(d){
-  if(!d) return null;
-  const t=new Date(d); if(isNaN(t)) return null;
-  const h=(Date.now()-t.getTime())/36e5;
-  if(h<0) return {cls:"new",txt:"agora"};
-  if(h<24) return {cls:"new",txt:`há ${Math.max(1,Math.round(h))}h`};
-  const dias=Math.round(h/24);
-  return {cls:dias<=3?"mid":"old", txt:`há ${dias}d`};
-}
-function mapsLink(x){
-  if(x.lat&&x.lng) return `https://www.google.com/maps/dir/?api=1&destination=${x.lat},${x.lng}`;
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(x.loja+" "+x.cidade)}`;
-}
-
-/* ---------- render ---------- */
-function renderResults(items,produto,via){
-  pushHistory(produto);
-  const best=items[0];
-  const byPrice=[...items].sort((a,b)=>a.preco-b.preco);
-  const worst=byPrice[byPrice.length-1];
-  const economia=worst.preco-byPrice[0].preco, pct=worst.preco>0?Math.round(economia/worst.preco*100):0;
-  const save = items.length>1&&economia>0.009?`<span class="save">economize até <b>${money(economia)}</b> (${pct}%)</span>`:"";
-
-  const fB=freshness(best.data);
-  const bestMeta=[
-    best.distTxt?`📍 ${best.distTxt}`:"",
-    best.endereco?esc(best.endereco):(best.cidade?esc(best.cidade):""),
-    fB?`<span class="fresh ${fB.cls}">${fB.txt}</span>`:""
-  ].filter(Boolean).join(`<span style="opacity:.4">•</span>`);
-
-  const others=items.slice(1,8).map((r,i)=>{
-    const f=freshness(r.data);
-    const sub=[r.distTxt?`📍 ${r.distTxt}`:"", r.endereco||r.cidade, f?f.txt:""].filter(Boolean).map(esc).join(" · ");
-    return `<div class="row ${r===worst&&items.length>2?"high":""}" style="animation-delay:${i*55}ms">
+function renderInteligente(d,produto,cached){
+  const items=d.resultados.map(x=>({...x,preco:toNum(x.preco)})).filter(x=>x.preco>0).sort((a,b)=>a.preco-b.preco);
+  if(!items.length) return buscaComparador(produto);
+  lastBest={produto,preco:items[0].preco,loja:items[0].loja};
+  checkRadar(produto,items[0].preco);
+  const best=items[0], worst=items[items.length-1];
+  const eco=worst.preco-best.preco, pct=worst.preco>0?Math.round(eco/worst.preco*100):0;
+  const save=items.length>1&&eco>0.009?`<span class="save">economize até <b>${money(eco)}</b> (${pct}%)</span>`:"";
+  const others=items.slice(1,7).map((r,i)=>`
+    <div class="row ${r===worst&&items.length>2?"high":""}" style="animation-delay:${i*55}ms">
       <span class="rank">${i+2}º</span>
-      <div class="info"><div class="n">${esc(r.loja)}</div><div class="d">${sub||"—"}</div></div>
+      <div class="info"><div class="n">${esc(r.loja||"Loja")}</div><div class="d">${esc([r.local,r.obs].filter(Boolean).join(" · ")||"—")}</div></div>
       <div class="p"><small>R$</small>${money(r.preco,false)}</div>
-      <a class="mini" href="${mapsLink(r)}" target="_blank" rel="noopener" aria-label="Como chegar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg></a>
-    </div>`;
-  }).join("");
+      ${r.link?`<a class="mini" href="${esc(r.link)}" target="_blank" rel="noopener" aria-label="Ver oferta"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a>`:""}
+    </div>`).join("");
 
-  panel.innerHTML=`
-    <div class="section-label">Menor preço encontrado ${save}</div>
+  $("#panel").innerHTML=`
+    <div class="section-label">Menor preço ${save}</div>
     <div class="best">
       <div class="selo">BARATÃO</div>
-      <div class="store">${esc(best.loja)}</div>
-      ${best.produto?`<div class="prod">${esc(best.produto)}</div>`:""}
-      <div class="meta">${bestMeta||"—"}</div>
+      <div class="store">${esc(best.loja||"Loja")}</div>
+      <div class="loc">${esc([best.local,best.obs].filter(Boolean).join(" · ")||d.local||"")}</div>
       <div class="best-bottom">
         <div class="pricetag"><span class="cur">R$</span><span class="val">${money(best.preco,false)}</span></div>
-        <a class="maps" href="${mapsLink(best)}" target="_blank" rel="noopener">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
-          Como chegar
-        </a>
+        ${best.link?`<a class="btn-oferta" href="${esc(best.link)}" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg> Ver oferta</a>`:""}
       </div>
     </div>
-    ${others?`<div class="section-label" style="margin-top:22px">Outros preços · ${items.length} no total</div><div class="rows">${others}</div>`:""}
-    <div class="source"><b>Fonte:</b> Menor Preço — Nota Paraná (NFC-e), preço da última nota do produto no raio de ${$("#raio").value} km. Pode não ser o valor atual — confirme no local.</div>
-    <details class="debug"><summary>ver resposta crua da API (${via})</summary><pre>${esc(JSON.stringify(lastRaw,null,2).slice(0,4000))}</pre></details>`;
+    ${others?`<div class="section-label" style="margin-top:22px">Outras ofertas</div><div class="rows">${others}</div>`:""}
+    <div class="actions">
+      <button class="act mint" onclick="addRadar('${escAttr(produto)}', ${best.preco})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg> Vigiar no radar</button>
+      <button class="act" onclick="compartilhar('${escAttr(produto)}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg> Compartilhar</button>
+    </div>
+    <div class="source">${cached?"♻️ resultado do cache. ":""}<b>${esc(d.resumo||"Preços encontrados na web.")}</b> Valores podem variar — confira no link antes de comprar.</div>`;
 }
 
-function renderEmpty(produto){
-  panel.innerHTML=`<div class="err" style="background:rgba(120,200,160,.06);border-color:var(--line);color:var(--muted)">
-    Nada encontrado para <b style="color:var(--text)">${esc(produto)}</b> nesse raio.<br>
-    <span style="font-weight:500">Tente aumentar o raio, usar o nome de marca, ou o código de barras.</span>
-    <details class="debug" style="text-align:left;margin-top:12px"><summary>ver resposta crua</summary><pre>${esc(JSON.stringify(lastRaw,null,2).slice(0,3000))}</pre></details>
+/* -- motor comparador (grátis) -- */
+function buscaComparador(produto){
+  checkRadar(produto,null);
+  const l=loc?.label||"";
+  let fontes=[...(CMP[cat]||[]), ...CMP.base];
+  const seen=new Set(); fontes=fontes.filter(f=>{ if(seen.has(f.n))return false; seen.add(f.n); return true; });
+  const grid=fontes.map(f=>`
+    <a class="cmp" href="${f.u(produto,l)}" target="_blank" rel="noopener">
+      <span class="ico">${f.i}</span>
+      <span>${esc(f.n)}<small>${esc(f.s)}</small></span>
+    </a>`).join("");
+  $("#panel").innerHTML=`
+    <div class="section-label">Caçar “${esc(produto)}”${l?` em ${esc(l)}`:""}</div>
+    <div class="cmp-grid">${grid}</div>
+    <div class="actions" style="margin-top:14px">
+      <button class="act mint" onclick="addRadar('${escAttr(produto)}', null)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg> Vigiar no radar</button>
+    </div>
+    ${setupCard()}`;
+}
+
+/* -- setup do motor inteligente -- */
+function setupCard(){
+  return `<div class="setup" id="setupCard">
+    <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg> Quer os preços reais aqui na tela?</h4>
+    <p>Ative o <b>motor inteligente</b>: ele busca na internet e mostra loja, valor e link direto. Precisa do seu Worker (grátis) — passo a passo no README. Já tem a URL? Cole aqui:</p>
+    <input id="endpointInput" type="text" placeholder="https://baratao.SEU-USER.workers.dev" value="${esc(CONFIG.API_ENDPOINT)}" />
+    <button onclick="salvarEndpoint()">Ativar motor inteligente</button>
   </div>`;
 }
-function renderError(err){
-  panel.innerHTML=`<div class="err">
-    Não consegui falar com a base do Menor Preço agora.<br>
-    <span style="font-weight:500;color:#ffb8ac">Isso costuma ser bloqueio de CORS. Configure seu Worker em <b>CONFIG.PROXY_URL</b> (veja o README) ou tente de novo.</span><br>
-    <button id="retry" type="button">Tentar de novo</button>
-  </div>`;
-  $("#retry").onclick=buscar;
+function showSetup(scroll){
+  if(!$("#setupCard")){ if($("#q").value.trim()&&loc){ buscar(); } else { $("#panel").innerHTML=setupCard(); } }
+  if(scroll) $("#setupCard")?.scrollIntoView({behavior:"smooth",block:"center"});
 }
+window.salvarEndpoint=function(){
+  const v=$("#endpointInput").value.trim();
+  CONFIG.API_ENDPOINT=v; store.set("endpoint",v); refreshEngine();
+  if(v && $("#q").value.trim() && loc) buscar();
+  else $("#panel").innerHTML=`<p class="hint">${v?"Motor inteligente ativado! ✅ Faça uma busca.":"Endpoint limpo — voltou ao comparador."}</p>`;
+};
+
+/* -- loading / erro -- */
+function loadingView(produto){
+  const bars=Array.from({length:30},()=>`<i style="width:${(Math.random()*3+1).toFixed(1)}px"></i>`).join("");
+  $("#panel").innerHTML=`<div class="loading"><div class="barcode">${bars}<div class="scanline"></div></div><p>caçando o melhor preço de <b>${esc(produto)}</b>…</p></div>`;
+}
+function panelError(produto,msg){
+  $("#panel").innerHTML=`<div class="source" style="background:rgba(255,122,107,.08);border-color:rgba(255,122,107,.3);color:#ffd0c8">
+    Motor inteligente não respondeu (${esc(msg||"erro")}). Mostrando os comparadores enquanto isso 👇</div>`;
+  const prev=$("#panel").innerHTML;
+  buscaComparador(produto);
+  $("#panel").insertAdjacentHTML("afterbegin",prev);
+}
+
+/* ---------- RADAR ---------- */
+function radar(){ return store.get("radar",[]); }
+function saveRadar(r){ store.set("radar",r); }
+window.addRadar=function(produto,precoAtual){
+  const alvoStr=prompt(`Radar de preço para "${produto}"\n\nQual seu preço-alvo? (avisamos quando achar por esse valor ou menos)`, precoAtual?String(Math.floor(precoAtual*0.9)):"");
+  if(alvoStr===null) return;
+  const alvo=toNum(alvoStr); if(!alvo){ alert("Informe um valor válido."); return; }
+  const r=radar().filter(x=>x.produto.toLowerCase()!==produto.toLowerCase());
+  r.unshift({produto,alvo,melhor:precoAtual||null,hit:precoAtual?precoAtual<=alvo:false,ts:Date.now()});
+  saveRadar(r); renderRadar();
+  toast(`📡 "${produto}" no radar por até ${money(alvo)}`);
+};
+function checkRadar(produto,preco){
+  if(preco==null) return;
+  const r=radar(); let changed=false;
+  r.forEach(x=>{
+    if(x.produto.toLowerCase()===produto.toLowerCase()){
+      if(x.melhor==null||preco<x.melhor){ x.melhor=preco; changed=true; }
+      if(preco<=x.alvo && !x.hit){ x.hit=true; changed=true; toast(`🎯 Achou! ${produto} por ${money(preco)} (alvo ${money(x.alvo)})`); }
+    }
+  });
+  if(changed) saveRadar(r);
+}
+function renderRadar(){
+  const r=radar();
+  if(!r.length){ $("#radarList").innerHTML=`<div class="radar-empty">Seu radar está vazio.<br>Faça uma busca e toque em <b style="color:var(--mint)">Vigiar no radar</b>.</div>`; return; }
+  $("#radarList").innerHTML=r.map((x,i)=>`
+    <div class="radar-item">
+      <div class="info">
+        <div class="n">${esc(x.produto)}</div>
+        <div class="t">alvo <b>${money(x.alvo)}</b> · ${x.melhor!=null?`melhor visto ${money(x.melhor)} <span class="${x.hit?"hit":"miss"}">${x.hit?"🎯 batido!":""}</span>`:"ainda sem preço"}</div>
+      </div>
+      <button class="sc" onclick="buscarRadar('${escAttr(x.produto)}')">buscar</button>
+      <button class="del" onclick="delRadar(${i})" aria-label="remover"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>`).join("");
+}
+window.delRadar=function(i){ const r=radar(); r.splice(i,1); saveRadar(r); renderRadar(); };
+window.buscarRadar=function(p){ setView("buscar"); $("#q").value=p; if(!loc){openLoc();return;} buscar(); };
+
+/* ---------- share ---------- */
+window.compartilhar=function(produto){
+  if(!lastBest) return;
+  const txt=`🏷️ Achei no BARATÃO: ${lastBest.produto} por ${money(lastBest.preco)} na ${lastBest.loja}!`;
+  if(navigator.share){ navigator.share({title:"BARATÃO",text:txt}).catch(()=>{}); }
+  else { window.open(`https://wa.me/?text=${enc(txt)}`,"_blank"); }
+};
+
+/* ---------- calculadora ---------- */
+["a_preco","a_qtd","b_preco","b_qtd"].forEach(id=>$("#"+id).addEventListener("input",calc));
+function calc(){
+  const ap=toNum($("#a_preco").value),aq=toNum($("#a_qtd").value);
+  const bp=toNum($("#b_preco").value),bq=toNum($("#b_qtd").value);
+  const au=aq>0?ap/aq:null, bu=bq>0?bp/bq:null;
+  $("#a_out").querySelector(".v").textContent=au!=null?money(au,false):"—";
+  $("#b_out").querySelector(".v").textContent=bu!=null?money(bu,false):"—";
+  $("#a_out").classList.toggle("win",au!=null&&bu!=null&&au<bu);
+  $("#b_out").classList.toggle("win",au!=null&&bu!=null&&bu<au);
+  const badge=$("#calc_badge");
+  if(au!=null&&bu!=null&&au!==bu){
+    const win=au<bu?"A":"B", diff=Math.abs(au-bu)/Math.max(au,bu)*100;
+    badge.textContent=`✅ Embalagem ${win} sai ${diff.toFixed(0)}% mais barata por unidade`;
+  } else badge.textContent="";
+}
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg){
+  let el=$("#toast");
+  if(!el){ el=document.createElement("div"); el.id="toast"; el.style.cssText="position:fixed;left:50%;bottom:82px;transform:translateX(-50%);z-index:80;background:var(--surface-solid);border:1px solid var(--line-strong);color:var(--text);font-weight:700;font-size:13px;padding:12px 16px;border-radius:12px;box-shadow:var(--shadow);max-width:90%;text-align:center;transition:opacity .3s,transform .3s;opacity:0"; document.body.appendChild(el); }
+  el.textContent=msg; el.style.opacity="1"; el.style.transform="translateX(-50%) translateY(0)";
+  clearTimeout(toastT); toastT=setTimeout(()=>{ el.style.opacity="0"; el.style.transform="translateX(-50%) translateY(8px)"; },3200);
+}
+
+/* ---------- views ---------- */
+function setView(v){
+  ["buscar","radar","calc"].forEach(x=>$("#view-"+x).style.display = x===v?"block":"none");
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===v));
+  if(v==="radar") renderRadar();
+}
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>setView(b.dataset.view));
 
 /* ---------- utils ---------- */
+function toNum(v){ if(typeof v==="number")return v; if(!v)return 0; return parseFloat(String(v).replace(/[^\d,.-]/g,"").replace(/\.(?=\d{3})/g,"").replace(",",".")) ||0; }
 function money(n,sign=true){ const s=(Math.round(n*100)/100).toFixed(2).replace(".",","); return sign?"R$ "+s:s; }
-function esc(s){ return String(s??"").replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c])); }
+function esc(s){ return String(s??"").replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c])); }
+function escAttr(s){ return String(s??"").replace(/'/g,"\\'").replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
 
 /* ---------- go ---------- */
-renderChips();
-locate();
+renderCats(); renderChips(); loadLoc(); refreshEngine();
 </script>
 </body>
 </html>
