@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0B1512" />
 <title>BARATÃO — assistente de compras</title>
-<meta name="description" content="Monte sua lista, importe seu arquivo e compare preços de supermercado na sua região." />
+<meta name="description" content="Jogue sua lista de compras e receba a cotação do preço real do dia: qual mercado sai mais barato no total, em R$." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -119,8 +119,18 @@
   .setup{margin-top:14px;padding:16px;border-radius:16px;border:1px dashed var(--line-strong);background:rgba(90,176,255,.05)}
   .setup h4{font-size:14px;font-weight:800;color:var(--sky);display:flex;align-items:center;gap:7px}
   .setup p{color:var(--muted);font-size:12.5px;line-height:1.55;margin-top:6px}
-  .setup input{width:100%;margin-top:10px;padding:11px 13px;border-radius:11px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);font-weight:600;font-size:13px;outline:0}
+  .setup input,.setup select{width:100%;margin-top:10px;padding:11px 13px;border-radius:11px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);font-weight:600;font-size:13px;outline:0}
+  .setup select{appearance:none;-webkit-appearance:none}
   .setup button{margin-top:9px;width:100%;padding:11px;border-radius:11px;border:0;background:var(--sky);color:#04121f;font-weight:800;cursor:pointer}
+  .setup .fine{margin-top:9px;font-size:11.5px;line-height:1.5;color:var(--muted)}
+  .setup .fine a{color:var(--sky);font-weight:700}
+  .setup details{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+  .setup details summary{cursor:pointer;color:var(--muted);font-size:12.5px;font-weight:700;list-style:none}
+  .setup details summary::-webkit-details-marker{display:none}
+  .setup details summary::before{content:"⚙️ ";}
+  .mercados-input{width:100%;margin-bottom:12px;padding:11px 14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);font-weight:600;font-size:13.5px;outline:0}
+  .mercados-input::placeholder{color:var(--muted);font-weight:500}
+  .mercados-input:focus{border-color:var(--gold)}
 
   /* catálogo */
   .cat-search{margin-top:4px;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;background:var(--surface-solid);border:1px solid var(--line-strong)}
@@ -241,7 +251,7 @@
     <div class="cats" id="cats"></div>
     <div class="chips" id="chips"></div>
     <main class="panel" id="panel">
-      <p class="hint">Escolha o local, digite um produto e o Baratão caça o melhor preço.<br>Monte sua <b style="color:var(--mint)">lista</b> no catálogo e compare tudo de uma vez.</p>
+      <p class="hint">Escolha o local, digite um produto e o Baratão caça o melhor preço.<br>Ou vá em <b style="color:var(--mint)">Lista</b>, jogue suas compras e toque em <b style="color:var(--gold)">Cotar preço do dia</b> — ele diz qual mercado sai mais barato no total. 🛒</p>
     </main>
   </section>
 
@@ -268,7 +278,8 @@
       <button id="clearBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg> Limpar</button>
     </div>
     <div id="listBody"></div>
-    <button class="big-compare" id="compareBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg> COMPARAR LISTA</button>
+    <input id="mercadosInput" class="mercados-input" type="text" placeholder="mercados p/ cotar (opcional): Assaí, Carrefour, Atacadão…" autocomplete="off" />
+    <button class="big-compare" id="compareBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg> COTAR PREÇO DO DIA</button>
     <div id="listResult" style="margin-top:16px"></div>
   </section>
 
@@ -296,7 +307,7 @@
     <p class="hint" style="text-align:left;padding:14px 2px 0">Use a mesma unidade nos dois (g, ml, un). Mostra qual sai mais barato — o pacote maior nem sempre compensa.</p>
   </section>
 
-  <p class="foot">BARATÃO · assistente de compras · preços podem variar; confirme antes de comprar.</p>
+  <p class="foot">BARATÃO · preço real do dia · cotação é estimativa de busca na web; confirme no mercado antes de comprar.</p>
 </div>
 
 <nav class="nav"><div class="inner">
@@ -327,7 +338,13 @@
 
 <script>
 /* ================= CONFIG ================= */
-const CONFIG = { API_ENDPOINT:"", CACHE_HORAS:6 };
+const CONFIG = { API_ENDPOINT:"", API_KEY:"", MODEL:"claude-opus-4-8", CACHE_HORAS:6 };
+const MAX_BUSCAS_ITEM=5, MAX_BUSCAS_LISTA=9;
+const MODELS=[
+  {id:"claude-opus-4-8", nome:"Opus 4.8 · o mais inteligente (recomendado)"},
+  {id:"claude-sonnet-5", nome:"Sonnet 5 · equilíbrio (mais barato)"},
+  {id:"claude-haiku-4-5", nome:"Haiku 4.5 · o mais econômico"},
+];
 
 /* ============== CATÁLOGO ==============
    catálogo de itens comuns de supermercado, por seção */
@@ -377,7 +394,84 @@ let loc=null, cat="tudo", catSec="Tudo", lastBest=null;
 const $=s=>document.querySelector(s);
 const enc=s=>encodeURIComponent(String(s||"").trim());
 const store={get(k,d){try{return JSON.parse(localStorage.getItem("bt_"+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("bt_"+k,JSON.stringify(v))}catch(e){}}};
-if(!CONFIG.API_ENDPOINT) CONFIG.API_ENDPOINT=store.get("endpoint","");
+CONFIG.API_ENDPOINT=store.get("endpoint","");
+CONFIG.API_KEY=store.get("apikey","");
+CONFIG.MODEL=store.get("model","claude-opus-4-8");
+function engineOn(){return !!(CONFIG.API_KEY||CONFIG.API_ENDPOINT);}
+
+/* ============ MOTOR (chave direta OU worker) ============ */
+function hojeBR(){try{return new Date().toLocaleDateString("pt-BR");}catch(e){return "";}}
+function webSearchName(model){return /haiku|opus-4-1|opus-4-0|sonnet-4-5|sonnet-4-0/i.test(model||"")?"web_search_20250305":"web_search_20260209";}
+function extractJson(text){if(!text)return null;const t=String(text).replace(/```json/gi,"").replace(/```/g,"").trim();const a=t.indexOf("{"),b=t.lastIndexOf("}");if(a<0||b<0)return null;try{return JSON.parse(t.slice(a,b+1));}catch(e){return null;}}
+
+function promptBusca(produto,local){
+  return `Você é um caçador de ofertas no Brasil. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local?` para quem está em ${local}`:""}.
+Priorize supermercados e lojas que atendam essa região; considere também marketplaces confiáveis. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Se um preço for estimativa ou de outra região, diga em "obs".
+Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
+{"produto":"${produto}","local":"${local||""}","resultados":[{"loja":"","preco":0.00,"unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
+Use ponto decimal. Sem link confiável, use "link":"".`;
+}
+function promptLista(l,local,mercados){
+  const itens=l.map(x=>(typeof x==="string"?x:`${x.qtd>1?x.qtd+"x ":""}${x.nome}`)).slice(0,40);
+  const alvo=mercados?`Cote a lista NESTES mercados (um total para cada um): ${mercados}.`:`Escolha grandes redes que atendam ${local||"a região"} (ex.: Assaí, Atacadão, Carrefour, Pão de Açúcar e redes regionais).`;
+  return `Você é um assistente de compras no Brasil. Hoje é ${hojeBR()}. Para quem está em ${local||"Brasil"}, pesquise na web os preços ATUAIS dos itens da lista de compras abaixo. ${alvo}
+LISTA:
+${itens.map((n,i)=>`${i+1}. ${n}`).join("\n")}
+
+Para cada item, informe o melhor preço encontrado e em qual loja. Depois some o total por mercado e diga qual mercado sai mais barato no geral e quanto se economiza escolhendo ele. Seja honesto: se um preço for estimativa ou indisponível, marque em "obs".
+Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
+{"local":"${local||""}","itens":[{"nome":"","melhor_preco":0.00,"melhor_loja":"","link":"","obs":""}],"por_mercado":[{"loja":"","total_estimado":0.00,"itens_encontrados":0}],"melhor_mercado":"","economia_estimada":0.00,"resumo":""}
+Use ponto decimal.`;
+}
+async function callClaudeDireto(prompt,maxBuscas,maxTokens){
+  const model=CONFIG.MODEL||"claude-opus-4-8";
+  let messages=[{role:"user",content:prompt}];
+  const tools=[{type:webSearchName(model),name:"web_search",max_uses:maxBuscas}];
+  let data,guard=0;
+  while(guard++<4){
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{
+        "content-type":"application/json",
+        "x-api-key":CONFIG.API_KEY,
+        "anthropic-version":"2023-06-01",
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body:JSON.stringify({model,max_tokens:maxTokens,messages,tools})
+    });
+    data=await r.json();
+    if(data.error) throw new Error(data.error.message||"erro na API");
+    if(data.stop_reason==="pause_turn"){messages=[messages[0],{role:"assistant",content:data.content}];continue;}
+    break;
+  }
+  const text=(data.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").trim();
+  return {text};
+}
+async function engineBusca(produto){
+  if(CONFIG.API_KEY){
+    const data=await callClaudeDireto(promptBusca(produto+(cat!=="tudo"?" "+cat:""),loc.label),MAX_BUSCAS_ITEM,2200);
+    const parsed=extractJson(data.text);
+    if(!parsed) throw new Error("resposta sem JSON (tente de novo)");
+    return parsed;
+  }
+  const u=`${CONFIG.API_ENDPOINT.replace(/\/$/,"")}/?produto=${enc(produto+(cat!=="tudo"?" "+cat:""))}&local=${enc(loc.label)}`;
+  const r=await fetch(u),d=await r.json();
+  if(!d.ok) throw new Error(d.erro||"sem resultados");
+  return d;
+}
+async function engineLista(l){
+  const mercados=getMercados();
+  if(CONFIG.API_KEY){
+    const data=await callClaudeDireto(promptLista(l,loc.label,mercados),MAX_BUSCAS_LISTA,4200);
+    const parsed=extractJson(data.text);
+    if(!parsed) throw new Error("resposta sem JSON (tente de novo)");
+    return parsed;
+  }
+  const r=await fetch(CONFIG.API_ENDPOINT.replace(/\/$/,"")+"/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lista:l,local:loc.label,mercados})});
+  const d=await r.json();
+  if(!d.ok) throw new Error(d.erro||"erro");
+  return d;
+}
 
 /* ============ BUSCAR ============ */
 function renderCats(){ $("#cats").innerHTML=CATS.map(c=>`<button class="cat ${c.id===cat?"on":""}" data-c="${c.id}">${c.emoji} ${c.nome}</button>`).join(""); }
@@ -387,23 +481,22 @@ $("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b
 $("#goBtn").onclick=buscar;
 $("#q").addEventListener("keydown",e=>{if(e.key==="Enter")buscar();});
 
-function refreshEngine(){const on=!!CONFIG.API_ENDPOINT;$("#engineBtn").classList.toggle("on",on);$("#engineTxt").textContent=on?"motor: inteligente":"motor: comparador";}
-$("#engineBtn").onclick=()=>{setView("buscar");if(!$("#setupCard")){$("#panel").innerHTML=setupCard();}$("#setupCard")?.scrollIntoView({behavior:"smooth",block:"center"});};
+function refreshEngine(){const on=engineOn();$("#engineBtn").classList.toggle("on",on);$("#engineTxt").textContent=on?(CONFIG.API_KEY?"motor: preço real":"motor: worker"):"motor: comparador";}
+$("#engineBtn").onclick=()=>{setView("buscar");$("#panel").innerHTML=setupCard();$("#setupCard")?.scrollIntoView({behavior:"smooth",block:"center"});};
 
 function buscar(){
   const produto=$("#q").value.trim(); if(!produto){$("#q").focus();return;}
   if(!loc){openLoc();return;}
-  if(CONFIG.API_ENDPOINT) buscaInteligente(produto); else buscaComparador(produto);
+  if(engineOn()) buscaInteligente(produto); else buscaComparador(produto);
 }
-function cacheKey(p){return `${cat}|${(loc?.label||"")}|${p}`.toLowerCase();}
+function cacheKey(p){return `${CONFIG.MODEL}|${cat}|${(loc?.label||"")}|${p}`.toLowerCase();}
 async function buscaInteligente(produto){
   const key=cacheKey(produto),cache=store.get("cache",{}),hit=cache[key];
   if(hit&&(Date.now()-hit.t)<CONFIG.CACHE_HORAS*36e5) return renderInteligente(hit.data,produto,true);
   $("#goBtn").disabled=true; loadingView(produto);
   try{
-    const u=`${CONFIG.API_ENDPOINT.replace(/\/$/,"")}/?produto=${enc(produto+(cat!=="tudo"?" "+cat:""))}&local=${enc(loc.label)}`;
-    const r=await fetch(u),d=await r.json();
-    if(!d.ok||!Array.isArray(d.resultados)||!d.resultados.length) throw new Error(d.erro||"sem resultados");
+    const d=await engineBusca(produto);
+    if(!Array.isArray(d.resultados)||!d.resultados.length) throw new Error(d.erro||"sem resultados");
     cache[key]={t:Date.now(),data:d};store.set("cache",cache);
     renderInteligente(d,produto,false);
   }catch(err){ panelError(produto,err.message); }finally{ $("#goBtn").disabled=false; }
@@ -430,8 +523,43 @@ function buscaComparador(produto){
   $("#panel").innerHTML=`<div class="section-label">Caçar "${esc(produto)}"${l?` em ${esc(l)}`:""}</div><div class="cmp-grid">${grid}</div>
     <div class="actions" style="margin-top:14px"><button class="act mint" onclick="addRadar('${escAttr(produto)}',null)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg> Vigiar no radar</button></div>${setupCard()}`;
 }
-function setupCard(){return `<div class="setup" id="setupCard"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg> Quer preços reais na tela?</h4><p>Ative o <b>motor inteligente</b> (busca na web e mostra loja, valor e link). Precisa do seu Worker grátis — passo a passo no README. Já tem a URL?</p><input id="endpointInput" type="text" placeholder="https://baratao.SEU-USER.workers.dev" value="${esc(CONFIG.API_ENDPOINT)}" /><button onclick="salvarEndpoint()">Ativar motor inteligente</button></div>`;}
-window.salvarEndpoint=function(){const v=$("#endpointInput").value.trim();CONFIG.API_ENDPOINT=v;store.set("endpoint",v);refreshEngine();$("#panel").innerHTML=`<p class="hint">${v?"Motor inteligente ativado! ✅ Faça uma busca.":"Voltou ao comparador."}</p>`;};
+function setupCard(){
+  const opts=MODELS.map(m=>`<option value="${m.id}" ${m.id===CONFIG.MODEL?"selected":""}>${esc(m.nome)}</option>`).join("");
+  const off=`<button onclick="desligarMotor()" style="margin-top:8px;background:transparent;border:1px solid var(--line);color:var(--muted)">Desligar motor</button>`;
+  return `<div class="setup" id="setupCard"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg> Ligar o preço real do dia</h4>
+    <p>Cole sua chave da Anthropic (<b>sk-ant-…</b>) e o Baratão cota o preço de hoje na hora — <b>sem instalar nada</b>. A chave fica só neste aparelho.</p>
+    <input id="keyInput" type="password" placeholder="sk-ant-..." value="${esc(CONFIG.API_KEY)}" autocomplete="off" spellcheck="false" />
+    <select id="modelSel" aria-label="modelo">${opts}</select>
+    <button onclick="salvarChave()">${CONFIG.API_KEY?"Atualizar motor":"Ativar motor de preço real"}</button>
+    ${engineOn()?off:""}
+    <p class="fine">🔒 Sua chave vai só pra API da Anthropic (nada é guardado em servidor nosso). Recomendo definir um <b>limite de gasto mensal</b> no painel. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">pegar uma chave →</a></p>
+    <details><summary>Prefiro usar um Worker (chave escondida)</summary>
+      <input id="endpointInput" type="text" placeholder="https://baratao.SEU-USER.workers.dev" value="${esc(CONFIG.API_ENDPOINT)}" />
+      <button onclick="salvarEndpoint()">Ativar via Worker</button>
+      <p class="fine">Passo a passo no README. O Worker mantém a chave fora do site.</p>
+    </details></div>`;
+}
+function afterEngineChange(){
+  refreshEngine();
+  const onLista=$("#view-lista").style.display!=="none";
+  if(engineOn()&&onLista&&getList().length){compararLista();return;}
+  toast(engineOn()?"⚡ Motor de preço real ligado":"Motor desligado");
+  if($("#panel")) $("#panel").innerHTML=`<p class="hint">${engineOn()?"Motor ligado ✅ — busque um produto ou vá em <b style=\"color:var(--mint)\">Lista</b> e toque em <b>Cotar preço do dia</b>.":"Voltou ao comparador (links de comparação)."}</p>`;
+}
+window.salvarChave=function(){
+  const v=($("#keyInput")?.value||"").trim();const m=$("#modelSel")?.value||CONFIG.MODEL;
+  if(v&&!/^sk-ant-/.test(v)){alert("A chave deve começar com sk-ant-");return;}
+  CONFIG.API_KEY=v;CONFIG.MODEL=m;store.set("apikey",v);store.set("model",m);
+  if(v){CONFIG.API_ENDPOINT="";store.set("endpoint","");}
+  afterEngineChange();
+};
+window.salvarEndpoint=function(){
+  const v=($("#endpointInput")?.value||"").trim();
+  CONFIG.API_ENDPOINT=v;store.set("endpoint",v);
+  if(v){CONFIG.API_KEY="";store.set("apikey","");}
+  afterEngineChange();
+};
+window.desligarMotor=function(){CONFIG.API_KEY="";CONFIG.API_ENDPOINT="";store.set("apikey","");store.set("endpoint","");afterEngineChange();};
 function loadingView(t){const bars=Array.from({length:30},()=>`<i style="width:${(Math.random()*3+1).toFixed(1)}px"></i>`).join("");$("#panel").innerHTML=`<div class="loading"><div class="barcode">${bars}<div class="scanline"></div></div><p>caçando o melhor preço de <b>${esc(t)}</b>…</p></div>`;}
 function panelError(produto,msg){const box=`<div class="source" style="background:rgba(255,122,107,.08);border-color:rgba(255,122,107,.3);color:#ffd0c8">Motor inteligente não respondeu (${esc(msg||"erro")}). Mostrando comparadores 👇</div>`;buscaComparador(produto);$("#panel").insertAdjacentHTML("afterbegin",box);}
 
@@ -528,22 +656,22 @@ $("#compareBtn").onclick=compararLista;
 async function compararLista(){
   const l=getList();if(!l.length)return;
   if(!loc){openLoc();return;}
-  if(!CONFIG.API_ENDPOINT){
-    $("#listResult").innerHTML=`<div class="setup"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke-linecap="round"/></svg> Comparação real precisa do motor inteligente</h4><p>Pra comparar sua lista nos supermercados de verdade (preço de cada item + qual mercado sai mais barato), ligue o motor inteligente. Enquanto isso, você pode buscar item por item no Catálogo. Passo a passo no README.</p><input id="endpointInput" type="text" placeholder="https://baratao.SEU-USER.workers.dev" value="${esc(CONFIG.API_ENDPOINT)}" /><button onclick="salvarEndpoint2()">Ativar e comparar</button></div>`;
+  if(!engineOn()){
+    $("#listResult").innerHTML=`<p class="hint" style="text-align:left;padding:6px 2px 2px">Pra cotar o <b style="color:var(--gold)">preço do dia</b> da sua lista e ver qual mercado sai mais barato no total, ligue o motor abaixo 👇</p>`+setupCard();
+    $("#setupCard")?.scrollIntoView({behavior:"smooth",block:"center"});
     return;
   }
   $("#compareBtn").disabled=true;
-  $("#listResult").innerHTML=`<div class="loading"><div class="barcode">${Array.from({length:30},()=>`<i style="width:${(Math.random()*3+1).toFixed(1)}px"></i>`).join("")}<div class="scanline"></div></div><p>comparando <b>${l.length} itens</b> nos mercados de <b>${esc(loc.label)}</b>…</p></div>`;
+  const mkt=getMercados();
+  $("#listResult").innerHTML=`<div class="loading"><div class="barcode">${Array.from({length:30},()=>`<i style="width:${(Math.random()*3+1).toFixed(1)}px"></i>`).join("")}<div class="scanline"></div></div><p>cotando <b>${l.length} itens</b> ${mkt?`em <b>${esc(mkt)}</b>`:`nos mercados de <b>${esc(loc.label)}</b>`}…</p></div>`;
   try{
-    const r=await fetch(CONFIG.API_ENDPOINT.replace(/\/$/,"")+"/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lista:l,local:loc.label})});
-    const d=await r.json();
-    if(!d.ok) throw new Error(d.erro||"erro");
+    const d=await engineLista(l);
     renderListResult(d);
   }catch(err){
-    $("#listResult").innerHTML=`<div class="source" style="background:rgba(255,122,107,.08);border-color:rgba(255,122,107,.3);color:#ffd0c8">Não consegui comparar agora (${esc(err.message)}). Tente de novo em instantes.</div>`;
+    $("#listResult").innerHTML=`<div class="source" style="background:rgba(255,122,107,.08);border-color:rgba(255,122,107,.3);color:#ffd0c8">Não consegui cotar agora (${esc(err.message)}). Tente de novo em instantes.</div>`;
   }finally{ $("#compareBtn").disabled=false; }
 }
-window.salvarEndpoint2=function(){const v=$("#endpointInput").value.trim();CONFIG.API_ENDPOINT=v;store.set("endpoint",v);refreshEngine();if(v)compararLista();};
+function getMercados(){return ($("#mercadosInput")?.value??store.get("mercados","")).trim();}
 function renderListResult(d){
   const mercados=(d.por_mercado||[]).map(m=>({...m,total:toNum(m.total_estimado)})).filter(m=>m.total>0).sort((a,b)=>a.total-b.total);
   const itens=d.itens||[];
@@ -647,6 +775,7 @@ function esc(s){return String(s??"").replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;
 function escAttr(s){return String(s??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;").replace(/</g,"&lt;");}
 
 /* ============ go ============ */
+(function initMercados(){const mi=$("#mercadosInput");if(!mi)return;mi.value=store.get("mercados","");mi.addEventListener("input",()=>store.set("mercados",mi.value.trim()));})();
 renderCats();renderChips();loadLoc();refreshEngine();updateBadge();
 </script>
 </body>
