@@ -1,4 +1,4 @@
-# 📘 Manual do BARATÃO — preço real do dia
+# 📘 Manual do MULTIPLICADOR — preço real do dia
 
 App que recebe sua **lista de compras** e devolve a **cotação do preço do dia**: qual mercado sai mais barato no total (em R$), com **marca, preço e preço por kg/L** de cada item.
 
@@ -24,7 +24,7 @@ O app é um site estático. Publique no **GitHub Pages**:
 3. Escolha **"Adicionar à Tela de Início"**.
 4. Confirme em **Adicionar**.
 
-Pronto: vai aparecer o ícone 🏷️ **BARATÃO** na sua tela, abrindo em tela cheia como um app.
+Pronto: vai aparecer o ícone 🏷️ **MULTIPLICADOR** na sua tela, abrindo em tela cheia como um app.
 
 *(No Android é igual: Chrome → menu ⋮ → "Adicionar à tela inicial".)*
 
