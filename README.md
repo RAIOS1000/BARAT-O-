@@ -5,7 +5,7 @@ Jogue sua **lista de compras** e o Baratão faz a **cotação do preço do dia**
 ## ✨ O que ele faz
 
 - 🧾 **Jogue a lista** — digite, adicione pelo catálogo (+200 itens) ou **importe um arquivo** (.txt/.csv)
-- 🏪 **Meus mercados** — opcional: escreva as redes que você usa (ex.: *Assaí, Carrefour, Costa, Moreirinha, Pão de Açúcar*) e ele cota **exatamente nelas**
+- 🏪 **Meus mercados** — já vem preenchido com *Assaí, Carrefour, Costa, Moreirinha, Pão de Açúcar* (edite à vontade) e ele cota **exatamente nessas redes**
 - 💰 **Cotar preço do dia** — com o motor ligado, ele pesquisa na web e entrega: melhor preço por item + **mercado campeão** com o total somado e a economia
 - 🔎 **Buscar** — melhor preço de um produto avulso (com o motor) ou comparadores grátis (sem motor)
 - 📡 **Radar de preço** — preço-alvo que acende 🎯 quando a busca acha mais barato
@@ -15,10 +15,10 @@ Tudo é salvo no próprio navegador.
 
 ## 🚀 Usar agora (2 passos)
 
-1. Abra o app (GitHub Pages) e **defina o local** (GPS ou cidade).
+1. Abra o app — ele já abre na **Lista**, com o local em **Goiânia** e seus mercados preenchidos (dá pra trocar tudo tocando em cima).
 2. Toque no botão **motor** (topo) → cole sua chave da Anthropic **`sk-ant-…`** → **Ativar**.
 
-Pronto. Vá em **Lista**, jogue suas compras e toque em **Cotar preço do dia**. 🛒
+Pronto. Jogue suas compras e toque em **Cotar preço do dia**. 🛒
 
 > A chave fica **só no seu aparelho** (localStorage do navegador) e vai apenas para a API da Anthropic — nada é guardado em servidor nosso. Pegue a sua em <https://console.anthropic.com/settings/keys> e defina um **limite de gasto mensal** por segurança.
 

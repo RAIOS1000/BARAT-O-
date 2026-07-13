@@ -561,7 +561,7 @@ window.salvarEndpoint=function(){
 };
 window.desligarMotor=function(){CONFIG.API_KEY="";CONFIG.API_ENDPOINT="";store.set("apikey","");store.set("endpoint","");afterEngineChange();};
 function loadingView(t){const bars=Array.from({length:30},()=>`<i style="width:${(Math.random()*3+1).toFixed(1)}px"></i>`).join("");$("#panel").innerHTML=`<div class="loading"><div class="barcode">${bars}<div class="scanline"></div></div><p>caçando o melhor preço de <b>${esc(t)}</b>…</p></div>`;}
-function panelError(produto,msg){const box=`<div class="source" style="background:rgba(255,122,107,.08);border-color:rgba(255,122,107,.3);color:#ffd0c8">Motor inteligente não respondeu (${esc(msg||"erro")}). Mostrando comparadores 👇</div>`;buscaComparador(produto);$("#panel").insertAdjacentHTML("afterbegin",box);}
+function panelError(produto,msg){const box=`<div class="source" style="background:rgba(255,122,107,.08);border-color:rgba(255,122,107,.3);color:#ffd0c8">${esc(erroAmigavel(msg))} Enquanto isso, veja comparadores 👇</div>`;buscaComparador(produto);$("#panel").insertAdjacentHTML("afterbegin",box);}
 
 /* ============ CATÁLOGO ============ */
 function renderCatSecs(){
@@ -668,7 +668,7 @@ async function compararLista(){
     const d=await engineLista(l);
     renderListResult(d);
   }catch(err){
-    $("#listResult").innerHTML=`<div class="source" style="background:rgba(255,122,107,.08);border-color:rgba(255,122,107,.3);color:#ffd0c8">Não consegui cotar agora (${esc(err.message)}). Tente de novo em instantes.</div>`;
+    $("#listResult").innerHTML=`<div class="source" style="background:rgba(255,122,107,.08);border-color:rgba(255,122,107,.3);color:#ffd0c8">${esc(erroAmigavel(err.message))}</div>`;
   }finally{ $("#compareBtn").disabled=false; }
 }
 function getMercados(){return ($("#mercadosInput")?.value??store.get("mercados","")).trim();}
@@ -690,7 +690,7 @@ function renderListResult(d){
 }
 
 /* ============ localização ============ */
-function loadLoc(){loc=store.get("loc",null);if(loc)setLocLabel(loc.label);}
+function loadLoc(){loc=store.get("loc",null);if(!loc){loc={label:"Goiânia - GO",lat:-16.6869,lng:-49.2648};store.set("loc",loc);}setLocLabel(loc.label);}
 function setLocLabel(t){$("#cityLabel").innerHTML=`${esc(t)}<small>toque para trocar de local</small>`;}
 $("#locbar").onclick=openLoc;
 const locModal=$("#locModal");
@@ -769,14 +769,24 @@ function setView(v){
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>setView(b.dataset.view));
 
 /* ============ utils ============ */
+function erroAmigavel(msg){
+  const m=String(msg||"").toLowerCase();
+  if(/credit|billing|insufficient|quota/.test(m)) return "Sua conta Anthropic está sem crédito. Adicione crédito em console.anthropic.com/settings/billing e tente de novo.";
+  if(/authentication|invalid x-api-key|x-api-key|unauthorized|401/.test(m)) return "Chave inválida ou expirada. Confira sua sk-ant-… no botão do motor (topo).";
+  if(/rate.?limit|429|overloaded|529/.test(m)) return "Muitas buscas de uma vez. Espere alguns segundos e tente de novo.";
+  if(/failed to fetch|networkerror|load failed|cors|network request failed/.test(m)) return "Não consegui falar com a Anthropic (conexão). Tente de novo; se persistir, use a opção Worker.";
+  if(/sem json|sem resultados/.test(m)) return "Não achei preços dessa vez. Tente de novo ou ajuste a lista.";
+  return "Não consegui agora: "+(msg||"erro")+". Tente de novo em instantes.";
+}
 function toNum(v){if(typeof v==="number")return v;if(!v)return 0;return parseFloat(String(v).replace(/[^\d,.-]/g,"").replace(/\.(?=\d{3})/g,"").replace(",","."))||0;}
 function money(n,sign=true){const s=(Math.round(n*100)/100).toFixed(2).replace(".",",");return sign?"R$ "+s:s;}
 function esc(s){return String(s??"").replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c]));}
 function escAttr(s){return String(s??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;").replace(/</g,"&lt;");}
 
 /* ============ go ============ */
-(function initMercados(){const mi=$("#mercadosInput");if(!mi)return;mi.value=store.get("mercados","");mi.addEventListener("input",()=>store.set("mercados",mi.value.trim()));})();
+(function initMercados(){const mi=$("#mercadosInput");if(!mi)return;let m=store.get("mercados",null);if(m===null){m="Assaí, Carrefour, Costa, Moreirinha, Pão de Açúcar";store.set("mercados",m);}mi.value=m;mi.addEventListener("input",()=>store.set("mercados",mi.value.trim()));})();
 renderCats();renderChips();loadLoc();refreshEngine();updateBadge();
+setView("lista"); // abre já no fluxo principal: jogar a lista → cotar preço do dia
 </script>
 </body>
 </html>
