@@ -1,9 +1,11 @@
 /**
  * MULTIPLICADOR — Motor de Preço Real (Cloudflare Worker) v3
  * ------------------------------------------------------------
- * Dois modos:
- *   • BUSCA (GET  ?produto=&local=)            -> melhores preços de 1 produto
- *   • LISTA (POST {lista:[...], local, mercados}) -> compara a lista toda de uma vez
+ * Modos:
+ *   • BUSCA  (GET  ?produto=&local=)                -> melhores preços de 1 produto
+ *   • LISTA  (POST {lista:[...], local, mercados})  -> compara a lista toda de uma vez
+ *   • FOTO   (POST {foto, media})                   -> lê o cupom fiscal por imagem (IA)
+ *   • MONTAR (POST {montar:"texto/prato"})          -> monta a lista por fala/texto ou receita
  *
  * A chave fica como SECRET do Worker (nunca no site).
  * DEPLOY: veja o README. Secret: ANTHROPIC_API_KEY = sk-ant-...
@@ -38,6 +40,7 @@ export default {
     try {
       if (request.method === "POST") {
         const b = await request.json().catch(() => ({}));
+        if (b.montar) return await modoMontar(b.montar, env, cors);
         if (b.foto) return await modoFoto(b, env, cors);
         if (Array.isArray(b.lista) && b.lista.length) return await modoLista(b, env, cors);
         return await modoBusca(b.produto, b.local, b.marcas, env, cors);
@@ -102,6 +105,32 @@ Use ponto decimal. "marca" é obrigatória quando houver; "preco_unidade" pode s
   const parsed = extractJson(data.text);
   if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
   return json({ ok: true, modo: "lista", ...parsed }, 200, cors);
+}
+
+async function modoMontar(texto, env, cors) {
+  const prompt =
+`O usuário quer montar uma LISTA DE COMPRAS de supermercado. Ele escreveu (pode ser fala transcrita, informal, com erros de digitação):
+"""${String(texto).slice(0, 1200)}"""
+
+Sua tarefa:
+- Se for uma LISTA de itens (mesmo bagunçada), transforme em itens de supermercado, um por item, com a quantidade certa. Entenda quantidades por extenso e medidas: "uma dúzia de ovos" = 12 ovos; "meia dúzia" = 6; "2 caixas de leite" = 2; "um fardo de cerveja" = 1.
+- Se for o NOME DE UM PRATO ou um pedido de receita (ex.: "strogonoff", "o que preciso pra fazer uma feijoada", "bolo de cenoura", "lasanha"), liste os INGREDIENTES de supermercado para prepará-lo (porção para ~4 pessoas), com quantidades realistas.
+- Use nomes GENÉRICOS e comuns de produto (ex.: "arroz", "peito de frango", "creme de leite"), SEM marca, para facilitar a cotação de preço depois.
+- Não invente nada além do que faz sentido para a lista/prato. Isto é só a lista — NÃO cote preços.
+Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
+{"tipo":"lista","prato":"","itens":[{"nome":"","qtd":1}]}
+"tipo" é "lista" ou "receita". Em receita, preencha "prato". "qtd" é um inteiro (quantas unidades comprar); se não souber, use 1.`;
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+    body: JSON.stringify({ model: getModel(env), max_tokens: 1500, messages: [{ role: "user", content: prompt }] }),
+  });
+  const data = await r.json();
+  if (data.error) throw new Error(data.error.message || "erro na API");
+  const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
+  const parsed = extractJson(text);
+  if (!parsed) return json({ ok: false, erro: "não consegui montar a lista", cru: text.slice(0, 400) }, 502, cors);
+  return json({ ok: true, modo: "montar", ...parsed }, 200, cors);
 }
 
 async function modoFoto(b, env, cors) {

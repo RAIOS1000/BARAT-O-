@@ -49,9 +49,13 @@ O app já abre na **Lista**, com o local em **Goiânia** e seus mercados preench
 
 ## 4) Usar no dia a dia
 
-1. Na aba **Lista**: adicione itens **à mão**, pelo **Catálogo** (+200 itens) ou **Importe** um arquivo (.txt/.csv).
-2. (Opcional) Ajuste **os mercados** que quer cotar e suas **⭐ marcas favoritas**.
-3. Toque em **COTAR PREÇO DO DIA**.
+1. Na aba **Lista**, monte sua lista do jeito mais fácil:
+   - **✨ Fale ou escreva do seu jeito:** no campo de cima, escreva (ou toque em **🎤 Falar**) algo como *"arroz, 2 leites e uma dúzia de ovos"* e toque em **✨ Montar lista** — a IA vira itens com a quantidade certa (entende "uma dúzia" = 12, "meia dúzia" = 6, "2 caixas de leite" = 2).
+   - **🍳 De um prato pra lista:** escreva um prato — *"o que preciso p/ um strogonoff"*, *"bolo de cenoura"* — e ela adiciona os **ingredientes** (porção p/ ~4 pessoas). *(Falar receita/quantidade por extenso precisa do motor ligado; sem motor, escreva os itens separados por vírgula.)*
+   - Também dá pra adicionar **à mão**, pelo **Catálogo** (+200 itens) ou **Importar** um arquivo (.txt/.csv).
+2. **🏪 Ver por corredor:** com 2+ itens, toque em **Por corredor** e a lista se organiza na **ordem do mercado** (hortifruti → açougue → laticínios → mercearia → limpeza…), pra comprar sem dar voltas. O **Lista simples** volta à ordem normal.
+3. (Opcional) Ajuste **os mercados** que quer cotar e suas **⭐ marcas favoritas**.
+4. Toque em **COTAR PREÇO DO DIA**.
 
 Você recebe:
 - 🏆 **Mercado campeão** — onde a lista toda sai mais barato, com o total e a economia.
@@ -93,6 +97,8 @@ Quer só ver como fica? Toque em **👀 ver um exemplo de cotação (demo)** —
 **"O motor não respondeu / erro."** Toque em **Testar** no cartão do motor. As mensagens são claras: *sem crédito*, *chave inválida*, *limite de uso* ou *conexão*.
 
 **"Não quero a chave no navegador."** Use a opção **Worker** (abra "Prefiro usar um Worker" no cartão do motor). A chave fica escondida num servidorzinho grátis da Cloudflare — passo a passo no `README.md`.
+
+**"O 🎤 Falar não abre a gravação no iPhone."** Alguns iPhones não liberam o microfone direto pra páginas web. Sem problema: toque no campo de texto e use o **🎤 do teclado do iPhone** (ao lado da barra de espaço) para ditar — funciona igual. Depois é só tocar em **✨ Montar lista**.
 
 **"É preço garantido?"** Não. A cotação é **estimativa de busca na web** — ótima pra decidir **onde** comprar. Confirme o valor no mercado (ou no app da loja com seu CEP) antes de fechar. Regra de dono: **compare sempre o preço por kg/L**.
 
