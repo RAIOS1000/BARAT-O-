@@ -430,6 +430,9 @@
   <div class="or">ou insira a chave de acesso (44 dígitos do rodapé do cupom)</div>
   <input id="nfeKey" class="nfe-key" type="text" inputmode="numeric" autocomplete="off" placeholder="0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000" maxlength="60" />
   <button class="mbtn" id="nfeOpenBtn">Abrir nota e guardar no Cofre</button>
+  <div class="or">ou 📸 leia a FOTO do cupom — a IA lê os itens e preços reais</div>
+  <button class="mbtn" id="nfeFotoBtn" style="background:var(--gold);color:#191204">📸 Ler foto do cupom (IA)</button>
+  <input type="file" id="nfeFotoInput" accept="image/*" capture="environment" style="display:none" />
   <p id="nfeMsg"></p>
   <div id="nfeSavedModal"></div>
   <button class="mbtn ghost" id="nfeCloseBtn" style="margin-top:14px">Fechar</button>
@@ -845,7 +848,7 @@ function verExemplo(){
 function renderListResult(d,tsAtual){
   let cmp=null;
   if(tsAtual){
-    const prev=hist().find(x=>x.tipo==="lista"&&x.ts<tsAtual&&x.resultado);
+    const prev=hist().find(x=>(x.tipo==="lista"||x.tipo==="compra")&&x.ts<tsAtual&&x.resultado);
     if(prev){const map={};(prev.resultado.itens||[]).forEach(it=>{const p0=toNum(it.melhor_preco);if(p0>0)map[normN(it.nome)]=p0;});if(Object.keys(map).length)cmp={date:fmtD(prev.ts),map};}
   }
   const mercados=(d.por_mercado||[]).map(m=>({...m,total:toNum(m.total_estimado)})).filter(m=>m.total>0).sort((a,b)=>a.total-b.total);
@@ -928,7 +931,9 @@ function guardarCotacao(e){const h=hist();h.unshift(e);saveHistArr(h);}
 function fmtDH(ts){const d=new Date(ts),p=n=>String(n).padStart(2,"0");return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;}
 function fmtD(ts){const d=new Date(ts),p=n=>String(n).padStart(2,"0");return `${p(d.getDate())}/${p(d.getMonth()+1)}`;}
 const normN=s=>String(s||"").toLowerCase().trim();
-function auditLinha(e){const its=e.tipo==="lista"?((e.resultado&&e.resultado.itens)||[]):((e.resultado&&e.resultado.resultados)||[]);const com=its.filter(x=>x.link||x.fonte).length;return `Auditoria: cotação por busca na web em ${fmtDH(e.ts)} (motor: ${e.modelo||"—"}) · ${com} de ${its.length} preços com fonte/link verificável · estimativas marcadas em Obs · confirme no mercado antes de comprar.`;}
+function auditLinha(e){const its=e.tipo!=="busca"?((e.resultado&&e.resultado.itens)||[]):((e.resultado&&e.resultado.resultados)||[]);const com=its.filter(x=>x.link||x.fonte).length;
+  if(e.tipo==="compra")return `Auditoria: compra real lida do cupom fiscal em ${fmtDH(e.ts)} (leitura por IA: ${e.modelo||"—"})${e.loja?` · loja: ${e.loja}`:""} · ${its.length} itens · valores conforme o cupom — confira, pois a leitura por imagem pode ter erros.`;
+  return `Auditoria: cotação por busca na web em ${fmtDH(e.ts)} (motor: ${e.modelo||"—"}) · ${com} de ${its.length} preços com fonte/link verificável · estimativas marcadas em Obs · confirme no mercado antes de comprar.`;}
 function csvEsc(v){v=String(v??"");return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
 function moneyCSV(n){return (Math.round(n*100)/100).toFixed(2).replace(".",",");}
 function baixar(nome,conteudo,tipo){const blob=new Blob(conteudo,{type:tipo});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nome;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
@@ -936,7 +941,8 @@ function exportCSV(e){
   const L=[],push=r=>L.push(r.map(csvEsc).join(";"));
   push(["MULTIPLICADOR — cotação de preços"]);
   push(["Data",fmtDH(e.ts)]);push(["Local",e.local||""]);
-  if(e.tipo==="lista"){
+  if(e.tipo==="compra"){push(["Origem","cupom fiscal (lido por IA)"]);push(["Loja",e.loja||""]);if(e.data_compra)push(["Data da compra",e.data_compra]);}
+  if(e.tipo!=="busca"){
     if(e.mercados)push(["Mercados",e.mercados]);
     if(e.marcas)push(["Marcas favoritas",e.marcas]);
     push(["Motor",e.modelo||""]);push([""]);
@@ -959,7 +965,7 @@ function exportCSV(e){
 }
 function exportPDF(e){
   const d=e.resultado||{};let rows="",head="";
-  if(e.tipo==="lista"){
+  if(e.tipo!=="busca"){
     head=`<tr><th>Item</th><th>Marca</th><th>Embalagem</th><th>Loja</th><th>Preço</th><th>Por unidade</th><th>Fonte</th></tr>`;
     rows=(d.itens||[]).map(it=>`<tr><td>${esc(it.nome)}</td><td>${esc(it.marca||"—")}</td><td>${esc(it.embalagem||"—")}</td><td>${esc(it.melhor_loja||"—")}</td><td class="num">R$ ${money(toNum(it.melhor_preco),false)}</td><td>${esc(it.preco_unidade||"—")}</td><td>${esc(it.fonte||(it.link?"link":"—"))}</td></tr>`).join("");
   }else{
@@ -995,12 +1001,16 @@ function renderHist(){
     $("#histList").innerHTML=html;return;
   }
   html+=h.map(e=>{
-    const win=e.tipo==="lista"?((e.resultado&&e.resultado.por_mercado)||[]).slice().sort((a,b)=>toNum(a.total_estimado)-toNum(b.total_estimado))[0]:null;
+    const temMkt=e.tipo==="lista"||e.tipo==="compra";
+    const win=temMkt?((e.resultado&&e.resultado.por_mercado)||[]).slice().sort((a,b)=>toNum(a.total_estimado)-toNum(b.total_estimado))[0]:null;
     const tot=win?money(toNum(win.total_estimado)):"";
-    const sub=e.tipo==="lista"
+    const ico=e.tipo==="compra"?"📸":(e.tipo==="lista"?"🧾":"🔎");
+    const sub=e.tipo==="compra"
+      ?`cupom · ${esc(e.loja||"")}${e.data_compra?` · ${esc(e.data_compra)}`:""} · ${(e.resultado&&e.resultado.itens||[]).length} itens`
+      :e.tipo==="lista"
       ?`${(e.lista||[]).length} itens · ${esc(e.local||"")}${win?` · 🏆 ${esc(win.loja)}`:""}`
       :`busca · ${esc(e.produto||"")} · ${esc(e.local||"")}`;
-    return `<div class="hist-item"><div class="hd"><div class="inf"><div class="dt">${e.tipo==="lista"?"🧾":"🔎"} ${fmtDH(e.ts)}</div><div class="sub">${sub}</div></div><div class="tot">${tot}</div></div>
+    return `<div class="hist-item"><div class="hd"><div class="inf"><div class="dt">${ico} ${fmtDH(e.ts)}</div><div class="sub">${sub}</div></div><div class="tot">${tot}</div></div>
       <div class="ops">${e.tipo==="lista"?`<button onclick="histUsar(${e.ts})">🛒 usar lista</button>`:""}<button onclick="histVer(${e.ts})">👁 ver</button><button onclick="histCSV(${e.ts})">📊 Sheets</button><button onclick="histPDF(${e.ts})">📄 PDF</button><button onclick="histDel(${e.ts})">🗑</button></div></div>`;
   }).join("");
   $("#histList").innerHTML=html;
@@ -1019,7 +1029,7 @@ async function statusPersistencia(){
 }
 window.histUsar=function(ts){const e=hist().find(x=>x.ts===ts);if(!e||!Array.isArray(e.lista))return;setList(e.lista.map(x=>({nome:x.nome,qtd:x.qtd||1})));setView("lista");renderList();toast("🛒 Lista recuperada do Cofre");};
 window.histVer=function(ts){const e=hist().find(x=>x.ts===ts);if(!e)return;lastCotacao=e;
-  if(e.tipo==="lista"){setView("lista");renderListResult(e.resultado,e.ts);const box=$("#listResult");if(box){box.insertAdjacentHTML("afterbegin",`<div class="demo-badge">🔒 Do Cofre · ${fmtDH(e.ts)}</div>`);box.scrollIntoView({behavior:"smooth",block:"start"});}}
+  if(e.tipo!=="busca"){setView("lista");renderListResult(e.resultado,e.ts);const box=$("#listResult");if(box){box.insertAdjacentHTML("afterbegin",`<div class="demo-badge">${e.tipo==="compra"?"📸 Cupom":"🔒 Do Cofre"} · ${fmtDH(e.ts)}</div>`);box.scrollIntoView({behavior:"smooth",block:"start"});}}
   else{setView("buscar");renderInteligente(e.resultado,e.produto||"",true);window.scrollTo({top:0,behavior:"smooth"});}};
 window.histCSV=function(ts){const e=hist().find(x=>x.ts===ts);if(e)exportCSV(e);};
 window.histPDF=function(ts){const e=hist().find(x=>x.ts===ts);if(e)exportPDF(e);};
@@ -1130,6 +1140,56 @@ function notaRow(n){
 function renderNotasModal(){const box=$("#nfeSavedModal"),ns=notas();box.innerHTML=ns.length?(`<div class="or" style="margin:16px 0 8px">notas guardadas</div>`+ns.slice(0,6).map(notaRow).join("")):"";}
 window.abrirNota=function(u){window.open(u,"_blank","noopener");};
 window.delNota=function(ts){saveNotas(notas().filter(n=>n.ts!==ts));renderNotasModal();if($("#view-hist").style.display!=="none")renderHist();};
+
+/* --- foto do cupom (IA lê os itens) --- */
+function fileParaImg(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>res(img);img.onerror=rej;img.src=r.result;};r.onerror=rej;r.readAsDataURL(file);});}
+async function fotoReduzida(file,maxDim=1568){
+  const img=await fileParaImg(file);
+  let w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;const s=Math.min(1,maxDim/Math.max(w,h));
+  w=Math.max(1,Math.round(w*s));h=Math.max(1,Math.round(h*s));
+  const cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(img,0,0,w,h);
+  const url=cv.toDataURL("image/jpeg",0.82);return {b64:url.split(",")[1],media:"image/jpeg"};
+}
+function promptFoto(){return `Você recebeu a FOTO de um cupom fiscal brasileiro (NFC-e/SAT). Hoje é ${hojeBR()}. Leia com atenção e extraia os dados REAIS impressos no cupom — NUNCA invente; o que não der pra ler com certeza vai em "obs".
+Devolva APENAS JSON válido, sem markdown, sem texto antes ou depois:
+{"loja":"","data":"","local":"","total":0.00,"itens":[{"nome":"","marca":"","qtd":1,"preco_unit":0.00,"preco_total":0.00,"obs":""}]}
+Use ponto decimal. "preco_unit" é o preço unitário e "preco_total" é o valor daquele item no cupom.`;}
+async function callClaudeVisao(b64,media,prompt,maxTokens){
+  const model=CONFIG.MODEL||"claude-opus-4-8";
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":CONFIG.API_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model,max_tokens:maxTokens,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:media,data:b64}},{type:"text",text:prompt}]}]})});
+  const d=await r.json();if(d.error)throw new Error(d.error.message||"erro na API");
+  const text=(d.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").trim();return {text};
+}
+async function engineFoto(b64,media){
+  if(CONFIG.API_KEY){const data=await callClaudeVisao(b64,media,promptFoto(),3000);const parsed=extractJson(data.text);if(!parsed)throw new Error("não consegui ler o cupom");return parsed;}
+  const r=await fetch(CONFIG.API_ENDPOINT.replace(/\/$/,"")+"/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({foto:b64,media})});
+  const d=await r.json();if(!d.ok)throw new Error(d.erro||"erro");return d;
+}
+function fotoParaEntrada(d){
+  const itens=(d.itens||[]).map(it=>{const pu=toNum(it.preco_unit||it.preco_total),qt=toNum(it.qtd)||1;return {nome:it.nome||"item",marca:it.marca||"",melhor_preco:pu,melhor_loja:d.loja||"",embalagem:qt>1?(qt+"x"):"",preco_unidade:"",fonte:"cupom fiscal",obs:it.obs||""};});
+  const total=toNum(d.total)||itens.reduce((s,it)=>s+toNum(it.melhor_preco),0);
+  const loja=d.loja||"Cupom fiscal";
+  return {ts:Date.now(),tipo:"compra",origem:"foto",local:d.local||loc?.label||"",loja,data_compra:d.data||"",modelo:CONFIG.API_KEY?CONFIG.MODEL:"worker",
+    lista:itens.map(i=>({nome:i.nome,qtd:1})),
+    resultado:{data:d.data||hojeBR(),itens,por_mercado:[{loja,total_estimado:total,itens_encontrados:itens.length}],melhor_mercado:loja,resumo:`Compra real lida do cupom fiscal${d.loja?` — ${d.loja}`:""}. Confira os valores com o cupom.`}};
+}
+$("#nfeFotoBtn").onclick=function(){
+  if(!engineOn()){$("#nfeMsg").innerHTML="Pra IA ler a foto do cupom, ligue o <b>motor</b> (cole sua chave sk-ant-…) no botão do motor, no topo.";return;}
+  $("#nfeFotoInput").click();
+};
+$("#nfeFotoInput").addEventListener("change",async e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  const msg=$("#nfeMsg");msg.innerHTML="📸 Lendo o cupom com a IA… pode levar alguns segundos.";
+  try{
+    const {b64,media}=await fotoReduzida(f);
+    const d=await engineFoto(b64,media);
+    if(!d.itens||!d.itens.length)throw new Error("não achei itens no cupom — tente uma foto mais nítida");
+    const ent=fotoParaEntrada(d);guardarCotacao(ent);lastCotacao=ent;
+    fecharNfe();setView("lista");renderListResult(ent.resultado,ent.ts);
+    const box=$("#listResult");if(box){box.insertAdjacentHTML("afterbegin",`<div class="demo-badge">📸 Lido do cupom fiscal · confira os valores</div>`);box.scrollIntoView({behavior:"smooth",block:"start"});}
+    toast("🧾 Compra real lida e guardada no Cofre");
+  }catch(err){msg.innerHTML="❌ "+esc(erroAmigavel(err.message));}
+});
 
 /* ============ radar ============ */
 function radar(){return store.get("radar",[]);}
