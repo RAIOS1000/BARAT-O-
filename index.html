@@ -175,6 +175,29 @@
   .manual-add{display:flex;gap:8px;margin-bottom:12px}
   .manual-add input{flex:1;min-width:0;padding:13px 15px;border-radius:14px;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);font-weight:500;font-size:15px;outline:0}
   .manual-add button{border:0;background:var(--mint);color:#07130D;font-weight:700;padding:0 17px;border-radius:14px;cursor:pointer}
+  /* montar lista com IA (voz/texto/receita) */
+  .smart-add{margin-bottom:12px;padding:12px;border:1px solid var(--line-strong);border-radius:16px;background:linear-gradient(180deg,rgba(74,222,157,.07),rgba(242,193,78,.04))}
+  .smart-add textarea{width:100%;resize:none;border:0;background:transparent;color:var(--text);font-family:inherit;font-weight:500;font-size:14.5px;line-height:1.4;outline:0;padding:4px 4px 8px}
+  .smart-add textarea::placeholder{color:var(--muted);font-weight:400}
+  .smart-row{display:flex;gap:8px}
+  .smart-mic{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);background:var(--surface);color:var(--text);font-weight:600;font-size:13px;padding:10px 14px;border-radius:12px;cursor:pointer;transition:border-color .2s,color .2s}
+  .smart-mic:hover{border-color:rgba(108,182,255,.55);color:var(--sky)}
+  .smart-mic.rec{border-color:var(--coral);color:var(--coral);animation:micpulse 1s ease-in-out infinite}
+  @keyframes micpulse{0%,100%{opacity:1}50%{opacity:.55}}
+  .smart-go{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:12px;padding:10px;font-weight:800;font-size:13.5px;letter-spacing:.3px;color:#07130D;background:linear-gradient(180deg,var(--mint),#33c07f);cursor:pointer;transition:transform .12s}
+  .smart-go:active{transform:scale(.98)}
+  .smart-go:disabled{opacity:.5;cursor:default}
+  .smart-msg{margin-top:8px;font-size:12.5px;font-weight:500;color:var(--muted);line-height:1.4}
+  .smart-msg:empty{display:none}
+  .smart-msg b{color:var(--mint)}
+  /* alternar lista simples / por corredor */
+  .list-viewtoggle{display:flex;gap:6px;margin-bottom:12px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  .list-viewtoggle button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;background:transparent;color:var(--muted);font-weight:700;font-size:12.5px;padding:9px;border-radius:9px;cursor:pointer;transition:background .2s,color .2s}
+  .list-viewtoggle button.on{background:var(--surface-solid);color:var(--gold);box-shadow:0 2px 8px -4px rgba(0,0,0,.6)}
+  /* cabeçalho de corredor na lista */
+  .lsec{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin:16px 2px 9px}
+  .lsec:first-child{margin-top:4px}
+  .lsec .lsec-c{margin-left:auto;letter-spacing:.2px;text-transform:none;font-size:12px;color:var(--muted);font-weight:600}
 
   .winner{background:rgba(74,222,157,.05);border:1px solid rgba(74,222,157,.3);border-radius:20px;padding:20px 22px;margin-bottom:12px;position:relative;overflow:hidden;animation:pop .4s ease both}
   .winner .t{font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--mint)}
@@ -334,6 +357,17 @@
   <!-- LISTA -->
   <section id="view-lista" style="display:none">
     <div class="section-label">Minha lista de compras <span class="save" id="listCount"></span></div>
+
+    <!-- montar a lista falando/escrevendo do seu jeito, ou por prato (IA) -->
+    <div class="smart-add">
+      <textarea id="smartInput" rows="2" enterkeyhint="done" placeholder="Fale ou escreva do seu jeito: “arroz, 2 leites e uma dúzia de ovos” — ou um prato: “o que preciso p/ um strogonoff”"></textarea>
+      <div class="smart-row">
+        <button id="smartMic" class="smart-mic" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8"/></svg> Falar</button>
+        <button id="smartGo" class="smart-go" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Z"/><path d="M19 15v4M17 17h4"/></svg> Montar lista</button>
+      </div>
+      <div id="smartMsg" class="smart-msg"></div>
+    </div>
+
     <div class="manual-add">
       <input id="manualItem" type="text" placeholder="adicionar item à mão" enterkeyhint="done" />
       <button id="manualAdd">+ Add</button>
@@ -343,6 +377,10 @@
       <button id="nfeListaBtn">📷 Nota fiscal</button>
       <button id="exportBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9M8 13l4-4 4 4M4 5h16"/></svg> Exportar</button>
       <button id="clearBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg> Limpar</button>
+    </div>
+    <div class="list-viewtoggle" id="listViewToggle" style="display:none">
+      <button data-lv="simples" id="lvSimples" type="button">Lista simples</button>
+      <button data-lv="corredor" id="lvCorredor" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg> Por corredor</button>
     </div>
     <div id="listBody"></div>
     <input id="mercadosInput" class="mercados-input" type="text" placeholder="mercados p/ cotar (opcional): Assaí, Carrefour, Atacadão…" autocomplete="off" />
@@ -735,19 +773,165 @@ window.toggleList=function(nome,btn){
 function getList(){return store.get("list",[]);}
 function setList(l){store.set("list",l);updateBadge();}
 function updateBadge(){const n=getList().length;const b=$("#navBadge");if(n){b.style.display="flex";b.textContent=n;}else b.style.display="none";$("#listCount").textContent=n?`${n} ${n===1?"item":"itens"}`:"";}
+function liRow(x,i){
+  return `<div class="li"><div class="info"><div class="n">${esc(x.nome)}</div></div>
+    <div class="qty"><button onclick="chQty(${i},-1)">−</button><span>${x.qtd||1}</span><button onclick="chQty(${i},1)">+</button></div>
+    <button class="del" onclick="rmItem(${i})" aria-label="remover"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>`;
+}
+function listView(){return store.get("list_view","simples");}
 function renderList(){
   const l=getList();updateBadge();
-  if(!l.length){$("#listBody").innerHTML=`<p class="hint" style="text-align:left;padding:8px 2px">Sua lista está vazia. Adicione itens pelo <b style="color:var(--gold)">Catálogo</b>, à mão, ou <b style="color:var(--mint)">importe um arquivo</b>.</p>`;$("#compareBtn").disabled=true;$("#listResult").innerHTML="";return;}
+  const tg=$("#listViewToggle");
+  if(!l.length){$("#listBody").innerHTML=`<p class="hint" style="text-align:left;padding:8px 2px">Sua lista está vazia. Fale ou escreva do seu jeito no campo acima ✨, adicione pelo <b style="color:var(--gold)">Catálogo</b>, à mão, ou <b style="color:var(--mint)">importe um arquivo</b>.</p>`;$("#compareBtn").disabled=true;$("#listResult").innerHTML="";if(tg)tg.style.display="none";return;}
   $("#compareBtn").disabled=false;
-  $("#listBody").innerHTML=l.map((x,i)=>`<div class="li"><div class="info"><div class="n">${esc(x.nome)}</div></div>
-    <div class="qty"><button onclick="chQty(${i},-1)">−</button><span>${x.qtd||1}</span><button onclick="chQty(${i},1)">+</button></div>
-    <button class="del" onclick="rmItem(${i})" aria-label="remover"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>`).join("");
+  if(tg){tg.style.display=l.length>=2?"flex":"none";const v=listView();$("#lvSimples").classList.toggle("on",v!=="corredor");$("#lvCorredor").classList.toggle("on",v==="corredor");}
+  if(l.length>=2&&listView()==="corredor"){
+    const grupos=new Map();
+    l.forEach((x,i)=>{const s=secaoDoItem(x.nome);if(!grupos.has(s))grupos.set(s,[]);grupos.get(s).push({x,i});});
+    const ordenadas=SECAO_ORDEM.filter(s=>grupos.has(s));
+    $("#listBody").innerHTML=ordenadas.map(s=>{
+      const its=grupos.get(s),n=its.length;
+      return `<div class="lsec">${SECAO_EMOJI[s]||"🛒"} ${esc(s)}<span class="lsec-c">${n} ${n===1?"item":"itens"}</span></div>`+its.map(o=>liRow(o.x,o.i)).join("");
+    }).join("");
+  }else{
+    $("#listBody").innerHTML=l.map((x,i)=>liRow(x,i)).join("");
+  }
 }
+/* ===== corredores: em qual seção do mercado cada item fica ===== */
+const SECAO_ORDEM=["Hortifruti","Açougue e Aves","Laticínios e Frios","Congelados","Matinais","Mercearia","Doces e Snacks","Bebidas","Limpeza","Higiene e Perfumaria","Bebê","Pet","Outros"];
+const SECAO_EMOJI={...EMOJI,"Outros":"🛒"};
+const _stripAcc=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim();
+const ITEM2SEC=(()=>{const m=new Map();Object.keys(CATALOG).forEach(sec=>CATALOG[sec].forEach(n=>m.set(_stripAcc(n),sec)));return m;})();
+// palavras-chave p/ itens que o usuário escreve fora do catálogo
+const SEC_KW={
+  "Hortifruti":["hortifruti","verdura","legume","fruta","salada","tempero verde","cebolinha","salsa","coentro","rucula","agriao","espinafre","tomate","cebola","alho","batata","cenoura","alface","banana","maca","laranja","limao","mamao","melancia","abacaxi","manga","uva","abacate","morango","pimentao","abobrinha","chuchu","pepino","mandioca","beterraba","brocolis","couve","repolho","gengibre","milho verde"],
+  "Açougue e Aves":["carne","boi","bovin","frango","aves","ave","peito","coxa","sobrecoxa","asa","file","picanha","alcatra","patinho","acem","costela","moida","linguica","pernil","bisteca","suin","porco","peixe","tilapia","merluza","salmao","camarao","bacon defumado","cupim","fraldinha","maminha","contra file","musculo"],
+  "Laticínios e Frios":["leite","queijo","mussarela","muçarela","prato","minas","parmesao","requeijao","iogurte","manteiga","margarina","presunto","mortadela","peito de peru","salame","salsicha","calabresa","bacon","ovo","ovos","nata","danone","frios","lacteo"],
+  "Congelados":["congelad","sorvete","pizza congelada","hamburguer","hamburguer congelado","nugget","lasanha","polpa","batata palito","empanado","pao de queijo congelado"],
+  "Matinais":["cafe","cappuccino","achocolatado","nescau","toddy","chocolate em po","chocolate ao leite em po","cha ","cha de","aveia","granola","cereal","sucrilhos","biscoito","bolacha","cream cracker","torrada","pao de forma","pao frances","pao ","geleia","mel","tapioca","cuscuz","flocao","farinha de milho em flocos"],
+  "Mercearia":["arroz","feijao","acucar","sal","oleo","azeite","farinha","fuba","amido","maisena","macarrao","massa","molho de tomate","extrato","milho em conserva","ervilha","seleta","sardinha","atum","leite condensado","creme de leite","vinagre","maionese","ketchup","catchup","mostarda","azeitona","palmito","caldo","tempero","colorau","shoyu","leite em po","coco ralado","fermento","gelatina em po","enlatado","conserva"],
+  "Doces e Snacks":["chocolate","bombom","bala","chiclete","pipoca","salgadinho","amendoim","doce","brigadeiro","paçoca","pacoca","wafer","gelatina","sobremesa","snack","biscoito recheado"],
+  "Bebidas":["refri","refrigerante","coca","guarana","suco","agua","água","cerveja","energetico","vinho","isotonico","gatorade","cha gelado","refresco","po para refresco","tang","achocolatado pronto"],
+  "Limpeza":["detergente","sabao","sabão","amaciante","agua sanitaria","água sanitária","desinfetante","multiuso","limpa vidro","lustra","esponja","pano de chao","saco de lixo","papel toalha","alvejante","cloro","inseticida","veja","ype","limpeza","vassoura","rodo","desengordurante","cera"],
+  "Higiene e Perfumaria":["papel higienico","sabonete","shampoo","xampu","condicionador","creme dental","pasta de dente","escova de dente","fio dental","enxaguante","desodorante","absorvente","fralda","lamina","barbear","algodao","cotonete","hidratante","protetor solar","alcool em gel","lenço","lenco","perfume","higiene"],
+  "Bebê":["bebe","bebê","formula infantil","papinha","assadura","sabonete infantil","fralda bebe"],
+  "Pet":["racao","ração","gato","cachorro","cao","cães","caes","petisco","areia higienica","tapete higienico","antipulga","pet"]
+};
+function secaoDoItem(nome){
+  const n=_stripAcc(nome);if(!n)return "Outros";
+  if(ITEM2SEC.has(n))return ITEM2SEC.get(n);
+  // palavras-chave curadas primeiro (na ordem dos corredores) — evita que termos genéricos caiam na seção errada
+  for(const sec of SECAO_ORDEM){const kws=SEC_KW[sec];if(!kws)continue;for(const k of kws){if(n.includes(k))return sec;}}
+  // catálogo por conteúdo: o item digitado contém o nome completo de um produto do catálogo
+  for(const [cn,sec] of ITEM2SEC){if(cn.length>=4&&n.includes(cn))return sec;}
+  return "Outros";
+}
+window.setListView=function(v){store.set("list_view",v);renderList();};
 window.chQty=function(i,d){const l=getList();l[i].qtd=Math.max(1,(l[i].qtd||1)+d);setList(l);renderList();};
 window.rmItem=function(i){const l=getList();l.splice(i,1);setList(l);renderList();};
 $("#manualAdd").onclick=addManual;
 $("#manualItem").addEventListener("keydown",e=>{if(e.key==="Enter")addManual();});
 function addManual(){const v=$("#manualItem").value.trim();if(!v)return;const l=getList();l.push({nome:v,qtd:1});setList(l);$("#manualItem").value="";renderList();}
+
+/* ===== montar a lista falando/escrevendo do seu jeito, ou por prato (IA) ===== */
+$("#lvSimples").onclick=()=>setListView("simples");
+$("#lvCorredor").onclick=()=>setListView("corredor");
+const NUMW={um:1,uma:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,duzia:12,duzias:12,meia:6};
+function palavraNum(w){w=_stripAcc(w);return NUMW[w]!=null?NUMW[w]:(/^\d+$/.test(w)?+w:null);}
+function limpaNome(s){
+  s=String(s||"").trim().replace(/^(preciso de|preciso|eu quero|quero|comprar|compra|me v[eê]|adiciona(?:r)?|coloca(?:r)?|p[oõ]e|poe|bota(?:r)?|tem que ter|falta(?:ndo)?)\s+/i,"");
+  s=s.replace(/^(de|do|da|dos|das|um|uma|uns|umas|o|a|os|as)\s+/i,"");
+  return s.trim();
+}
+function parseFala(text){
+  const raw=String(text||"").replace(/\r/g,"");
+  const partes=raw.split(/\n|,|;|\/|\+|·|•|\be\b/gi).map(s=>s.trim()).filter(Boolean);
+  const out=[];
+  partes.forEach(s=>{
+    s=s.replace(/^[-*•\s]+/,"").trim();if(!s)return;
+    let m=s.match(/^meia\s+d[uú]zia\s+(?:de\s+)?(.+)$/i);
+    if(m){const nome=limpaNome(m[1]);if(nome)out.push({nome,qtd:6});return;}
+    m=s.match(/^(\d+|um|uma|dois|duas|tr[eê]s|quatro|cinco|seis|sete|oito|nove|dez|d[uú]zias?)\s+(caixas?|cx|pacotes?|pct|fardos?|latas?|garrafas?|litros?|litro|kg|quilos?|gramas?|sacos?|potes?|unidades?|un|d[uú]zias?)\b\s*(?:de\s+|do\s+|da\s+)?(.+)$/i);
+    if(m){let q=palavraNum(m[1])||1;if(/^d[uú]zia/.test(_stripAcc(m[2])))q=(palavraNum(m[1])||1)*12;const nome=limpaNome(m[3]);if(nome){out.push({nome,qtd:q});return;}}
+    m=s.match(/^(\d+)\s*x?\s+(.+)$/i);
+    if(m){const nome=limpaNome(m[2]);if(nome){out.push({nome,qtd:Math.max(1,+m[1])});return;}}
+    m=s.match(/^(.+?)\s+(\d{1,2})$/);
+    if(m){const nome=limpaNome(m[1]);if(nome){out.push({nome,qtd:Math.max(1,+m[2])});return;}}
+    const nome=limpaNome(s);if(nome)out.push({nome,qtd:1});
+  });
+  return out;
+}
+function promptMontar(texto){
+  return `O usuário quer montar uma LISTA DE COMPRAS de supermercado. Ele escreveu (pode ser fala transcrita, informal, com erros de digitação):
+"""${texto}"""
+
+Sua tarefa:
+- Se for uma LISTA de itens (mesmo bagunçada), transforme em itens de supermercado, um por item, com a quantidade certa. Entenda quantidades por extenso e medidas: "uma dúzia de ovos" = 12 ovos; "meia dúzia" = 6; "2 caixas de leite" = 2; "um fardo de cerveja" = 1.
+- Se for o NOME DE UM PRATO ou um pedido de receita (ex.: "strogonoff", "o que preciso pra fazer uma feijoada", "bolo de cenoura", "lasanha"), liste os INGREDIENTES de supermercado para prepará-lo (porção para ~4 pessoas), com quantidades realistas.
+- Use nomes GENÉRICOS e comuns de produto (ex.: "arroz", "peito de frango", "creme de leite"), SEM marca, para facilitar a cotação de preço depois.
+- Não invente nada além do que faz sentido para a lista/prato. Isto é só a lista — NÃO cote preços.
+Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
+{"tipo":"lista","prato":"","itens":[{"nome":"","qtd":1}]}
+"tipo" é "lista" ou "receita". Em receita, preencha "prato". "qtd" é um inteiro (quantas unidades comprar); se não souber, use 1.`;
+}
+async function callClaudeTexto(prompt,maxTokens){
+  const model=CONFIG.MODEL||"claude-opus-4-8";
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":CONFIG.API_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model,max_tokens:maxTokens,messages:[{role:"user",content:prompt}]})});
+  const d=await r.json();if(d.error)throw new Error(d.error.message||"erro na API");
+  const text=(d.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").trim();return {text};
+}
+async function engineMontar(texto){
+  if(CONFIG.API_KEY){const data=await callClaudeTexto(promptMontar(texto),1500);const p=extractJson(data.text);if(!p)throw new Error("não consegui montar a lista (tente de novo)");return p;}
+  const r=await fetch(CONFIG.API_ENDPOINT.replace(/\/$/,"")+"/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({montar:texto})});
+  const d=await r.json();if(!d.ok)throw new Error(d.erro||"erro");return d;
+}
+$("#smartGo").onclick=montarListaIA;
+$("#smartInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)){e.preventDefault();montarListaIA();}});
+async function montarListaIA(){
+  const box=$("#smartInput"),texto=(box.value||"").trim(),msg=$("#smartMsg"),btn=$("#smartGo");
+  if(!texto){box.focus();return;}
+  const localP=parseFala(texto);
+  const t=_stripAcc(texto);
+  const pareceReceita=/(receita|ingrediente|como (fa[cz]|fazer)|pra fazer|para fazer|o que (preciso|leva|comprar))/.test(t)||(localP.length<=1&&t.split(/\s+/).length<=3&&!/\d/.test(t));
+  btn.disabled=true;
+  try{
+    if(engineOn()){
+      msg.innerHTML="✨ Entendendo com a IA…";
+      const d=await engineMontar(texto);
+      const itens=(d.itens||[]).map(it=>({nome:String(it.nome||"").trim(),qtd:Math.max(1,Math.round(toNum(it.qtd)||1))})).filter(it=>it.nome);
+      if(!itens.length)throw new Error("não achei itens");
+      const add=inserirNaLista(itens);box.value="";renderList();
+      const receita=d.tipo==="receita"&&d.prato;
+      msg.innerHTML=receita?`🍳 <b>${esc(d.prato)}</b> · ${itens.length} ${itens.length===1?"ingrediente":"ingredientes"} na sua lista${add<itens.length?" (alguns já estavam)":""}.`:`✅ <b>${add||itens.length}</b> ${(add||itens.length)===1?"item adicionado":"itens adicionados"}${add<itens.length?" (o resto já estava na lista)":""}.`;
+      toast(receita?`🍳 Ingredientes de ${d.prato} na lista`:`✅ ${add||itens.length} na sua lista`);
+    }else{
+      if(pareceReceita){msg.innerHTML="🍳 Pra transformar um <b>prato em ingredientes</b>, ligue o <b>motor</b> (chave sk-ant-…) no botão do motor lá em cima. Sem motor dá pra escrever os itens separados por vírgula.";return;}
+      if(!localP.length){msg.innerHTML="Não entendi os itens. Separe por vírgula — ex.: <b>arroz, feijão, 2 leites</b>.";return;}
+      const add=inserirNaLista(localP);box.value="";renderList();
+      msg.innerHTML=`✅ <b>${add||localP.length}</b> ${(add||localP.length)===1?"item adicionado":"itens adicionados"}. <span style="color:var(--muted)">Ligue o motor p/ entender receitas e quantidades por extenso.</span>`;
+      toast(`✅ ${add||localP.length} na sua lista`);
+    }
+  }catch(err){
+    if(localP.length){const add=inserirNaLista(localP);box.value="";renderList();msg.innerHTML=`✅ <b>${add||localP.length}</b> ${(add||localP.length)===1?"item":"itens"} (modo simples). <span style="color:var(--coral)">${esc(erroAmigavel(err.message))}</span>`;}
+    else msg.innerHTML="❌ "+esc(erroAmigavel(err.message));
+  }finally{btn.disabled=false;}
+}
+/* ditar por voz (Web Speech API quando houver; senão, microfone do teclado) */
+let _rec=null,_recOn=false;
+$("#smartMic").onclick=function(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){$("#smartInput").focus();toast("🎤 Toque no microfone do teclado do iPhone para ditar aqui.");return;}
+  if(_recOn&&_rec){try{_rec.stop();}catch(e){}return;}
+  try{
+    _rec=new SR();_rec.lang="pt-BR";_rec.interimResults=true;_rec.continuous=false;
+    const base=$("#smartInput").value?($("#smartInput").value.trim()+" "):"";
+    _rec.onstart=()=>{_recOn=true;$("#smartMic").classList.add("rec");$("#smartMsg").innerHTML="🎤 Ouvindo… fale sua lista (ex.: “arroz, dois leites e uma dúzia de ovos”).";};
+    _rec.onerror=ev=>{$("#smartMsg").innerHTML=(ev.error==="not-allowed"||ev.error==="service-not-allowed")?"🎤 Permita o microfone no navegador para ditar (ou use o 🎤 do teclado do iPhone).":"🎤 Não consegui ouvir agora. Tente de novo ou use o teclado.";};
+    _rec.onend=()=>{_recOn=false;$("#smartMic").classList.remove("rec");};
+    _rec.onresult=evn=>{let tx="";for(let i=0;i<evn.results.length;i++)tx+=evn.results[i][0].transcript;$("#smartInput").value=base+tx;};
+    _rec.start();
+  }catch(e){$("#smartInput").focus();toast("🎤 Use o microfone do teclado do iPhone para ditar.");}
+};
 $("#clearBtn").onclick=()=>{if(getList().length&&confirm("Limpar toda a lista?")){setList([]);renderList();$("#listResult").innerHTML="";}};
 $("#exportBtn").onclick=()=>{
   const l=getList();if(!l.length)return;
