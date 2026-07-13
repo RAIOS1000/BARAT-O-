@@ -38,6 +38,7 @@ export default {
     try {
       if (request.method === "POST") {
         const b = await request.json().catch(() => ({}));
+        if (b.foto) return await modoFoto(b, env, cors);
         if (Array.isArray(b.lista) && b.lista.length) return await modoLista(b, env, cors);
         return await modoBusca(b.produto, b.local, b.marcas, env, cors);
       } else {
@@ -101,6 +102,32 @@ Use ponto decimal. "marca" é obrigatória quando houver; "preco_unidade" pode s
   const parsed = extractJson(data.text);
   if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
   return json({ ok: true, modo: "lista", ...parsed }, 200, cors);
+}
+
+async function modoFoto(b, env, cors) {
+  const media = (b.media || "image/jpeg").toString();
+  const prompt =
+`Você recebeu a FOTO de um cupom fiscal brasileiro (NFC-e/SAT). Hoje é ${hojeBR()}. Leia com atenção e extraia os dados REAIS impressos no cupom — NUNCA invente; o que não der pra ler com certeza vai em "obs".
+Devolva APENAS JSON válido, sem markdown, sem texto antes ou depois:
+{"loja":"","data":"","local":"","total":0.00,"itens":[{"nome":"","marca":"","qtd":1,"preco_unit":0.00,"preco_total":0.00,"obs":""}]}
+Use ponto decimal. "preco_unit" é o preço unitário e "preco_total" é o valor daquele item no cupom.`;
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+    body: JSON.stringify({
+      model: getModel(env), max_tokens: 3000,
+      messages: [{ role: "user", content: [
+        { type: "image", source: { type: "base64", media_type: media, data: b.foto } },
+        { type: "text", text: prompt },
+      ] }],
+    }),
+  });
+  const data = await r.json();
+  if (data.error) throw new Error(data.error.message || "erro na API");
+  const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
+  const parsed = extractJson(text);
+  if (!parsed) return json({ ok: false, erro: "não consegui ler o cupom", cru: text.slice(0, 400) }, 502, cors);
+  return json({ ok: true, modo: "foto", ...parsed }, 200, cors);
 }
 
 async function callClaude(prompt, maxBuscas, maxTokens, env) {
