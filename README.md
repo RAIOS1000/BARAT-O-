@@ -6,6 +6,8 @@ Jogue sua **lista de compras** e o Baratão faz a **cotação do preço do dia**
 
 - 🧾 **Jogue a lista** — digite, adicione pelo catálogo (+200 itens) ou **importe um arquivo** (.txt/.csv)
 - 🏪 **Meus mercados** — já vem preenchido com *Assaí, Carrefour, Costa, Moreirinha, Pão de Açúcar* (edite à vontade) e ele cota **exatamente nessas redes**
+- ⭐ **Minhas marcas favoritas** — informe as marcas que você gosta (ex.: Tio João, Pilão, OMO) e ele **prioriza essas marcas** quando o preço é competitivo; se a favorita estiver muito mais cara, mostra a alternativa e avisa
+- 📲 **Instala no iPhone** — abra no Safari → Compartilhar → *Adicionar à Tela de Início*; vira um app com ícone próprio (passo a passo no `MANUAL.md`)
 - 💰 **Cotar preço do dia** — com o motor ligado, ele pesquisa na web com **olhar de comprador/dono de mercado** (menor custo real, sem visar lucro) e entrega: melhor preço por item **com preço por kg/L/un**, o **mercado campeão** (total num lugar só), a **cesta ótima** (cada item no mais barato + se vale rachar a compra) e **dicas de comprador** (caixa fechada, atacarejo, promoção)
 - 🔎 **Buscar** — melhor preço de um produto avulso (com o motor) ou comparadores grátis (sem motor)
 - 📡 **Radar de preço** — preço-alvo que acende 🎯 quando a busca acha mais barato
