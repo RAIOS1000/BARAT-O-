@@ -53,11 +53,11 @@ export default {
 async function modoBusca(produto, local, env, cors) {
   if (!produto) return json({ ok: false, erro: "faltou 'produto'" }, 400, cors);
   const prompt =
-`Você é um caçador de ofertas no Brasil. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local ? ` para quem está em ${local}` : ""}.
-Priorize supermercados e lojas que atendam essa região; considere também marketplaces confiáveis. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Se um preço for estimativa ou de outra região, diga em "obs".
+`Você é um comprador esperto no Brasil, com mentalidade de dono de supermercado: quer o MENOR CUSTO REAL, sem visar lucro. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local ? ` para quem está em ${local}` : ""}.
+Priorize supermercados/atacarejos que atendam essa região; considere marketplaces confiáveis. Compare o PREÇO POR UNIDADE (kg/L/un) e prefira a embalagem que sai mais barata por unidade. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Preço estimado ou de outra região vai em "obs".
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
-{"produto":"${produto}","local":"${local || ""}","resultados":[{"loja":"","preco":0.00,"unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
-Use ponto decimal. Sem link confiável, use "link":"".`;
+{"produto":"${produto}","local":"${local || ""}","resultados":[{"loja":"","preco":0.00,"unidade":"","preco_unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
+Use ponto decimal. "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg"). Sem link confiável, use "link":"".`;
   const data = await callClaude(prompt, MAX_BUSCAS_ITEM, 2200, env);
   const parsed = extractJson(data.text);
   if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
@@ -70,16 +70,25 @@ async function modoLista(b, env, cors) {
   const mercados = (b.mercados || "").toString().trim();
   const alvo = mercados
     ? `Cote a lista NESTES mercados (um total para cada um): ${mercados}.`
-    : `Escolha grandes redes que atendam ${local || "a região"} (ex.: Assaí, Atacadão, Carrefour, Pão de Açúcar e redes regionais).`;
+    : `Escolha grandes redes/atacarejos que atendam ${local || "a região"} (ex.: Assaí, Atacadão, Carrefour, Pão de Açúcar e redes regionais).`;
   const prompt =
-`Você é um assistente de compras no Brasil. Hoje é ${hojeBR()}. Para quem está em ${local || "Brasil"}, pesquise na web os preços ATUAIS dos itens da lista de compras abaixo. ${alvo}
+`Você é um COMPRADOR PROFISSIONAL / dono de supermercado fazendo a compra do mês para você mesmo — sem visar lucro, só o MENOR CUSTO REAL. Hoje é ${hojeBR()}. Para quem está em ${local || "Brasil"}, pesquise na web os preços ATUAIS dos itens abaixo. ${alvo}
+Pense como um comprador experiente:
+- Compare sempre o PREÇO POR UNIDADE (por kg, litro ou unidade), não só o preço da embalagem.
+- Prefira atacarejo e, quando o preço por unidade compensar, embalagem maior / caixa fechada / fardo / saco.
+- Aproveite promoções e o encarte da semana.
+- Seja honesto: preço estimado, indisponível ou de outra região vai em "obs".
+
 LISTA:
 ${itens.map((n, i) => `${i + 1}. ${n}`).join("\n")}
 
-Para cada item, informe o melhor preço encontrado e em qual loja. Depois some o total por mercado e diga qual mercado sai mais barato no geral e quanto se economiza escolhendo ele. Seja honesto: se um preço for estimativa ou indisponível, marque em "obs".
+Para cada item: melhor preço, loja, a embalagem cotada e o preço por unidade. Depois entregue:
+1) o total por mercado (comprando tudo em um só) e qual mercado sai mais barato no total;
+2) a "cesta ótima": comprando cada item onde está mais barato, o total e quanto economiza vs o melhor mercado único;
+3) dicas de comprador (itens que compensam em caixa fechada/atacado, ou em promoção agora).
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
-{"local":"${local}","itens":[{"nome":"","melhor_preco":0.00,"melhor_loja":"","link":"","obs":""}],"por_mercado":[{"loja":"","total_estimado":0.00,"itens_encontrados":0}],"melhor_mercado":"","economia_estimada":0.00,"resumo":""}
-Use ponto decimal.`;
+{"local":"${local}","itens":[{"nome":"","melhor_preco":0.00,"melhor_loja":"","embalagem":"","preco_unidade":"","link":"","obs":""}],"por_mercado":[{"loja":"","total_estimado":0.00,"itens_encontrados":0}],"melhor_mercado":"","economia_estimada":0.00,"cesta_otima":{"total":0.00,"economia":0.00,"itens":[{"nome":"","loja":"","preco":0.00}]},"dicas":[""],"resumo":""}
+Use ponto decimal. "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg").`;
   const data = await callClaude(prompt, MAX_BUSCAS_LISTA, 4200, env);
   const parsed = extractJson(data.text);
   if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);

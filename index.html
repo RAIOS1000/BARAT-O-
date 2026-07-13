@@ -172,6 +172,15 @@
   .mkt-row .n{flex:1;font-weight:700;font-size:14px}
   .mkt-row .v{font-family:"Anton",sans-serif;font-size:18px}
   .mkt-row .c{color:var(--muted);font-size:11.5px;font-weight:600}
+  .winner.alt{background:linear-gradient(140deg,#2c2717,#1c1810);border-color:rgba(255,197,61,.4)}
+  .winner.alt .t{color:var(--gold)}
+  .winner.alt .tot{color:#e7cf98}
+  .tips{margin-top:16px;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 16px}
+  .tips .th{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:9px;display:flex;align-items:center;gap:6px}
+  .tips ul{margin:0;padding-left:18px}
+  .tips li{font-size:13px;line-height:1.6;color:var(--text);margin-bottom:5px}
+  .tips li::marker{color:var(--gold)}
+  .row .p em{display:block;font-family:"Plus Jakarta Sans",sans-serif;font-style:normal;font-size:10.5px;font-weight:700;color:var(--mint);text-align:right;margin-top:1px}
 
   /* radar */
   .radar-empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px;line-height:1.6}
@@ -405,23 +414,32 @@ function webSearchName(model){return /haiku|opus-4-1|opus-4-0|sonnet-4-5|sonnet-
 function extractJson(text){if(!text)return null;const t=String(text).replace(/```json/gi,"").replace(/```/g,"").trim();const a=t.indexOf("{"),b=t.lastIndexOf("}");if(a<0||b<0)return null;try{return JSON.parse(t.slice(a,b+1));}catch(e){return null;}}
 
 function promptBusca(produto,local){
-  return `Você é um caçador de ofertas no Brasil. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local?` para quem está em ${local}`:""}.
-Priorize supermercados e lojas que atendam essa região; considere também marketplaces confiáveis. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Se um preço for estimativa ou de outra região, diga em "obs".
+  return `Você é um comprador esperto no Brasil, com mentalidade de dono de supermercado: quer o MENOR CUSTO REAL, sem visar lucro. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local?` para quem está em ${local}`:""}.
+Priorize supermercados/atacarejos que atendam essa região; considere marketplaces confiáveis. Compare o PREÇO POR UNIDADE (kg/L/un) e prefira a embalagem que sai mais barata por unidade. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Preço estimado ou de outra região vai em "obs".
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
-{"produto":"${produto}","local":"${local||""}","resultados":[{"loja":"","preco":0.00,"unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
-Use ponto decimal. Sem link confiável, use "link":"".`;
+{"produto":"${produto}","local":"${local||""}","resultados":[{"loja":"","preco":0.00,"unidade":"","preco_unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
+Use ponto decimal. "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg"). Sem link confiável, use "link":"".`;
 }
 function promptLista(l,local,mercados){
   const itens=l.map(x=>(typeof x==="string"?x:`${x.qtd>1?x.qtd+"x ":""}${x.nome}`)).slice(0,40);
-  const alvo=mercados?`Cote a lista NESTES mercados (um total para cada um): ${mercados}.`:`Escolha grandes redes que atendam ${local||"a região"} (ex.: Assaí, Atacadão, Carrefour, Pão de Açúcar e redes regionais).`;
-  return `Você é um assistente de compras no Brasil. Hoje é ${hojeBR()}. Para quem está em ${local||"Brasil"}, pesquise na web os preços ATUAIS dos itens da lista de compras abaixo. ${alvo}
+  const alvo=mercados?`Cote a lista NESTES mercados (um total para cada um): ${mercados}.`:`Escolha grandes redes/atacarejos que atendam ${local||"a região"} (ex.: Assaí, Atacadão, Carrefour, Pão de Açúcar e redes regionais).`;
+  return `Você é um COMPRADOR PROFISSIONAL / dono de supermercado fazendo a compra do mês para você mesmo — sem visar lucro, só o MENOR CUSTO REAL. Hoje é ${hojeBR()}. Para quem está em ${local||"Brasil"}, pesquise na web os preços ATUAIS dos itens abaixo. ${alvo}
+Pense como um comprador experiente:
+- Compare sempre o PREÇO POR UNIDADE (por kg, litro ou unidade), não só o preço da embalagem.
+- Prefira atacarejo e, quando o preço por unidade compensar, embalagem maior / caixa fechada / fardo / saco.
+- Aproveite promoções e o encarte da semana.
+- Seja honesto: preço estimado, indisponível ou de outra região vai em "obs".
+
 LISTA:
 ${itens.map((n,i)=>`${i+1}. ${n}`).join("\n")}
 
-Para cada item, informe o melhor preço encontrado e em qual loja. Depois some o total por mercado e diga qual mercado sai mais barato no geral e quanto se economiza escolhendo ele. Seja honesto: se um preço for estimativa ou indisponível, marque em "obs".
+Para cada item: melhor preço, loja, a embalagem cotada e o preço por unidade. Depois entregue:
+1) o total por mercado (comprando tudo em um só) e qual mercado sai mais barato no total;
+2) a "cesta ótima": comprando cada item onde está mais barato, o total e quanto economiza vs o melhor mercado único;
+3) dicas de comprador (itens que compensam em caixa fechada/atacado, ou em promoção agora).
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
-{"local":"${local||""}","itens":[{"nome":"","melhor_preco":0.00,"melhor_loja":"","link":"","obs":""}],"por_mercado":[{"loja":"","total_estimado":0.00,"itens_encontrados":0}],"melhor_mercado":"","economia_estimada":0.00,"resumo":""}
-Use ponto decimal.`;
+{"local":"${local||""}","itens":[{"nome":"","melhor_preco":0.00,"melhor_loja":"","embalagem":"","preco_unidade":"","link":"","obs":""}],"por_mercado":[{"loja":"","total_estimado":0.00,"itens_encontrados":0}],"melhor_mercado":"","economia_estimada":0.00,"cesta_otima":{"total":0.00,"economia":0.00,"itens":[{"nome":"","loja":"","preco":0.00}]},"dicas":[""],"resumo":""}
+Use ponto decimal. "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg").`;
 }
 async function callClaudeDireto(prompt,maxBuscas,maxTokens){
   const model=CONFIG.MODEL||"claude-opus-4-8";
@@ -507,9 +525,9 @@ function renderInteligente(d,produto,cached){
   lastBest={produto,preco:items[0].preco,loja:items[0].loja}; checkRadar(produto,items[0].preco);
   const best=items[0],worst=items[items.length-1],eco=worst.preco-best.preco,pct=worst.preco>0?Math.round(eco/worst.preco*100):0;
   const save=items.length>1&&eco>0.009?`<span class="save">economize até <b>${money(eco)}</b> (${pct}%)</span>`:"";
-  const others=items.slice(1,7).map((r,i)=>`<div class="row ${r===worst&&items.length>2?"high":""}" style="animation-delay:${i*55}ms"><span class="rank">${i+2}º</span><div class="info"><div class="n">${esc(r.loja||"Loja")}</div><div class="d">${esc([r.local,r.obs].filter(Boolean).join(" · ")||"—")}</div></div><div class="p"><small>R$</small>${money(r.preco,false)}</div>${r.link?`<a class="mini" href="${esc(r.link)}" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a>`:""}</div>`).join("");
+  const others=items.slice(1,7).map((r,i)=>`<div class="row ${r===worst&&items.length>2?"high":""}" style="animation-delay:${i*55}ms"><span class="rank">${i+2}º</span><div class="info"><div class="n">${esc(r.loja||"Loja")}</div><div class="d">${esc([r.local,r.preco_unidade,r.obs].filter(Boolean).join(" · ")||"—")}</div></div><div class="p"><small>R$</small>${money(r.preco,false)}${r.preco_unidade?`<em>${esc(r.preco_unidade)}</em>`:""}</div>${r.link?`<a class="mini" href="${esc(r.link)}" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a>`:""}</div>`).join("");
   $("#panel").innerHTML=`<div class="section-label">Menor preço ${save}</div>
-    <div class="best"><div class="selo">BARATÃO</div><div class="store">${esc(best.loja||"Loja")}</div><div class="loc">${esc([best.local,best.obs].filter(Boolean).join(" · ")||d.local||"")}</div>
+    <div class="best"><div class="selo">BARATÃO</div><div class="store">${esc(best.loja||"Loja")}</div><div class="loc">${esc([best.local,best.preco_unidade,best.obs].filter(Boolean).join(" · ")||d.local||"")}</div>
       <div class="best-bottom"><div class="pricetag"><span class="cur">R$</span><span class="val">${money(best.preco,false)}</span></div>${best.link?`<a class="btn-oferta" href="${esc(best.link)}" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg> Ver oferta</a>`:""}</div></div>
     ${others?`<div class="section-label" style="margin-top:22px">Outras ofertas</div><div class="rows">${others}</div>`:""}
     <div class="actions"><button class="act mint" onclick="addRadar('${escAttr(produto)}',${best.preco})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg> Vigiar no radar</button><button class="act" onclick="compartilhar('${escAttr(produto)}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg> Compartilhar</button></div>
@@ -675,17 +693,33 @@ function getMercados(){return ($("#mercadosInput")?.value??store.get("mercados",
 function renderListResult(d){
   const mercados=(d.por_mercado||[]).map(m=>({...m,total:toNum(m.total_estimado)})).filter(m=>m.total>0).sort((a,b)=>a.total-b.total);
   const itens=d.itens||[];
+  const linkIco=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>`;
   let html="";
   if(mercados.length){
     const win=mercados[0];
-    html+=`<div class="winner"><div class="t">🏆 Mercado mais barato</div><div class="m">${esc(win.loja||d.melhor_mercado||"—")}</div><div class="tot">total estimado ${money(win.total)}${d.economia_estimada?` · economia ~${money(toNum(d.economia_estimada))}`:""}</div></div>`;
+    html+=`<div class="winner"><div class="t">🏆 Num mercado só · mais barato</div><div class="m">${esc(win.loja||d.melhor_mercado||"—")}</div><div class="tot">total ${money(win.total)}${d.economia_estimada?` · economiza ~${money(toNum(d.economia_estimada))} vs o mais caro`:""}</div></div>`;
     html+=mercados.slice(1).map(m=>`<div class="mkt-row"><div class="n">${esc(m.loja)}<div class="c">${m.itens_encontrados||"?"} itens encontrados</div></div><div class="v">${money(m.total,false)}</div></div>`).join("");
   }
-  if(itens.length){
-    html+=`<div class="section-label" style="margin-top:18px">Melhor preço por item</div>`;
-    html+=itens.map(it=>{const p=toNum(it.melhor_preco);return `<div class="row"><div class="info"><div class="n">${esc(it.nome)}</div><div class="d">${esc([it.melhor_loja,it.obs].filter(Boolean).join(" · ")||"—")}</div></div><div class="p">${p>0?`<small>R$</small>${money(p,false)}`:"—"}</div>${it.link?`<a class="mini" href="${esc(it.link)}" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a>`:""}</div>`;}).join("");
+  // cesta ótima: cada item no mais barato
+  const cesta=d.cesta_otima||null, cTot=cesta?toNum(cesta.total):0, cEco=cesta?toNum(cesta.economia):0;
+  if(cTot>0){
+    const vale=cEco>=1;
+    html+=`<div class="winner alt" style="margin-top:12px"><div class="t">🧺 Cesta ótima · cada item no mais barato</div><div class="m">${money(cTot)}</div><div class="tot">${vale?`economiza mais ~${money(cEco)} rachando a compra entre lojas`:"quase igual a comprar tudo num lugar só — rodar vários mercados provavelmente não compensa"}</div></div>`;
   }
-  html+=`<div class="source">${esc(d.resumo||"Estimativas de preço obtidas na web.")} Valores podem variar por unidade/loja — confirme antes de comprar.</div>`;
+  if(itens.length){
+    html+=`<div class="section-label" style="margin-top:18px">Melhor preço por item <span class="save">👀 olho no preço por unidade</span></div>`;
+    html+=itens.map(it=>{
+      const p=toNum(it.melhor_preco);
+      const det=[it.melhor_loja,it.embalagem,it.obs].filter(Boolean).join(" · ")||"—";
+      const pu=(it.preco_unidade||"").toString().trim();
+      return `<div class="row"><div class="info"><div class="n">${esc(it.nome)}</div><div class="d">${esc(det)}</div></div><div class="p">${p>0?`<small>R$</small>${money(p,false)}`:"—"}${pu?`<em>${esc(pu)}</em>`:""}</div>${it.link?`<a class="mini" href="${esc(it.link)}" target="_blank" rel="noopener">${linkIco}</a>`:""}</div>`;
+    }).join("");
+  }
+  const dicas=(d.dicas||[]).filter(Boolean);
+  if(dicas.length){
+    html+=`<div class="tips"><div class="th">💡 Olhar de comprador</div><ul>${dicas.slice(0,6).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`;
+  }
+  html+=`<div class="source">${esc(d.resumo||"Cotação obtida na web.")} Valores variam por unidade/loja — confirme no mercado antes de comprar. Regra de dono: compare sempre o preço por kg/L.</div>`;
   $("#listResult").innerHTML=html||`<p class="hint">Sem resultado desta vez. Tente de novo.</p>`;
 }
 
