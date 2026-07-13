@@ -131,6 +131,9 @@
   .mercados-input{width:100%;margin-bottom:12px;padding:11px 14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);font-weight:600;font-size:13.5px;outline:0}
   .mercados-input::placeholder{color:var(--muted);font-weight:500}
   .mercados-input:focus{border-color:var(--gold)}
+  .demo-link{display:block;width:100%;margin-top:10px;background:transparent;border:0;color:var(--muted);font-weight:700;font-size:12.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+  .demo-link:hover{color:var(--gold)}
+  .demo-badge{display:inline-block;margin-bottom:10px;padding:5px 11px;border-radius:999px;background:rgba(90,176,255,.12);border:1px solid rgba(90,176,255,.35);color:var(--sky);font-weight:800;font-size:11.5px;letter-spacing:.3px}
 
   /* catálogo */
   .cat-search{margin-top:4px;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;background:var(--surface-solid);border:1px solid var(--line-strong)}
@@ -181,6 +184,8 @@
   .tips li{font-size:13px;line-height:1.6;color:var(--text);margin-bottom:5px}
   .tips li::marker{color:var(--gold)}
   .row .p em{display:block;font-family:"Plus Jakarta Sans",sans-serif;font-style:normal;font-size:10.5px;font-weight:700;color:var(--mint);text-align:right;margin-top:1px}
+  .daytag{display:inline-flex;align-items:center;gap:7px;margin-bottom:12px;padding:8px 13px;border-radius:999px;background:rgba(67,227,155,.1);border:1px solid rgba(67,227,155,.32);color:var(--mint);font-weight:800;font-size:12.5px}
+  .row .info .d b{color:var(--gold)}
 
   /* radar */
   .radar-empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px;line-height:1.6}
@@ -289,6 +294,7 @@
     <div id="listBody"></div>
     <input id="mercadosInput" class="mercados-input" type="text" placeholder="mercados p/ cotar (opcional): Assaí, Carrefour, Atacadão…" autocomplete="off" />
     <button class="big-compare" id="compareBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg> COTAR PREÇO DO DIA</button>
+    <button class="demo-link" id="demoBtn">👀 ver um exemplo de cotação (demo, sem chave)</button>
     <div id="listResult" style="margin-top:16px"></div>
   </section>
 
@@ -415,10 +421,10 @@ function extractJson(text){if(!text)return null;const t=String(text).replace(/``
 
 function promptBusca(produto,local){
   return `Você é um comprador esperto no Brasil, com mentalidade de dono de supermercado: quer o MENOR CUSTO REAL, sem visar lucro. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local?` para quem está em ${local}`:""}.
-Priorize supermercados/atacarejos que atendam essa região; considere marketplaces confiáveis. Compare o PREÇO POR UNIDADE (kg/L/un) e prefira a embalagem que sai mais barata por unidade. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Preço estimado ou de outra região vai em "obs".
+Priorize supermercados/atacarejos que atendam essa região; considere marketplaces confiáveis. Informe a MARCA de cada opção, compare o PREÇO POR UNIDADE (kg/L/un) e prefira a embalagem que sai mais barata por unidade. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Preço estimado ou de outra região vai em "obs".
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
-{"produto":"${produto}","local":"${local||""}","resultados":[{"loja":"","preco":0.00,"unidade":"","preco_unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
-Use ponto decimal. "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg"). Sem link confiável, use "link":"".`;
+{"produto":"${produto}","local":"${local||""}","data":"${hojeBR()}","resultados":[{"loja":"","marca":"","preco":0.00,"unidade":"","preco_unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
+Use ponto decimal. "marca" quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg"). Sem link confiável, use "link":"".`;
 }
 function promptLista(l,local,mercados){
   const itens=l.map(x=>(typeof x==="string"?x:`${x.qtd>1?x.qtd+"x ":""}${x.nome}`)).slice(0,40);
@@ -433,13 +439,13 @@ Pense como um comprador experiente:
 LISTA:
 ${itens.map((n,i)=>`${i+1}. ${n}`).join("\n")}
 
-Para cada item: melhor preço, loja, a embalagem cotada e o preço por unidade. Depois entregue:
+Para cada item informe: a MARCA cotada (ex.: Tio João, Camil, Qualitá), o melhor preço, a loja, a embalagem e o preço por unidade. Depois entregue:
 1) o total por mercado (comprando tudo em um só) e qual mercado sai mais barato no total;
 2) a "cesta ótima": comprando cada item onde está mais barato, o total e quanto economiza vs o melhor mercado único;
 3) dicas de comprador (itens que compensam em caixa fechada/atacado, ou em promoção agora).
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
-{"local":"${local||""}","itens":[{"nome":"","melhor_preco":0.00,"melhor_loja":"","embalagem":"","preco_unidade":"","link":"","obs":""}],"por_mercado":[{"loja":"","total_estimado":0.00,"itens_encontrados":0}],"melhor_mercado":"","economia_estimada":0.00,"cesta_otima":{"total":0.00,"economia":0.00,"itens":[{"nome":"","loja":"","preco":0.00}]},"dicas":[""],"resumo":""}
-Use ponto decimal. "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg").`;
+{"local":"${local||""}","data":"${hojeBR()}","itens":[{"nome":"","marca":"","melhor_preco":0.00,"melhor_loja":"","embalagem":"","preco_unidade":"","link":"","obs":""}],"por_mercado":[{"loja":"","total_estimado":0.00,"itens_encontrados":0}],"melhor_mercado":"","economia_estimada":0.00,"cesta_otima":{"total":0.00,"economia":0.00,"itens":[{"nome":"","loja":"","preco":0.00}]},"dicas":[""],"resumo":""}
+Use ponto decimal. "marca" é obrigatória quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg").`;
 }
 async function callClaudeDireto(prompt,maxBuscas,maxTokens){
   const model=CONFIG.MODEL||"claude-opus-4-8";
@@ -525,13 +531,13 @@ function renderInteligente(d,produto,cached){
   lastBest={produto,preco:items[0].preco,loja:items[0].loja}; checkRadar(produto,items[0].preco);
   const best=items[0],worst=items[items.length-1],eco=worst.preco-best.preco,pct=worst.preco>0?Math.round(eco/worst.preco*100):0;
   const save=items.length>1&&eco>0.009?`<span class="save">economize até <b>${money(eco)}</b> (${pct}%)</span>`:"";
-  const others=items.slice(1,7).map((r,i)=>`<div class="row ${r===worst&&items.length>2?"high":""}" style="animation-delay:${i*55}ms"><span class="rank">${i+2}º</span><div class="info"><div class="n">${esc(r.loja||"Loja")}</div><div class="d">${esc([r.local,r.preco_unidade,r.obs].filter(Boolean).join(" · ")||"—")}</div></div><div class="p"><small>R$</small>${money(r.preco,false)}${r.preco_unidade?`<em>${esc(r.preco_unidade)}</em>`:""}</div>${r.link?`<a class="mini" href="${esc(r.link)}" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a>`:""}</div>`).join("");
+  const others=items.slice(1,7).map((r,i)=>`<div class="row ${r===worst&&items.length>2?"high":""}" style="animation-delay:${i*55}ms"><span class="rank">${i+2}º</span><div class="info"><div class="n">${r.marca?esc(r.marca)+" · ":""}${esc(r.loja||"Loja")}</div><div class="d">${esc([r.local,r.preco_unidade,r.obs].filter(Boolean).join(" · ")||"—")}</div></div><div class="p"><small>R$</small>${money(r.preco,false)}${r.preco_unidade?`<em>${esc(r.preco_unidade)}</em>`:""}</div>${r.link?`<a class="mini" href="${esc(r.link)}" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a>`:""}</div>`).join("");
   $("#panel").innerHTML=`<div class="section-label">Menor preço ${save}</div>
-    <div class="best"><div class="selo">BARATÃO</div><div class="store">${esc(best.loja||"Loja")}</div><div class="loc">${esc([best.local,best.preco_unidade,best.obs].filter(Boolean).join(" · ")||d.local||"")}</div>
+    <div class="best"><div class="selo">BARATÃO</div><div class="store">${best.marca?esc(best.marca)+" · ":""}${esc(best.loja||"Loja")}</div><div class="loc">${esc([best.local,best.preco_unidade,best.obs].filter(Boolean).join(" · ")||d.local||"")}</div>
       <div class="best-bottom"><div class="pricetag"><span class="cur">R$</span><span class="val">${money(best.preco,false)}</span></div>${best.link?`<a class="btn-oferta" href="${esc(best.link)}" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg> Ver oferta</a>`:""}</div></div>
     ${others?`<div class="section-label" style="margin-top:22px">Outras ofertas</div><div class="rows">${others}</div>`:""}
     <div class="actions"><button class="act mint" onclick="addRadar('${escAttr(produto)}',${best.preco})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg> Vigiar no radar</button><button class="act" onclick="compartilhar('${escAttr(produto)}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg> Compartilhar</button></div>
-    <div class="source">${cached?"♻️ cache. ":""}<b>${esc(d.resumo||"Preços encontrados na web.")}</b> Confira no link antes de comprar.</div>`;
+    <div class="source">🗓️ ${esc(d.data||hojeBR())} · ${cached?"♻️ cache. ":""}<b>${esc(d.resumo||"Preços encontrados na web.")}</b> Confira no link antes de comprar.</div>`;
 }
 function buscaComparador(produto){
   checkRadar(produto,null);
@@ -690,11 +696,44 @@ async function compararLista(){
   }finally{ $("#compareBtn").disabled=false; }
 }
 function getMercados(){return ($("#mercadosInput")?.value??store.get("mercados","")).trim();}
+$("#demoBtn").onclick=verExemplo;
+function verExemplo(){
+  setView("lista");
+  const hoje=hojeBR();
+  const ex={local:"Goiânia - GO",data:hoje,
+   itens:[
+    {nome:"Arroz 5kg",marca:"Tio João",melhor_preco:26.9,melhor_loja:"Assaí",embalagem:"saco 5kg",preco_unidade:"R$ 5,38/kg",obs:""},
+    {nome:"Feijão carioca 1kg",marca:"Camil",melhor_preco:7.49,melhor_loja:"Atacadão",embalagem:"pct 1kg",preco_unidade:"R$ 7,49/kg",obs:""},
+    {nome:"Óleo de soja",marca:"Soya",melhor_preco:6.49,melhor_loja:"Carrefour",embalagem:"900ml",preco_unidade:"R$ 7,21/L",obs:"promoção"},
+    {nome:"Café 500g",marca:"Pilão",melhor_preco:15.9,melhor_loja:"Pão de Açúcar",embalagem:"500g a vácuo",preco_unidade:"R$ 31,80/kg",obs:""},
+    {nome:"Açúcar 1kg",marca:"União",melhor_preco:4.29,melhor_loja:"Assaí",embalagem:"pct 1kg",preco_unidade:"R$ 4,29/kg",obs:""},
+    {nome:"Leite 1L",marca:"Italac",melhor_preco:4.59,melhor_loja:"Costa",embalagem:"caixa 1L",preco_unidade:"R$ 4,59/L",obs:"fardo c/12 sai melhor"},
+    {nome:"Sabão em pó 1kg",marca:"OMO",melhor_preco:11.9,melhor_loja:"Moreirinha",embalagem:"1kg",preco_unidade:"R$ 11,90/kg",obs:""}
+   ],
+   por_mercado:[
+    {loja:"Assaí",total_estimado:145.8,itens_encontrados:7},
+    {loja:"Atacadão",total_estimado:149.2,itens_encontrados:7},
+    {loja:"Carrefour",total_estimado:158.4,itens_encontrados:7},
+    {loja:"Pão de Açúcar",total_estimado:171.5,itens_encontrados:7}
+   ],
+   melhor_mercado:"Assaí",economia_estimada:25.7,
+   cesta_otima:{total:136.1,economia:9.7,itens:[]},
+   dicas:[
+    "Arroz e feijão compensam em saco/fardo no atacarejo (Assaí/Atacadão).",
+    "Óleo Soya em promoção no Carrefour — vale abastecer 3–4 unidades.",
+    "Leite: fardo com 12 caixas baixa o litro ~8% vs avulso.",
+    "Café: a marca própria (Qualitá) costuma sair 15–20% mais barata que Pilão."
+   ],
+   resumo:"Exemplo de cotação da compra do mês em Goiânia, com olhar de comprador (menor custo real)."};
+  renderListResult(ex);
+  const box=$("#listResult");
+  if(box){box.insertAdjacentHTML("afterbegin",`<div class="demo-badge">🧪 EXEMPLO (demo) · valores ilustrativos, não é cotação ao vivo</div>`);box.scrollIntoView({behavior:"smooth",block:"start"});}
+}
 function renderListResult(d){
   const mercados=(d.por_mercado||[]).map(m=>({...m,total:toNum(m.total_estimado)})).filter(m=>m.total>0).sort((a,b)=>a.total-b.total);
   const itens=d.itens||[];
   const linkIco=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>`;
-  let html="";
+  let html=`<div class="daytag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg> Valor do dia · ${esc(d.data||hojeBR())}</div>`;
   if(mercados.length){
     const win=mercados[0];
     html+=`<div class="winner"><div class="t">🏆 Num mercado só · mais barato</div><div class="m">${esc(win.loja||d.melhor_mercado||"—")}</div><div class="tot">total ${money(win.total)}${d.economia_estimada?` · economiza ~${money(toNum(d.economia_estimada))} vs o mais caro`:""}</div></div>`;
@@ -710,9 +749,11 @@ function renderListResult(d){
     html+=`<div class="section-label" style="margin-top:18px">Melhor preço por item <span class="save">👀 olho no preço por unidade</span></div>`;
     html+=itens.map(it=>{
       const p=toNum(it.melhor_preco);
+      const marca=(it.marca||"").toString().trim();
       const det=[it.melhor_loja,it.embalagem,it.obs].filter(Boolean).join(" · ")||"—";
       const pu=(it.preco_unidade||"").toString().trim();
-      return `<div class="row"><div class="info"><div class="n">${esc(it.nome)}</div><div class="d">${esc(det)}</div></div><div class="p">${p>0?`<small>R$</small>${money(p,false)}`:"—"}${pu?`<em>${esc(pu)}</em>`:""}</div>${it.link?`<a class="mini" href="${esc(it.link)}" target="_blank" rel="noopener">${linkIco}</a>`:""}</div>`;
+      const dline=(marca?`<b>${esc(marca)}</b> · `:"")+esc(det);
+      return `<div class="row"><div class="info"><div class="n">${esc(it.nome)}</div><div class="d">${dline}</div></div><div class="p">${p>0?`<small>R$</small>${money(p,false)}`:"—"}${pu?`<em>${esc(pu)}</em>`:""}</div>${it.link?`<a class="mini" href="${esc(it.link)}" target="_blank" rel="noopener">${linkIco}</a>`:""}</div>`;
     }).join("");
   }
   const dicas=(d.dicas||[]).filter(Boolean);
