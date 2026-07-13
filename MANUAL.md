@@ -75,7 +75,7 @@ Quer só ver como fica? Toque em **👀 ver um exemplo de cotação (demo)** —
   - **Escanear QR Code:** aponte a câmera para o QR no rodapé do cupom → o app abre a nota oficial na **SEFAZ** (o preço real que você pagou) e a **guarda no Cofre**.
   - **Inserir chave:** se o QR estiver ruim, digite a **chave de acesso (44 dígitos)** que fica embaixo do código de barras → ele detecta o estado, guarda a nota e abre o portal (copia a chave pra você colar).
   - A câmera só funciona com o app publicado em **https** (GitHub Pages) e depois de **permitir o acesso à câmera** no Safari. Alternativa: o app **Câmera do iPhone** também lê o QR da NFC-e e abre a nota direto.
-  - **📸 Ler foto do cupom (IA):** tire uma foto do cupom e o motor (IA com visão) **lê a loja, os itens e os preços reais que você pagou** e guarda como **compra real** no Cofre. Precisa do **motor ligado** (chave). Esses preços viram a base do **↓/↑** nas próximas cotações. A leitura por imagem pode ter pequenos erros — **confira com o cupom**.
+  - **📸 Ler foto do cupom (IA):** tire uma foto do cupom e o motor (IA com visão) **lê a loja, os itens e os preços reais que você pagou**. Os itens (com as **quantidades reais**) vão direto pra sua **Minha Lista** — pronta pra recomprar ou **Cotar preço do dia** de novo — e a compra fica guardada como **compra real** no Cofre. Precisa do **motor ligado** (chave). Esses preços viram a base do **↓/↑** nas próximas cotações. A leitura por imagem pode ter pequenos erros — **confira com o cupom**.
 
 ---
 
