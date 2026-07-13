@@ -39,10 +39,10 @@ export default {
       if (request.method === "POST") {
         const b = await request.json().catch(() => ({}));
         if (Array.isArray(b.lista) && b.lista.length) return await modoLista(b, env, cors);
-        return await modoBusca(b.produto, b.local, env, cors);
+        return await modoBusca(b.produto, b.local, b.marcas, env, cors);
       } else {
         const u = new URL(request.url);
-        return await modoBusca(u.searchParams.get("produto"), u.searchParams.get("local"), env, cors);
+        return await modoBusca(u.searchParams.get("produto"), u.searchParams.get("local"), u.searchParams.get("marcas"), env, cors);
       }
     } catch (e) {
       return json({ ok: false, erro: String(e) }, 502, cors);
@@ -50,10 +50,13 @@ export default {
   },
 };
 
-async function modoBusca(produto, local, env, cors) {
+async function modoBusca(produto, local, marcas, env, cors) {
   if (!produto) return json({ ok: false, erro: "faltou 'produto'" }, 400, cors);
+  const fav = (marcas || "").toString().trim()
+    ? `\nMarcas favoritas do comprador: ${marcas}. Priorize essas marcas quando o preço for competitivo; se a favorita estiver bem mais cara, mostre também a alternativa mais barata e explique em "obs".`
+    : "";
   const prompt =
-`Você é um comprador esperto no Brasil, com mentalidade de dono de supermercado: quer o MENOR CUSTO REAL, sem visar lucro. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local ? ` para quem está em ${local}` : ""}.
+`Você é um comprador esperto no Brasil, com mentalidade de dono de supermercado: quer o MENOR CUSTO REAL, sem visar lucro. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local ? ` para quem está em ${local}` : ""}.${fav}
 Priorize supermercados/atacarejos que atendam essa região; considere marketplaces confiáveis. Informe a MARCA de cada opção, compare o PREÇO POR UNIDADE (kg/L/un) e prefira a embalagem que sai mais barata por unidade. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Preço estimado ou de outra região vai em "obs".
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {"produto":"${produto}","local":"${local || ""}","data":"${hojeBR()}","resultados":[{"loja":"","marca":"","preco":0.00,"unidade":"","preco_unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
@@ -68,11 +71,15 @@ async function modoLista(b, env, cors) {
   const itens = b.lista.map(x => (typeof x === "string" ? x : `${x.qtd > 1 ? x.qtd + "x " : ""}${x.nome}`)).slice(0, 40);
   const local = b.local || "";
   const mercados = (b.mercados || "").toString().trim();
+  const marcas = (b.marcas || "").toString().trim();
   const alvo = mercados
     ? `Cote a lista NESTES mercados (um total para cada um): ${mercados}.`
     : `Escolha grandes redes/atacarejos que atendam ${local || "a região"} (ex.: Assaí, Atacadão, Carrefour, Pão de Açúcar e redes regionais).`;
+  const fav = marcas
+    ? ` O comprador tem MARCAS FAVORITAS: ${marcas}. Priorize essas marcas quando o preço for competitivo; se a favorita estiver bem mais cara, cote a alternativa mais barata e avise em "obs".`
+    : "";
   const prompt =
-`Você é um COMPRADOR PROFISSIONAL / dono de supermercado fazendo a compra do mês para você mesmo — sem visar lucro, só o MENOR CUSTO REAL. Hoje é ${hojeBR()}. Para quem está em ${local || "Brasil"}, pesquise na web os preços ATUAIS dos itens abaixo. ${alvo}
+`Você é um COMPRADOR PROFISSIONAL / dono de supermercado fazendo a compra do mês para você mesmo — sem visar lucro, só o MENOR CUSTO REAL. Hoje é ${hojeBR()}. Para quem está em ${local || "Brasil"}, pesquise na web os preços ATUAIS dos itens abaixo. ${alvo}${fav}
 Pense como um comprador experiente:
 - Compare sempre o PREÇO POR UNIDADE (por kg, litro ou unidade), não só o preço da embalagem.
 - Prefira atacarejo e, quando o preço por unidade compensar, embalagem maior / caixa fechada / fardo / saco.

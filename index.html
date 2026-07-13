@@ -4,8 +4,16 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0B1512" />
-<title>BARATÃO — assistente de compras</title>
+<title>BARATÃO — preço real do dia</title>
 <meta name="description" content="Jogue sua lista de compras e receba a cotação do preço real do dia: qual mercado sai mais barato no total, em R$." />
+<!-- Instalar no iPhone/Android (adicionar à tela de início) -->
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<link rel="icon" type="image/png" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="BARATÃO" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -293,6 +301,7 @@
     </div>
     <div id="listBody"></div>
     <input id="mercadosInput" class="mercados-input" type="text" placeholder="mercados p/ cotar (opcional): Assaí, Carrefour, Atacadão…" autocomplete="off" />
+    <input id="marcasInput" class="mercados-input" type="text" placeholder="⭐ minhas marcas favoritas (opcional): Tio João, Pilão, OMO…" autocomplete="off" />
     <button class="big-compare" id="compareBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg> COTAR PREÇO DO DIA</button>
     <button class="demo-link" id="demoBtn">👀 ver um exemplo de cotação (demo, sem chave)</button>
     <div id="listResult" style="margin-top:16px"></div>
@@ -419,17 +428,19 @@ function hojeBR(){try{return new Date().toLocaleDateString("pt-BR");}catch(e){re
 function webSearchName(model){return /haiku|opus-4-1|opus-4-0|sonnet-4-5|sonnet-4-0/i.test(model||"")?"web_search_20250305":"web_search_20260209";}
 function extractJson(text){if(!text)return null;const t=String(text).replace(/```json/gi,"").replace(/```/g,"").trim();const a=t.indexOf("{"),b=t.lastIndexOf("}");if(a<0||b<0)return null;try{return JSON.parse(t.slice(a,b+1));}catch(e){return null;}}
 
-function promptBusca(produto,local){
-  return `Você é um comprador esperto no Brasil, com mentalidade de dono de supermercado: quer o MENOR CUSTO REAL, sem visar lucro. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local?` para quem está em ${local}`:""}.
+function promptBusca(produto,local,marcas){
+  const fav=marcas?`\nMarcas favoritas do comprador: ${marcas}. Priorize essas marcas quando o preço for competitivo; se a favorita estiver bem mais cara, mostre também a alternativa mais barata e explique em "obs".`:"";
+  return `Você é um comprador esperto no Brasil, com mentalidade de dono de supermercado: quer o MENOR CUSTO REAL, sem visar lucro. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local?` para quem está em ${local}`:""}.${fav}
 Priorize supermercados/atacarejos que atendam essa região; considere marketplaces confiáveis. Informe a MARCA de cada opção, compare o PREÇO POR UNIDADE (kg/L/un) e prefira a embalagem que sai mais barata por unidade. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Preço estimado ou de outra região vai em "obs".
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {"produto":"${produto}","local":"${local||""}","data":"${hojeBR()}","resultados":[{"loja":"","marca":"","preco":0.00,"unidade":"","preco_unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
 Use ponto decimal. "marca" quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg"). Sem link confiável, use "link":"".`;
 }
-function promptLista(l,local,mercados){
+function promptLista(l,local,mercados,marcas){
   const itens=l.map(x=>(typeof x==="string"?x:`${x.qtd>1?x.qtd+"x ":""}${x.nome}`)).slice(0,40);
   const alvo=mercados?`Cote a lista NESTES mercados (um total para cada um): ${mercados}.`:`Escolha grandes redes/atacarejos que atendam ${local||"a região"} (ex.: Assaí, Atacadão, Carrefour, Pão de Açúcar e redes regionais).`;
-  return `Você é um COMPRADOR PROFISSIONAL / dono de supermercado fazendo a compra do mês para você mesmo — sem visar lucro, só o MENOR CUSTO REAL. Hoje é ${hojeBR()}. Para quem está em ${local||"Brasil"}, pesquise na web os preços ATUAIS dos itens abaixo. ${alvo}
+  const fav=marcas?` O comprador tem MARCAS FAVORITAS: ${marcas}. Priorize essas marcas quando o preço for competitivo; se a favorita estiver bem mais cara, cote a alternativa mais barata e avise em "obs".`:"";
+  return `Você é um COMPRADOR PROFISSIONAL / dono de supermercado fazendo a compra do mês para você mesmo — sem visar lucro, só o MENOR CUSTO REAL. Hoje é ${hojeBR()}. Para quem está em ${local||"Brasil"}, pesquise na web os preços ATUAIS dos itens abaixo. ${alvo}${fav}
 Pense como um comprador experiente:
 - Compare sempre o PREÇO POR UNIDADE (por kg, litro ou unidade), não só o preço da embalagem.
 - Prefira atacarejo e, quando o preço por unidade compensar, embalagem maior / caixa fechada / fardo / saco.
@@ -472,26 +483,27 @@ async function callClaudeDireto(prompt,maxBuscas,maxTokens){
   return {text};
 }
 async function engineBusca(produto){
+  const marcas=getMarcasFav();
   if(CONFIG.API_KEY){
-    const data=await callClaudeDireto(promptBusca(produto+(cat!=="tudo"?" "+cat:""),loc.label),MAX_BUSCAS_ITEM,2200);
+    const data=await callClaudeDireto(promptBusca(produto+(cat!=="tudo"?" "+cat:""),loc.label,marcas),MAX_BUSCAS_ITEM,2200);
     const parsed=extractJson(data.text);
     if(!parsed) throw new Error("resposta sem JSON (tente de novo)");
     return parsed;
   }
-  const u=`${CONFIG.API_ENDPOINT.replace(/\/$/,"")}/?produto=${enc(produto+(cat!=="tudo"?" "+cat:""))}&local=${enc(loc.label)}`;
+  const u=`${CONFIG.API_ENDPOINT.replace(/\/$/,"")}/?produto=${enc(produto+(cat!=="tudo"?" "+cat:""))}&local=${enc(loc.label)}${marcas?`&marcas=${enc(marcas)}`:""}`;
   const r=await fetch(u),d=await r.json();
   if(!d.ok) throw new Error(d.erro||"sem resultados");
   return d;
 }
 async function engineLista(l){
-  const mercados=getMercados();
+  const mercados=getMercados(), marcas=getMarcasFav();
   if(CONFIG.API_KEY){
-    const data=await callClaudeDireto(promptLista(l,loc.label,mercados),MAX_BUSCAS_LISTA,4200);
+    const data=await callClaudeDireto(promptLista(l,loc.label,mercados,marcas),MAX_BUSCAS_LISTA,4200);
     const parsed=extractJson(data.text);
     if(!parsed) throw new Error("resposta sem JSON (tente de novo)");
     return parsed;
   }
-  const r=await fetch(CONFIG.API_ENDPOINT.replace(/\/$/,"")+"/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lista:l,local:loc.label,mercados})});
+  const r=await fetch(CONFIG.API_ENDPOINT.replace(/\/$/,"")+"/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lista:l,local:loc.label,mercados,marcas})});
   const d=await r.json();
   if(!d.ok) throw new Error(d.erro||"erro");
   return d;
@@ -549,13 +561,13 @@ function buscaComparador(produto){
 }
 function setupCard(){
   const opts=MODELS.map(m=>`<option value="${m.id}" ${m.id===CONFIG.MODEL?"selected":""}>${esc(m.nome)}</option>`).join("");
-  const off=`<button onclick="desligarMotor()" style="margin-top:8px;background:transparent;border:1px solid var(--line);color:var(--muted)">Desligar motor</button>`;
+  const extra=engineOn()?`<button onclick="testarMotor(this)" style="margin-top:8px;background:var(--mint);color:#04140c">✔️ Testar se está funcionando</button><button onclick="desligarMotor()" style="margin-top:8px;background:transparent;border:1px solid var(--line);color:var(--muted)">Desligar motor</button>`:"";
   return `<div class="setup" id="setupCard"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg> Ligar o preço real do dia</h4>
     <p>Cole sua chave da Anthropic (<b>sk-ant-…</b>) e o Baratão cota o preço de hoje na hora — <b>sem instalar nada</b>. A chave fica só neste aparelho.</p>
     <input id="keyInput" type="password" placeholder="sk-ant-..." value="${esc(CONFIG.API_KEY)}" autocomplete="off" spellcheck="false" />
     <select id="modelSel" aria-label="modelo">${opts}</select>
     <button onclick="salvarChave()">${CONFIG.API_KEY?"Atualizar motor":"Ativar motor de preço real"}</button>
-    ${engineOn()?off:""}
+    ${extra}
     <p class="fine">🔒 Sua chave vai só pra API da Anthropic (nada é guardado em servidor nosso). Recomendo definir um <b>limite de gasto mensal</b> no painel. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">pegar uma chave →</a></p>
     <details><summary>Prefiro usar um Worker (chave escondida)</summary>
       <input id="endpointInput" type="text" placeholder="https://baratao.SEU-USER.workers.dev" value="${esc(CONFIG.API_ENDPOINT)}" />
@@ -584,6 +596,24 @@ window.salvarEndpoint=function(){
   afterEngineChange();
 };
 window.desligarMotor=function(){CONFIG.API_KEY="";CONFIG.API_ENDPOINT="";store.set("apikey","");store.set("endpoint","");afterEngineChange();};
+window.testarMotor=async function(btn){
+  if(!engineOn()){alert("Ligue o motor primeiro (cole a chave e Ativar).");return;}
+  const old=btn.textContent;btn.textContent="testando…";btn.disabled=true;
+  try{
+    if(CONFIG.API_KEY){
+      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":CONFIG.API_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:CONFIG.MODEL,max_tokens:16,messages:[{role:"user",content:"responda apenas: ok"}]})});
+      const d=await r.json();
+      if(d.error) throw new Error(d.error.message||"erro");
+      toast("✅ Funcionando! Chave e modelo OK — pode cotar.");
+    }else{
+      const r=await fetch(CONFIG.API_ENDPOINT.replace(/\/$/,"")+"/?produto=arroz&local="+enc(loc?.label||"Brasil"));
+      const d=await r.json();
+      if(!d.ok&&!d.resultados) throw new Error(d.erro||"sem resposta");
+      toast("✅ Worker respondeu! Motor OK.");
+    }
+  }catch(e){alert("❌ "+erroAmigavel(e.message));}
+  finally{btn.textContent=old;btn.disabled=false;}
+};
 function loadingView(t){const bars=Array.from({length:30},()=>`<i style="width:${(Math.random()*3+1).toFixed(1)}px"></i>`).join("");$("#panel").innerHTML=`<div class="loading"><div class="barcode">${bars}<div class="scanline"></div></div><p>caçando o melhor preço de <b>${esc(t)}</b>…</p></div>`;}
 function panelError(produto,msg){const box=`<div class="source" style="background:rgba(255,122,107,.08);border-color:rgba(255,122,107,.3);color:#ffd0c8">${esc(erroAmigavel(msg))} Enquanto isso, veja comparadores 👇</div>`;buscaComparador(produto);$("#panel").insertAdjacentHTML("afterbegin",box);}
 
@@ -696,6 +726,7 @@ async function compararLista(){
   }finally{ $("#compareBtn").disabled=false; }
 }
 function getMercados(){return ($("#mercadosInput")?.value??store.get("mercados","")).trim();}
+function getMarcasFav(){return ($("#marcasInput")?.value??store.get("marcas_fav","")).trim();}
 $("#demoBtn").onclick=verExemplo;
 function verExemplo(){
   setView("lista");
@@ -859,7 +890,12 @@ function esc(s){return String(s??"").replace(/[<>&"]/g,c=>({"<":"&lt;",">":"&gt;
 function escAttr(s){return String(s??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;").replace(/</g,"&lt;");}
 
 /* ============ go ============ */
-(function initMercados(){const mi=$("#mercadosInput");if(!mi)return;let m=store.get("mercados",null);if(m===null){m="Assaí, Carrefour, Costa, Moreirinha, Pão de Açúcar";store.set("mercados",m);}mi.value=m;mi.addEventListener("input",()=>store.set("mercados",mi.value.trim()));})();
+(function initInputs(){
+  const mi=$("#mercadosInput");
+  if(mi){let m=store.get("mercados",null);if(m===null){m="Assaí, Carrefour, Costa, Moreirinha, Pão de Açúcar";store.set("mercados",m);}mi.value=m;mi.addEventListener("input",()=>store.set("mercados",mi.value.trim()));}
+  const bi=$("#marcasInput");
+  if(bi){bi.value=store.get("marcas_fav","");bi.addEventListener("input",()=>store.set("marcas_fav",bi.value.trim()));}
+})();
 renderCats();renderChips();loadLoc();refreshEngine();updateBadge();
 setView("lista"); // abre já no fluxo principal: jogar a lista → cotar preço do dia
 </script>
