@@ -1,6 +1,6 @@
 {
-  "name": "BARATÃO — preço real do dia",
-  "short_name": "BARATÃO",
+  "name": "MULTIPLICADOR — preço real do dia",
+  "short_name": "MULTIPLICADOR",
   "description": "Jogue a lista de compras e receba a cotação do preço real do dia: qual mercado sai mais barato no total.",
   "start_url": "./index.html",
   "scope": "./",

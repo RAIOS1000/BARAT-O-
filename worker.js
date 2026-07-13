@@ -1,5 +1,5 @@
 /**
- * BARATÃO — Motor de Preço Real (Cloudflare Worker) v3
+ * MULTIPLICADOR — Motor de Preço Real (Cloudflare Worker) v3
  * ------------------------------------------------------------
  * Dois modos:
  *   • BUSCA (GET  ?produto=&local=)            -> melhores preços de 1 produto

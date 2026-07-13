@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0B1512" />
-<title>BARATÃO — preço real do dia</title>
+<title>MULTIPLICADOR — preço real do dia</title>
 <meta name="description" content="Jogue sua lista de compras e receba a cotação do preço real do dia: qual mercado sai mais barato no total, em R$." />
 <!-- Instalar no iPhone/Android (adicionar à tela de início) -->
 <link rel="manifest" href="manifest.json" />
@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="BARATÃO" />
+<meta name="apple-mobile-web-app-title" content="MULTIPLICADOR" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -40,9 +40,9 @@
   input,textarea{font-family:inherit}
 
   .topbar{display:flex;align-items:center;gap:10px}
-  .brand{font-family:"Anton",sans-serif;font-size:28px;letter-spacing:.5px;line-height:1}
+  .brand{font-family:"Anton",sans-serif;font-size:clamp(20px,6.2vw,28px);letter-spacing:.5px;line-height:1;white-space:nowrap;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
   .brand .hi{color:var(--gold)}
-  .engine{margin-left:auto;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px}
+  .engine{margin-left:auto;font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex:none}
   .engine .d{width:7px;height:7px;border-radius:50%;background:var(--muted)}
   .engine.on{color:var(--mint);border-color:rgba(67,227,155,.3)}
   .engine.on .d{background:var(--mint);box-shadow:0 0 8px var(--mint)}
@@ -253,7 +253,7 @@
 <div class="wrap">
 
   <div class="topbar">
-    <div class="brand">BAR<span class="hi">A</span>TÃO</div>
+    <div class="brand">MULTIPLIC<span class="hi">A</span>DOR</div>
     <button class="engine" id="engineBtn"><span class="d"></span><span id="engineTxt">motor: comparador</span></button>
   </div>
 
@@ -273,7 +273,7 @@
     <div class="cats" id="cats"></div>
     <div class="chips" id="chips"></div>
     <main class="panel" id="panel">
-      <p class="hint">Escolha o local, digite um produto e o Baratão caça o melhor preço.<br>Ou vá em <b style="color:var(--mint)">Lista</b>, jogue suas compras e toque em <b style="color:var(--gold)">Cotar preço do dia</b> — ele diz qual mercado sai mais barato no total. 🛒</p>
+      <p class="hint">Escolha o local, digite um produto e o MULTIPLICADOR caça o melhor preço.<br>Ou vá em <b style="color:var(--mint)">Lista</b>, jogue suas compras e toque em <b style="color:var(--gold)">Cotar preço do dia</b> — ele diz qual mercado sai mais barato no total. 🛒</p>
     </main>
   </section>
 
@@ -331,7 +331,7 @@
     <p class="hint" style="text-align:left;padding:14px 2px 0">Use a mesma unidade nos dois (g, ml, un). Mostra qual sai mais barato — o pacote maior nem sempre compensa.</p>
   </section>
 
-  <p class="foot">BARATÃO · preço real do dia · cotação é estimativa de busca na web; confirme no mercado antes de comprar.</p>
+  <p class="foot">MULTIPLICADOR · preço real do dia · cotação é estimativa de busca na web; confirme no mercado antes de comprar.</p>
 </div>
 
 <nav class="nav"><div class="inner">
@@ -545,7 +545,7 @@ function renderInteligente(d,produto,cached){
   const save=items.length>1&&eco>0.009?`<span class="save">economize até <b>${money(eco)}</b> (${pct}%)</span>`:"";
   const others=items.slice(1,7).map((r,i)=>`<div class="row ${r===worst&&items.length>2?"high":""}" style="animation-delay:${i*55}ms"><span class="rank">${i+2}º</span><div class="info"><div class="n">${r.marca?esc(r.marca)+" · ":""}${esc(r.loja||"Loja")}</div><div class="d">${esc([r.local,r.preco_unidade,r.obs].filter(Boolean).join(" · ")||"—")}</div></div><div class="p"><small>R$</small>${money(r.preco,false)}${r.preco_unidade?`<em>${esc(r.preco_unidade)}</em>`:""}</div>${r.link?`<a class="mini" href="${esc(r.link)}" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></a>`:""}</div>`).join("");
   $("#panel").innerHTML=`<div class="section-label">Menor preço ${save}</div>
-    <div class="best"><div class="selo">BARATÃO</div><div class="store">${best.marca?esc(best.marca)+" · ":""}${esc(best.loja||"Loja")}</div><div class="loc">${esc([best.local,best.preco_unidade,best.obs].filter(Boolean).join(" · ")||d.local||"")}</div>
+    <div class="best"><div class="selo">MELHOR</div><div class="store">${best.marca?esc(best.marca)+" · ":""}${esc(best.loja||"Loja")}</div><div class="loc">${esc([best.local,best.preco_unidade,best.obs].filter(Boolean).join(" · ")||d.local||"")}</div>
       <div class="best-bottom"><div class="pricetag"><span class="cur">R$</span><span class="val">${money(best.preco,false)}</span></div>${best.link?`<a class="btn-oferta" href="${esc(best.link)}" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg> Ver oferta</a>`:""}</div></div>
     ${others?`<div class="section-label" style="margin-top:22px">Outras ofertas</div><div class="rows">${others}</div>`:""}
     <div class="actions"><button class="act mint" onclick="addRadar('${escAttr(produto)}',${best.preco})"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg> Vigiar no radar</button><button class="act" onclick="compartilhar('${escAttr(produto)}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg> Compartilhar</button></div>
@@ -563,14 +563,14 @@ function setupCard(){
   const opts=MODELS.map(m=>`<option value="${m.id}" ${m.id===CONFIG.MODEL?"selected":""}>${esc(m.nome)}</option>`).join("");
   const extra=engineOn()?`<button onclick="testarMotor(this)" style="margin-top:8px;background:var(--mint);color:#04140c">✔️ Testar se está funcionando</button><button onclick="desligarMotor()" style="margin-top:8px;background:transparent;border:1px solid var(--line);color:var(--muted)">Desligar motor</button>`:"";
   return `<div class="setup" id="setupCard"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg> Ligar o preço real do dia</h4>
-    <p>Cole sua chave da Anthropic (<b>sk-ant-…</b>) e o Baratão cota o preço de hoje na hora — <b>sem instalar nada</b>. A chave fica só neste aparelho.</p>
+    <p>Cole sua chave da Anthropic (<b>sk-ant-…</b>) e o MULTIPLICADOR cota o preço de hoje na hora — <b>sem instalar nada</b>. A chave fica só neste aparelho.</p>
     <input id="keyInput" type="password" placeholder="sk-ant-..." value="${esc(CONFIG.API_KEY)}" autocomplete="off" spellcheck="false" />
     <select id="modelSel" aria-label="modelo">${opts}</select>
     <button onclick="salvarChave()">${CONFIG.API_KEY?"Atualizar motor":"Ativar motor de preço real"}</button>
     ${extra}
     <p class="fine">🔒 Sua chave vai só pra API da Anthropic (nada é guardado em servidor nosso). Recomendo definir um <b>limite de gasto mensal</b> no painel. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">pegar uma chave →</a></p>
     <details><summary>Prefiro usar um Worker (chave escondida)</summary>
-      <input id="endpointInput" type="text" placeholder="https://baratao.SEU-USER.workers.dev" value="${esc(CONFIG.API_ENDPOINT)}" />
+      <input id="endpointInput" type="text" placeholder="https://multiplicador.SEU-USER.workers.dev" value="${esc(CONFIG.API_ENDPOINT)}" />
       <button onclick="salvarEndpoint()">Ativar via Worker</button>
       <p class="fine">Passo a passo no README. O Worker mantém a chave fora do site.</p>
     </details></div>`;
@@ -672,7 +672,7 @@ $("#exportBtn").onclick=()=>{
   const l=getList();if(!l.length)return;
   const txt=l.map(x=>`${x.qtd>1?x.qtd+"x ":""}${x.nome}`).join("\n");
   const blob=new Blob([txt],{type:"text/plain"});const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);a.download="minha-lista-baratao.txt";a.click();
+  a.href=URL.createObjectURL(blob);a.download="minha-lista-multiplicador.txt";a.click();
 };
 
 /* importar */
@@ -846,7 +846,7 @@ window.delRadar=function(i){const r=radar();r.splice(i,1);saveRadar(r);renderRad
 window.buscarRadar=function(p){setView("buscar");$("#q").value=p;if(!loc){openLoc();return;}buscar();};
 
 /* ============ share ============ */
-window.compartilhar=function(){if(!lastBest)return;const txt=`🏷️ Achei no BARATÃO: ${lastBest.produto} por ${money(lastBest.preco)} na ${lastBest.loja}!`;if(navigator.share)navigator.share({title:"BARATÃO",text:txt}).catch(()=>{});else window.open(`https://wa.me/?text=${enc(txt)}`,"_blank");};
+window.compartilhar=function(){if(!lastBest)return;const txt=`🏷️ Achei no MULTIPLICADOR: ${lastBest.produto} por ${money(lastBest.preco)} na ${lastBest.loja}!`;if(navigator.share)navigator.share({title:"MULTIPLICADOR",text:txt}).catch(()=>{});else window.open(`https://wa.me/?text=${enc(txt)}`,"_blank");};
 
 /* ============ calc ============ */
 ["a_preco","a_qtd","b_preco","b_qtd"].forEach(id=>$("#"+id).addEventListener("input",calc));

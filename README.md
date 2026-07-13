@@ -1,6 +1,6 @@
-# 🏷️ BARATÃO — preço real do dia
+# 🏷️ MULTIPLICADOR — preço real do dia
 
-Jogue sua **lista de compras** e o Baratão faz a **cotação do preço do dia** pra você: o melhor preço de cada item e **qual mercado sai mais barato no total, em R$**. App estático, pronto pro GitHub Pages.
+Jogue sua **lista de compras** e o Multiplicador faz a **cotação do preço do dia** pra você: o melhor preço de cada item e **qual mercado sai mais barato no total, em R$**. App estático, pronto pro GitHub Pages.
 
 ## ✨ O que ele faz
 
