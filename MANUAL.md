@@ -49,6 +49,8 @@ O app já abre na **Lista**, com o local em **Goiânia** e seus mercados preench
 
 ## 4) Usar no dia a dia
 
+> 🔁 **Recomprar em 1 toque:** quando a lista está vazia, aparece um cartão **"Recomprar sua última lista"** — um toque traz de volta a última lista (ou a última compra lida do cupom). Ideal pra compra do mês.
+
 1. Na aba **Lista**, monte sua lista do jeito mais fácil:
    - **✨ Fale ou escreva do seu jeito:** no campo de cima, escreva (ou toque em **🎤 Falar**) algo como *"arroz, 2 leites e uma dúzia de ovos"* e toque em **✨ Montar lista** — a IA vira itens com a quantidade certa (entende "uma dúzia" = 12, "meia dúzia" = 6, "2 caixas de leite" = 2).
    - **🍳 De um prato pra lista:** escreva um prato — *"o que preciso p/ um strogonoff"*, *"bolo de cenoura"* — e ela adiciona os **ingredientes** (porção p/ ~4 pessoas). *(Falar receita/quantidade por extenso precisa do motor ligado; sem motor, escreva os itens separados por vírgula.)*
@@ -70,7 +72,8 @@ Quer só ver como fica? Toque em **👀 ver um exemplo de cotação (demo)** —
 
 ## 5) Cofre, auditoria e exportações
 
-- 🔒 **Cofre (aba nova):** toda cotação é guardada **automaticamente** no aparelho — data, lista, marcas, preços e fontes. Na aba Cofre você pode **rever**, **usar a lista de novo**, exportar ou apagar. E quando você cota de novo, cada item mostra **↓/↑ quanto mudou** desde a última vez.
+- 💚 **Quanto você economizou:** no topo do Cofre, um painel soma a **economia potencial** que o app já achou pra você — a diferença entre o **mercado campeão** e o mais caro, em todas as suas cotações — com contadores de cotações, cupons e notas. É *potencial*: vira real quando você compra no campeão (confirme os preços no mercado).
+- 🔒 **Cofre (aba nova):** toda cotação é guardada **automaticamente** no aparelho — data, lista, marcas, preços e fontes. Na aba Cofre você pode **rever**, **usar a lista de novo**, exportar ou apagar. E quando você cota de novo, cada item mostra **↓/↑ quanto mudou** desde a última vez e um selo **🟢 menor preço / 💚 preço bom** quando o valor está bom comparado ao seu histórico.
 - 💾 **Backup:** em Cofre → **Backup completo** baixa um arquivo com tudo (lista, mercados, marcas, radar e histórico). Guarde no iCloud/Arquivos — é a garantia total. **Restaurar** traz tudo de volta, inclusive em outro aparelho.
 - 🧾 **Auditoria:** cada cotação registra data/hora, motor usado e a fonte de cada preço ("X de Y itens com fonte verificável"). O motor é instruído a **nunca inventar preço** — o que não foi encontrado vem marcado como estimativa em Obs.
 - 📊 **Google Sheets:** toque em **Google Sheets** — baixa a planilha (.csv); abra com o app do Sheets ou mande pro Drive.
