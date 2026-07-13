@@ -198,6 +198,23 @@
   .lsec{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin:16px 2px 9px}
   .lsec:first-child{margin-top:4px}
   .lsec .lsec-c{margin-left:auto;letter-spacing:.2px;text-transform:none;font-size:12px;color:var(--muted);font-weight:600}
+  /* selo "preço bom / melhor preço já visto" na cotação */
+  .pbom{display:inline-block;margin-left:7px;font-size:10px;font-weight:800;letter-spacing:.3px;padding:2px 7px;border-radius:999px;background:rgba(74,222,157,.16);color:var(--mint);vertical-align:middle;white-space:nowrap}
+  .pbom.best{background:linear-gradient(180deg,rgba(242,193,78,.24),rgba(242,193,78,.1));color:var(--gold)}
+  /* recomprar a última lista (1 toque) */
+  .rebuy{margin:2px 2px 14px;padding:15px 16px;border-radius:18px;border:1px solid var(--line-strong);background:linear-gradient(150deg,rgba(242,193,78,.12),rgba(74,222,157,.05))}
+  .rebuy .rt{display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;color:var(--text)}
+  .rebuy .rs{margin:5px 0 12px;font-size:12.5px;color:var(--muted)}
+  .rebuy button{width:100%;border:0;border-radius:13px;padding:13px;font-weight:800;font-size:13.5px;letter-spacing:.4px;color:#191204;background:linear-gradient(180deg,var(--gold),var(--gold-deep));cursor:pointer;transition:transform .12s}
+  .rebuy button:active{transform:scale(.99)}
+  /* painel "quanto você economizou" (Cofre) */
+  .save-hero{margin:2px 2px 20px;padding:18px 18px 16px;border-radius:20px;border:1px solid var(--line-strong);background:linear-gradient(150deg,rgba(74,222,157,.15),rgba(242,193,78,.06))}
+  .save-hero .t{font-size:11px;font-weight:800;letter-spacing:1.2px;color:var(--mint);margin-bottom:8px}
+  .save-hero .big{font-size:36px;font-weight:800;letter-spacing:-1.2px;line-height:1;color:var(--text)}
+  .save-hero .sub{margin-top:9px;font-size:11.5px;line-height:1.5;color:var(--muted)}
+  .save-hero .sub b{color:var(--text)}
+  .save-hero .chips{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .save-hero .chips span{font-size:11.5px;font-weight:700;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 11px}
 
   .winner{background:rgba(74,222,157,.05);border:1px solid rgba(74,222,157,.3);border-radius:20px;padding:20px 22px;margin-bottom:12px;position:relative;overflow:hidden;animation:pop .4s ease both}
   .winner .t{font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--mint)}
@@ -782,7 +799,10 @@ function listView(){return store.get("list_view","simples");}
 function renderList(){
   const l=getList();updateBadge();
   const tg=$("#listViewToggle");
-  if(!l.length){$("#listBody").innerHTML=`<p class="hint" style="text-align:left;padding:8px 2px">Sua lista está vazia. Fale ou escreva do seu jeito no campo acima ✨, adicione pelo <b style="color:var(--gold)">Catálogo</b>, à mão, ou <b style="color:var(--mint)">importe um arquivo</b>.</p>`;$("#compareBtn").disabled=true;$("#listResult").innerHTML="";if(tg)tg.style.display="none";return;}
+  if(!l.length){
+    const last=ultimaListaSalva();
+    const rebuy=last?`<div class="rebuy"><div class="rt">🔁 Recomprar sua última lista</div><div class="rs">${(last.lista||[]).length} ${((last.lista||[]).length)===1?"item":"itens"} · ${fmtD(last.ts)}${last.tipo==="compra"&&last.loja?` · ${esc(last.loja)}`:(last.local?` · ${esc(last.local)}`:"")}</div><button onclick="histUsar(${last.ts})">Trazer de volta em 1 toque</button></div>`:"";
+    $("#listBody").innerHTML=rebuy+`<p class="hint" style="text-align:left;padding:8px 2px">Sua lista está vazia. Fale ou escreva do seu jeito no campo acima ✨, adicione pelo <b style="color:var(--gold)">Catálogo</b>, à mão, ou <b style="color:var(--mint)">importe um arquivo</b>.</p>`;$("#compareBtn").disabled=true;$("#listResult").innerHTML="";if(tg)tg.style.display="none";return;}
   $("#compareBtn").disabled=false;
   if(tg){tg.style.display=l.length>=2?"flex":"none";const v=listView();$("#lvSimples").classList.toggle("on",v!=="corredor");$("#lvCorredor").classList.toggle("on",v==="corredor");}
   if(l.length>=2&&listView()==="corredor"){
@@ -1030,10 +1050,14 @@ function verExemplo(){
   if(box){box.insertAdjacentHTML("afterbegin",`<div class="demo-badge">🧪 EXEMPLO (demo) · valores ilustrativos, não é cotação ao vivo</div>`);box.scrollIntoView({behavior:"smooth",block:"start"});}
 }
 function renderListResult(d,tsAtual){
-  let cmp=null;
+  let cmp=null, phist=null;
   if(tsAtual){
-    const prev=hist().find(x=>(x.tipo==="lista"||x.tipo==="compra")&&x.ts<tsAtual&&x.resultado);
+    const earlier=hist().filter(x=>(x.tipo==="lista"||x.tipo==="compra")&&x.ts<tsAtual&&x.resultado);
+    const prev=earlier[0];
     if(prev){const map={};(prev.resultado.itens||[]).forEach(it=>{const p0=toNum(it.melhor_preco);if(p0>0)map[normN(it.nome)]=p0;});if(Object.keys(map).length)cmp={date:fmtD(prev.ts),map};}
+    // menor preço já visto por item (histórico real) — base do selo "preço bom"
+    const hm={};earlier.forEach(e=>(e.resultado.itens||[]).forEach(it=>{const p0=toNum(it.melhor_preco);if(p0>0){const k=normN(it.nome);(hm[k]||(hm[k]=[])).push(p0);}}));
+    if(Object.keys(hm).length){phist={};Object.keys(hm).forEach(k=>{phist[k]={min:Math.min(...hm[k]),n:hm[k].length};});}
   }
   const mercados=(d.por_mercado||[]).map(m=>({...m,total:toNum(m.total_estimado)})).filter(m=>m.total>0).sort((a,b)=>a.total-b.total);
   const itens=d.itens||[];
@@ -1062,8 +1086,12 @@ function renderListResult(d,tsAtual){
         if(Math.abs(df)<0.01)delta=` · <span class="delta eq">= ${cmp.date}</span>`;
         else if(df<0)delta=` · <span class="delta down">↓ ${money(-df)} vs ${cmp.date}</span>`;
         else delta=` · <span class="delta up">↑ ${money(df)} vs ${cmp.date}</span>`;}}
+      let badge="";
+      if(phist&&p>0){const ph=phist[normN(it.nome)];if(ph){
+        if(p<=ph.min+0.005)badge=`<span class="pbom best">🟢 menor preço</span>`;
+        else if(p<=ph.min*1.05)badge=`<span class="pbom">💚 preço bom</span>`;}}
       const dline=(marca?`<b>${esc(marca)}</b> · `:"")+esc(det)+delta;
-      return `<div class="row"><div class="info"><div class="n">${esc(it.nome)}</div><div class="d">${dline}</div></div><div class="p">${p>0?`<small>R$</small>${money(p,false)}`:"—"}${pu?`<em>${esc(pu)}</em>`:""}</div>${it.link?`<a class="mini" href="${esc(it.link)}" target="_blank" rel="noopener">${linkIco}</a>`:""}</div>`;
+      return `<div class="row"><div class="info"><div class="n">${esc(it.nome)}${badge}</div><div class="d">${dline}</div></div><div class="p">${p>0?`<small>R$</small>${money(p,false)}`:"—"}${pu?`<em>${esc(pu)}</em>`:""}</div>${it.link?`<a class="mini" href="${esc(it.link)}" target="_blank" rel="noopener">${linkIco}</a>`:""}</div>`;
     }).join("");
   }
   const dicas=(d.dicas||[]).filter(Boolean);
@@ -1112,6 +1140,14 @@ let lastCotacao=null;
 function hist(){return store.get("hist",[]);}
 function saveHistArr(h){store.set("hist",h.slice(0,60));}
 function guardarCotacao(e){const h=hist();h.unshift(e);saveHistArr(h);}
+function ultimaListaSalva(){return hist().find(e=>Array.isArray(e.lista)&&e.lista.length);}
+function resumoEconomia(){
+  const h=hist();let economia=0;
+  const listas=h.filter(e=>e.tipo==="lista").length;
+  const compras=h.filter(e=>e.tipo==="compra").length;
+  h.forEach(e=>{if(e.tipo==="lista"&&e.resultado){const ec=toNum(e.resultado.economia_estimada);if(ec>0)economia+=ec;}});
+  return {economia,listas,compras,notasN:notas().length};
+}
 function fmtDH(ts){const d=new Date(ts),p=n=>String(n).padStart(2,"0");return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;}
 function fmtD(ts){const d=new Date(ts),p=n=>String(n).padStart(2,"0");return `${p(d.getDate())}/${p(d.getMonth()+1)}`;}
 const normN=s=>String(s||"").toLowerCase().trim();
@@ -1176,6 +1212,19 @@ function renderHist(){
   statusPersistencia();
   const h=hist(), ns=notas();
   let html="";
+  const re=resumoEconomia();
+  if(re.listas||re.compras||re.notasN){
+    const chips=[];
+    if(re.listas)chips.push(`${re.listas} ${re.listas===1?"cotação":"cotações"}`);
+    if(re.compras)chips.push(`${re.compras} ${re.compras===1?"cupom lido":"cupons lidos"}`);
+    if(re.notasN)chips.push(`${re.notasN} ${re.notasN===1?"nota guardada":"notas guardadas"}`);
+    html+=`<div class="save-hero"><div class="t">💚 O MULTIPLICADOR JÁ GARIMPOU PRA VOCÊ</div>`
+      +(re.economia>0
+        ?`<div class="big">${money(re.economia)}</div><div class="sub">de <b>economia potencial</b> — a diferença entre o <b>mercado campeão</b> e o mais caro, somada nas suas cotações. Seguindo a dica do campeão, essa economia vira real. Confirme os preços no mercado antes de fechar.</div>`
+        :`<div class="big" style="font-size:22px;letter-spacing:-.5px">Bora economizar 💪</div><div class="sub">Faça uma <b>cotação de lista</b> pra ver quanto dá pra economizar só escolhendo o mercado certo — o total aparece aqui.</div>`)
+      +(chips.length?`<div class="chips">${chips.map(c=>`<span>${c}</span>`).join("")}</div>`:"")
+      +`</div>`;
+  }
   if(ns.length){
     html+=`<div class="section-label" style="margin:4px 2px 10px">🧾 Notas fiscais guardadas</div>`+ns.slice(0,12).map(notaRow).join("");
     html+=`<div class="section-label" style="margin:22px 2px 12px">Cotações guardadas</div>`;
