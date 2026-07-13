@@ -252,6 +252,24 @@
   .modal .mbtn.ghost{background:transparent;border:1px solid var(--line-strong);color:var(--muted)}
   .modal .or{text-align:center;color:var(--muted);font-size:12px;margin:12px 0;font-weight:500}
 
+  /* nota fiscal / QR */
+  .nfe-scan{width:100%;aspect-ratio:1/1;max-height:300px;border-radius:18px;overflow:hidden;position:relative;background:#000;display:none;margin-bottom:12px}
+  .nfe-scan.on{display:block}
+  .nfe-scan video{width:100%;height:100%;object-fit:cover}
+  .nfe-scan .frame{position:absolute;inset:20%;border:3px solid var(--mint);border-radius:14px}
+  .nfe-scan .sl{position:absolute;left:20%;right:20%;height:2px;background:var(--mint);box-shadow:0 0 12px var(--mint);animation:nscan 1.7s ease-in-out infinite}
+  @keyframes nscan{0%{top:20%}50%{top:80%}100%{top:20%}}
+  .nfe-key{width:100%;margin-top:2px;padding:14px 15px;border-radius:14px;border:1px solid var(--line-strong);background:var(--bg);color:var(--text);font-size:15px;font-weight:600;letter-spacing:.5px;outline:0;font-variant-numeric:tabular-nums}
+  .nfe-key:focus{border-color:rgba(74,222,157,.5)}
+  #nfeMsg{margin-top:10px;font-size:12px;line-height:1.55;color:var(--muted)}
+  #nfeMsg b{color:var(--text);font-weight:600}
+  .nfe-note{display:flex;align-items:center;gap:11px;padding:12px 14px;border:1px solid var(--line);background:var(--surface);border-radius:14px;margin-bottom:8px}
+  .nfe-note .inf{flex:1;min-width:0}
+  .nfe-note .inf .k{font-weight:600;font-size:12.5px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .nfe-note .inf .s{color:var(--muted);font-size:11.5px;margin-top:2px}
+  .nfe-note button{border:1px solid var(--line-strong);background:transparent;color:var(--text);font-size:12px;font-weight:600;padding:8px 11px;border-radius:10px;cursor:pointer;flex:none}
+  .nfe-note button.del{border:0;color:var(--muted);padding:6px}
+
   .foot{margin-top:32px;text-align:center;color:var(--muted);font-size:11px;line-height:1.7;opacity:.75}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -322,6 +340,7 @@
     </div>
     <div class="list-tools">
       <button id="importBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M4 19h16"/></svg> Importar</button>
+      <button id="nfeListaBtn">📷 Nota fiscal</button>
       <button id="exportBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9M8 13l4-4 4 4M4 5h16"/></svg> Exportar</button>
       <button id="clearBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg> Limpar</button>
     </div>
@@ -361,6 +380,7 @@
   <section id="view-hist" style="display:none">
     <div class="section-label">Cofre · suas listas e cotações</div>
     <div class="list-tools">
+      <button id="nfeCofreBtn">📷 Ler nota fiscal</button>
       <button id="backupBtn">💾 Backup completo</button>
       <button id="restoreBtn">📥 Restaurar</button>
     </div>
@@ -401,6 +421,19 @@
 
 <!-- relatório para PDF (só aparece na impressão) -->
 <div id="printArea"></div>
+
+<!-- modal nota fiscal (NFC-e) -->
+<div class="modal" id="nfeModal"><div class="card">
+  <h3>NOTA FISCAL · NFC-e</h3>
+  <button class="gps" id="nfeScanBtn" style="justify-content:center">📷 Escanear QR Code da nota</button>
+  <div class="nfe-scan" id="nfeScan"><video id="nfeVideo" playsinline muted></video><div class="frame"></div><div class="sl"></div></div>
+  <div class="or">ou insira a chave de acesso (44 dígitos do rodapé do cupom)</div>
+  <input id="nfeKey" class="nfe-key" type="text" inputmode="numeric" autocomplete="off" placeholder="0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000" maxlength="60" />
+  <button class="mbtn" id="nfeOpenBtn">Abrir nota e guardar no Cofre</button>
+  <p id="nfeMsg"></p>
+  <div id="nfeSavedModal"></div>
+  <button class="mbtn ghost" id="nfeCloseBtn" style="margin-top:14px">Fechar</button>
+</div></div>
 
 <script>
 /* ================= CONFIG ================= */
@@ -951,9 +984,17 @@ window.exportarSheets=function(){if(lastCotacao)exportCSV(lastCotacao);else toas
 window.exportarPDF=function(){if(lastCotacao)exportPDF(lastCotacao);else toast("Faça uma cotação primeiro.");};
 function renderHist(){
   statusPersistencia();
-  const h=hist();
-  if(!h.length){$("#histList").innerHTML=`<div class="radar-empty">Cofre vazio por enquanto.<br>Cada cotação que você fizer é <b style="color:var(--mint)">guardada aqui automaticamente</b> — data, lista, marcas, preços e fontes — pra comparar no futuro.</div>`;return;}
-  $("#histList").innerHTML=h.map(e=>{
+  const h=hist(), ns=notas();
+  let html="";
+  if(ns.length){
+    html+=`<div class="section-label" style="margin:4px 2px 10px">🧾 Notas fiscais guardadas</div>`+ns.slice(0,12).map(notaRow).join("");
+    html+=`<div class="section-label" style="margin:22px 2px 12px">Cotações guardadas</div>`;
+  }
+  if(!h.length){
+    html+=`<div class="radar-empty">${ns.length?"Nenhuma cotação ainda.":"Cofre vazio por enquanto."}<br>Cada cotação é <b style="color:var(--mint)">guardada aqui automaticamente</b> — data, lista, marcas, preços e fontes. Toque em <b style="color:var(--gold)">📷 Ler nota fiscal</b> pra guardar suas NFC-e também.</div>`;
+    $("#histList").innerHTML=html;return;
+  }
+  html+=h.map(e=>{
     const win=e.tipo==="lista"?((e.resultado&&e.resultado.por_mercado)||[]).slice().sort((a,b)=>toNum(a.total_estimado)-toNum(b.total_estimado))[0]:null;
     const tot=win?money(toNum(win.total_estimado)):"";
     const sub=e.tipo==="lista"
@@ -962,6 +1003,7 @@ function renderHist(){
     return `<div class="hist-item"><div class="hd"><div class="inf"><div class="dt">${e.tipo==="lista"?"🧾":"🔎"} ${fmtDH(e.ts)}</div><div class="sub">${sub}</div></div><div class="tot">${tot}</div></div>
       <div class="ops">${e.tipo==="lista"?`<button onclick="histUsar(${e.ts})">🛒 usar lista</button>`:""}<button onclick="histVer(${e.ts})">👁 ver</button><button onclick="histCSV(${e.ts})">📊 Sheets</button><button onclick="histPDF(${e.ts})">📄 PDF</button><button onclick="histDel(${e.ts})">🗑</button></div></div>`;
   }).join("");
+  $("#histList").innerHTML=html;
 }
 async function statusPersistencia(){
   const el=$("#storageStatus");if(!el)return;
@@ -983,7 +1025,7 @@ window.histCSV=function(ts){const e=hist().find(x=>x.ts===ts);if(e)exportCSV(e);
 window.histPDF=function(ts){const e=hist().find(x=>x.ts===ts);if(e)exportPDF(e);};
 window.histDel=function(ts){if(!confirm("Apagar esta cotação do Cofre?"))return;saveHistArr(hist().filter(x=>x.ts!==ts));renderHist();};
 $("#backupBtn").onclick=function(){
-  const data={app:"MULTIPLICADOR",versao:1,exportado_em:new Date().toISOString(),list:getList(),mercados:store.get("mercados",""),marcas:store.get("marcas_fav",""),radar:store.get("radar",[]),hist:hist()};
+  const data={app:"MULTIPLICADOR",versao:1,exportado_em:new Date().toISOString(),list:getList(),mercados:store.get("mercados",""),marcas:store.get("marcas_fav",""),radar:store.get("radar",[]),hist:hist(),notas:notas()};
   baixar(`multiplicador-backup-${new Date().toISOString().slice(0,10)}.json`,[JSON.stringify(data,null,1)],"application/json");
   toast("💾 Backup baixado — guarde no iCloud/Arquivos");
 };
@@ -999,11 +1041,95 @@ $("#restoreInput").addEventListener("change",e=>{
     if(typeof o.marcas==="string"){store.set("marcas_fav",o.marcas);const bi=$("#marcasInput");if(bi)bi.value=o.marcas;}
     if(Array.isArray(o.radar))store.set("radar",o.radar);
     if(Array.isArray(o.hist))saveHistArr(o.hist);
+    if(Array.isArray(o.notas))saveNotas(o.notas);
     renderList();renderHist();toast("✅ Backup restaurado com sucesso");
   }catch(err){alert("Arquivo de backup inválido.");}};
   rd.readAsText(f);e.target.value="";
 });
 (async()=>{try{if(navigator.storage&&navigator.storage.persist&&navigator.storage.persisted&&!(await navigator.storage.persisted()))await navigator.storage.persist();}catch(err){}})();
+
+/* ============ NOTA FISCAL (NFC-e) ============ */
+const UF_MAP={11:"RO",12:"AC",13:"AM",14:"RR",15:"PA",16:"AP",17:"TO",21:"MA",22:"PI",23:"CE",24:"RN",25:"PB",26:"PE",27:"AL",28:"SE",29:"BA",31:"MG",32:"ES",33:"RJ",35:"SP",41:"PR",42:"SC",43:"RS",50:"MS",51:"MT",52:"GO",53:"DF"};
+const UF_URL={52:"https://www.sefaz.go.gov.br/nfce/consulta",35:"https://www.nfce.fazenda.sp.gov.br/NFCeConsultaPublica/Paginas/ConsultaPublica.aspx"};
+function notas(){return store.get("notas",[]);}
+function saveNotas(a){store.set("notas",a.slice(0,120));}
+function guardarNota(n){const a=notas().filter(x=>x.chave!==n.chave||!n.chave);a.unshift(n);saveNotas(a);}
+function chaveFromText(t){t=String(t||"");const pm=t.match(/[?&]p=([^|&]+)/i);const cand=pm?decodeURIComponent(pm[1]):t;const d=(cand.match(/\d/g)||[]).join("");const m=d.match(/\d{44}/);return m?m[0]:null;}
+function validaChave(c){return /^\d{44}$/.test(c);}
+function ufDaChave(c){return UF_MAP[+c.slice(0,2)]||"?";}
+function fmtChave(c){return String(c).replace(/(\d{4})(?=\d)/g,"$1 ").trim();}
+function consultUrl(chave){const cUF=+String(chave).slice(0,2);return UF_URL[cUF]||("https://www.google.com/search?q="+enc("consultar NFC-e "+(UF_MAP[cUF]||"")+" pela chave de acesso"));}
+
+let nfeStream=null,nfeRAF=null,jsqrLoading=null;
+const nfeModal=$("#nfeModal");
+function abrirNfe(){nfeModal.classList.add("open");$("#nfeMsg").textContent="";renderNotasModal();}
+function fecharNfe(){pararScanner();$("#nfeScanBtn").textContent="📷 Escanear QR Code da nota";nfeModal.classList.remove("open");}
+$("#nfeListaBtn").onclick=abrirNfe;
+$("#nfeCofreBtn").onclick=abrirNfe;
+$("#nfeCloseBtn").onclick=fecharNfe;
+nfeModal.addEventListener("click",e=>{if(e.target===nfeModal)fecharNfe();});
+function carregarJsQR(){
+  if(window.jsQR)return Promise.resolve();
+  if(jsqrLoading)return jsqrLoading;
+  jsqrLoading=new Promise((res,rej)=>{const s=document.createElement("script");s.src="jsqr.min.js";s.onload=()=>res();s.onerror=()=>{jsqrLoading=null;rej(new Error("lib"));};document.head.appendChild(s);});
+  return jsqrLoading;
+}
+$("#nfeScanBtn").onclick=async function(){
+  const box=$("#nfeScan"),video=$("#nfeVideo"),msg=$("#nfeMsg");
+  if(nfeStream){pararScanner();this.textContent="📷 Escanear QR Code da nota";msg.textContent="";return;}
+  msg.textContent="Carregando o leitor…";
+  try{await carregarJsQR();}catch(e){msg.innerHTML="Não consegui carregar o leitor agora. Dá pra usar o app <b>Câmera do iPhone</b> (abre o QR direto) ou digitar a chave abaixo.";return;}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){msg.innerHTML="Este navegador não abre a câmera. Use o app <b>Câmera do iPhone</b> no QR, ou digite a chave.";return;}
+  try{nfeStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}});}
+  catch(e){nfeStream=null;msg.innerHTML="Não consegui abrir a câmera (permita o acesso nas configurações). Você pode digitar a chave abaixo, ou usar o app <b>Câmera</b> do iPhone.";return;}
+  video.srcObject=nfeStream;video.setAttribute("playsinline","");
+  try{await video.play();}catch(e){}
+  box.classList.add("on");this.textContent="✕ Parar câmera";msg.textContent="Aponte para o QR Code no rodapé do cupom…";
+  const cv=document.createElement("canvas"),ctx=cv.getContext("2d",{willReadFrequently:true});
+  const tick=()=>{
+    if(!nfeStream)return;
+    if(video.readyState>=2&&video.videoWidth){
+      cv.width=video.videoWidth;cv.height=video.videoHeight;
+      ctx.drawImage(video,0,0,cv.width,cv.height);
+      try{const img=ctx.getImageData(0,0,cv.width,cv.height);const code=window.jsQR(img.data,cv.width,cv.height,{inversionAttempts:"dontInvert"});if(code&&code.data){processarQR(code.data);return;}}catch(e){}
+    }
+    nfeRAF=requestAnimationFrame(tick);
+  };
+  nfeRAF=requestAnimationFrame(tick);
+};
+function pararScanner(){if(nfeRAF)cancelAnimationFrame(nfeRAF);nfeRAF=null;if(nfeStream){nfeStream.getTracks().forEach(t=>t.stop());nfeStream=null;}const b=$("#nfeScan");if(b)b.classList.remove("on");}
+function processarQR(text){
+  pararScanner();$("#nfeScanBtn").textContent="📷 Escanear QR Code da nota";
+  const chave=chaveFromText(text);
+  const url=/^https?:\/\//i.test(text)?text:(chave?consultUrl(chave):"");
+  if(!chave&&!url){$("#nfeMsg").textContent="QR lido, mas não parece uma NFC-e. Tente de novo ou digite a chave.";return;}
+  const uf=chave?ufDaChave(chave):"?";
+  guardarNota({ts:Date.now(),chave:chave||"",uf,url,origem:"qr"});
+  renderNotasModal();
+  $("#nfeMsg").innerHTML="✅ Nota lida e <b>guardada no Cofre</b>. Abrindo na SEFAZ…";
+  if(url)window.open(url,"_blank","noopener");
+  toast("🧾 Nota guardada no Cofre");
+}
+$("#nfeOpenBtn").onclick=function(){
+  const raw=($("#nfeKey").value||"").replace(/\D/g,"").slice(0,44);
+  if(!validaChave(raw)){$("#nfeMsg").innerHTML="A chave precisa ter <b>44 dígitos</b>. Ela fica no rodapé do cupom, embaixo do código de barras.";return;}
+  const uf=ufDaChave(raw),url=consultUrl(raw);
+  guardarNota({ts:Date.now(),chave:raw,uf,url,origem:"manual"});
+  renderNotasModal();
+  try{navigator.clipboard&&navigator.clipboard.writeText(raw);}catch(e){}
+  $("#nfeMsg").innerHTML=`✅ Nota (${uf}) <b>guardada no Cofre</b>. Chave copiada — abrindo o portal da SEFAZ; é só colar a chave se ele pedir.`;
+  window.open(url,"_blank","noopener");
+  $("#nfeKey").value="";
+  toast("🧾 Nota guardada no Cofre");
+};
+$("#nfeKey").addEventListener("input",e=>{const d=e.target.value.replace(/\D/g,"").slice(0,44);e.target.value=fmtChave(d);});
+function notaRow(n){
+  const ini=fmtChave(n.chave).slice(0,29);
+  return `<div class="nfe-note"><div class="inf"><div class="k">🧾 ${esc(n.uf||"?")} · ${esc(ini)}${n.chave&&n.chave.length>25?"…":""}</div><div class="s">${fmtDH(n.ts)}${n.origem==="qr"?" · lida por QR":" · chave digitada"}</div></div>${n.url?`<button onclick="abrirNota('${escAttr(n.url)}')">abrir</button>`:""}<button class="del" onclick="delNota(${n.ts})">🗑</button></div>`;
+}
+function renderNotasModal(){const box=$("#nfeSavedModal"),ns=notas();box.innerHTML=ns.length?(`<div class="or" style="margin:16px 0 8px">notas guardadas</div>`+ns.slice(0,6).map(notaRow).join("")):"";}
+window.abrirNota=function(u){window.open(u,"_blank","noopener");};
+window.delNota=function(ts){saveNotas(notas().filter(n=>n.ts!==ts));renderNotasModal();if($("#view-hist").style.display!=="none")renderHist();};
 
 /* ============ radar ============ */
 function radar(){return store.get("radar",[]);}

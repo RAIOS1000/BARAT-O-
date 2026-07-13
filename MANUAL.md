@@ -71,6 +71,10 @@ Quer só ver como fica? Toque em **👀 ver um exemplo de cotação (demo)** —
 - 🧾 **Auditoria:** cada cotação registra data/hora, motor usado e a fonte de cada preço ("X de Y itens com fonte verificável"). O motor é instruído a **nunca inventar preço** — o que não foi encontrado vem marcado como estimativa em Obs.
 - 📊 **Google Sheets:** toque em **Google Sheets** — baixa a planilha (.csv); abra com o app do Sheets ou mande pro Drive.
 - 📄 **PDF:** toque em **Salvar PDF** — abre a tela de impressão; no iPhone, toque em **Compartilhar → Salvar em Arquivos**.
+- 🧾📷 **Nota fiscal (NFC-e):** toque em **📷 Ler nota fiscal** (na aba Cofre ou na Lista).
+  - **Escanear QR Code:** aponte a câmera para o QR no rodapé do cupom → o app abre a nota oficial na **SEFAZ** (o preço real que você pagou) e a **guarda no Cofre**.
+  - **Inserir chave:** se o QR estiver ruim, digite a **chave de acesso (44 dígitos)** que fica embaixo do código de barras → ele detecta o estado, guarda a nota e abre o portal (copia a chave pra você colar).
+  - A câmera só funciona com o app publicado em **https** (GitHub Pages) e depois de **permitir o acesso à câmera** no Safari. Alternativa: o app **Câmera do iPhone** também lê o QR da NFC-e e abre a nota direto.
 
 ---
 
