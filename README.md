@@ -5,6 +5,8 @@ Jogue sua **lista de compras** e o Multiplicador faz a **cotação do preço do 
 ## ✨ O que ele faz
 
 - 🧾 **Jogue a lista** — digite, adicione pelo catálogo (+200 itens) ou **importe um arquivo** (.txt/.csv)
+- ✨🎤 **Monte a lista falando ou escrevendo do seu jeito** — escreva (ou **dite pelo microfone**) "arroz, 2 leites e uma dúzia de ovos" e a IA transforma em itens com a quantidade certa. Digite um **prato** ("o que preciso p/ um strogonoff") e ela devolve os **ingredientes** já na lista. Sem chave, um modo simples separa por vírgula
+- 🏪 **Lista por corredor** — um toque organiza a lista **na ordem dos corredores do mercado** (hortifruti → açougue → laticínios → … → limpeza), pra você comprar mais rápido sem ficar dando voltas
 - 🏪 **Meus mercados** — já vem preenchido com *Assaí, Carrefour, Costa, Moreirinha, Pão de Açúcar* (edite à vontade) e ele cota **exatamente nessas redes**
 - ⭐ **Minhas marcas favoritas** — informe as marcas que você gosta (ex.: Tio João, Pilão, OMO) e ele **prioriza essas marcas** quando o preço é competitivo; se a favorita estiver muito mais cara, mostra a alternativa e avisa
 - 🔒 **Cofre** — toda cotação é **guardada automaticamente** (data, lista, marcas, preços e fontes); na próxima cotação cada item mostra **↓/↑ quanto mudou**. Backup completo e restauração em 1 toque
