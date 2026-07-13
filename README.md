@@ -7,6 +7,9 @@ Jogue sua **lista de compras** e o Multiplicador faz a **cotação do preço do 
 - 🧾 **Jogue a lista** — digite, adicione pelo catálogo (+200 itens) ou **importe um arquivo** (.txt/.csv)
 - 🏪 **Meus mercados** — já vem preenchido com *Assaí, Carrefour, Costa, Moreirinha, Pão de Açúcar* (edite à vontade) e ele cota **exatamente nessas redes**
 - ⭐ **Minhas marcas favoritas** — informe as marcas que você gosta (ex.: Tio João, Pilão, OMO) e ele **prioriza essas marcas** quando o preço é competitivo; se a favorita estiver muito mais cara, mostra a alternativa e avisa
+- 🔒 **Cofre** — toda cotação é **guardada automaticamente** (data, lista, marcas, preços e fontes); na próxima cotação cada item mostra **↓/↑ quanto mudou**. Backup completo e restauração em 1 toque
+- 🧾 **Auditoria de veracidade** — o motor é instruído a **nunca inventar preço** e a citar a fonte de cada item; a cotação mostra "X de Y itens com fonte verificável"
+- 📊📄 **Exportar** — cada cotação vira **planilha (Google Sheets)** e **PDF** com o relatório completo e a linha de auditoria
 - 📲 **Instala no iPhone** — abra no Safari → Compartilhar → *Adicionar à Tela de Início*; vira um app com ícone próprio (passo a passo no `MANUAL.md`)
 - 💰 **Cotar preço do dia** — com o motor ligado, ele pesquisa na web com **olhar de comprador/dono de mercado** (menor custo real, sem visar lucro) e entrega: melhor preço por item **com preço por kg/L/un**, o **mercado campeão** (total num lugar só), a **cesta ótima** (cada item no mais barato + se vale rachar a compra) e **dicas de comprador** (caixa fechada, atacarejo, promoção)
 - 🔎 **Buscar** — melhor preço de um produto avulso (com o motor) ou comparadores grátis (sem motor)

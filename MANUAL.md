@@ -64,7 +64,17 @@ Quer só ver como fica? Toque em **👀 ver um exemplo de cotação (demo)** —
 
 ---
 
-## 5) As outras abas
+## 5) Cofre, auditoria e exportações
+
+- 🔒 **Cofre (aba nova):** toda cotação é guardada **automaticamente** no aparelho — data, lista, marcas, preços e fontes. Na aba Cofre você pode **rever**, **usar a lista de novo**, exportar ou apagar. E quando você cota de novo, cada item mostra **↓/↑ quanto mudou** desde a última vez.
+- 💾 **Backup:** em Cofre → **Backup completo** baixa um arquivo com tudo (lista, mercados, marcas, radar e histórico). Guarde no iCloud/Arquivos — é a garantia total. **Restaurar** traz tudo de volta, inclusive em outro aparelho.
+- 🧾 **Auditoria:** cada cotação registra data/hora, motor usado e a fonte de cada preço ("X de Y itens com fonte verificável"). O motor é instruído a **nunca inventar preço** — o que não foi encontrado vem marcado como estimativa em Obs.
+- 📊 **Google Sheets:** toque em **Google Sheets** — baixa a planilha (.csv); abra com o app do Sheets ou mande pro Drive.
+- 📄 **PDF:** toque em **Salvar PDF** — abre a tela de impressão; no iPhone, toque em **Compartilhar → Salvar em Arquivos**.
+
+---
+
+## 6) As outras abas
 
 - **Buscar** — melhor preço de **um** produto (com marca e preço por unidade).
 - **Catálogo** — toque pra jogar itens na lista.
@@ -73,7 +83,7 @@ Quer só ver como fica? Toque em **👀 ver um exemplo de cotação (demo)** —
 
 ---
 
-## 6) Dúvidas rápidas
+## 7) Dúvidas rápidas
 
 **"O motor não respondeu / erro."** Toque em **Testar** no cartão do motor. As mensagens são claras: *sem crédito*, *chave inválida*, *limite de uso* ou *conexão*.
 

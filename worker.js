@@ -57,7 +57,7 @@ async function modoBusca(produto, local, marcas, env, cors) {
     : "";
   const prompt =
 `Você é um comprador esperto no Brasil, com mentalidade de dono de supermercado: quer o MENOR CUSTO REAL, sem visar lucro. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local ? ` para quem está em ${local}` : ""}.${fav}
-Priorize supermercados/atacarejos que atendam essa região; considere marketplaces confiáveis. Informe a MARCA de cada opção, compare o PREÇO POR UNIDADE (kg/L/un) e prefira a embalagem que sai mais barata por unidade. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Preço estimado ou de outra região vai em "obs".
+Priorize supermercados/atacarejos que atendam essa região; considere marketplaces confiáveis. Informe a MARCA de cada opção, compare o PREÇO POR UNIDADE (kg/L/un) e prefira a embalagem que sai mais barata por unidade. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Preço estimado ou de outra região vai em "obs". NUNCA invente preço: só registre valores realmente encontrados, preenchendo "fonte" com o site.
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {"produto":"${produto}","local":"${local || ""}","data":"${hojeBR()}","resultados":[{"loja":"","marca":"","preco":0.00,"unidade":"","preco_unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
 Use ponto decimal. "marca" quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg"). Sem link confiável, use "link":"".`;
@@ -85,16 +85,17 @@ Pense como um comprador experiente:
 - Prefira atacarejo e, quando o preço por unidade compensar, embalagem maior / caixa fechada / fardo / saco.
 - Aproveite promoções e o encarte da semana.
 - Seja honesto: preço estimado, indisponível ou de outra região vai em "obs".
+- VERACIDADE: nunca invente preço. Só registre valores realmente encontrados na busca, informando a fonte (site); se não achar, use 0 e explique em "obs".
 
 LISTA:
 ${itens.map((n, i) => `${i + 1}. ${n}`).join("\n")}
 
-Para cada item informe: a MARCA cotada (ex.: Tio João, Camil, Qualitá), o melhor preço, a loja, a embalagem e o preço por unidade. Depois entregue:
+Para cada item informe: a MARCA cotada (ex.: Tio João, Camil, Qualitá), o melhor preço, a loja, a embalagem, o preço por unidade e a fonte (site onde viu o preço). Depois entregue:
 1) o total por mercado (comprando tudo em um só) e qual mercado sai mais barato no total;
 2) a "cesta ótima": comprando cada item onde está mais barato, o total e quanto economiza vs o melhor mercado único;
 3) dicas de comprador (itens que compensam em caixa fechada/atacado, ou em promoção agora).
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
-{"local":"${local}","data":"${hojeBR()}","itens":[{"nome":"","marca":"","melhor_preco":0.00,"melhor_loja":"","embalagem":"","preco_unidade":"","link":"","obs":""}],"por_mercado":[{"loja":"","total_estimado":0.00,"itens_encontrados":0}],"melhor_mercado":"","economia_estimada":0.00,"cesta_otima":{"total":0.00,"economia":0.00,"itens":[{"nome":"","loja":"","preco":0.00}]},"dicas":[""],"resumo":""}
+{"local":"${local}","data":"${hojeBR()}","itens":[{"nome":"","marca":"","melhor_preco":0.00,"melhor_loja":"","embalagem":"","preco_unidade":"","fonte":"","link":"","obs":""}],"por_mercado":[{"loja":"","total_estimado":0.00,"itens_encontrados":0}],"melhor_mercado":"","economia_estimada":0.00,"cesta_otima":{"total":0.00,"economia":0.00,"itens":[{"nome":"","loja":"","preco":0.00}]},"dicas":[""],"resumo":""}
 Use ponto decimal. "marca" é obrigatória quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg").`;
   const data = await callClaude(prompt, MAX_BUSCAS_LISTA, 4200, env);
   const parsed = extractJson(data.text);
