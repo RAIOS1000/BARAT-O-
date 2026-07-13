@@ -1170,8 +1170,15 @@ function fotoParaEntrada(d){
   const total=toNum(d.total)||itens.reduce((s,it)=>s+toNum(it.melhor_preco),0);
   const loja=d.loja||"Cupom fiscal";
   return {ts:Date.now(),tipo:"compra",origem:"foto",local:d.local||loc?.label||"",loja,data_compra:d.data||"",modelo:CONFIG.API_KEY?CONFIG.MODEL:"worker",
-    lista:itens.map(i=>({nome:i.nome,qtd:1})),
+    lista:(d.itens||[]).map(it=>({nome:it.nome||"item",qtd:Math.max(1,Math.round(toNum(it.qtd)||1))})),
     resultado:{data:d.data||hojeBR(),itens,por_mercado:[{loja,total_estimado:total,itens_encontrados:itens.length}],melhor_mercado:loja,resumo:`Compra real lida do cupom fiscal${d.loja?` — ${d.loja}`:""}. Confira os valores com o cupom.`}};
+}
+function inserirNaLista(items){
+  const l=getList(),low=n=>String(n||"").toLowerCase().trim();
+  const map=new Map(l.map((x,i)=>[low(x.nome),i]));
+  let add=0;
+  (items||[]).forEach(it=>{const k=low(it.nome);if(!k)return;if(map.has(k)){const i=map.get(k);l[i].qtd=Math.max(l[i].qtd||1,it.qtd||1);}else{l.push({nome:it.nome,qtd:it.qtd||1});map.set(k,l.length-1);add++;}});
+  setList(l);return add;
 }
 $("#nfeFotoBtn").onclick=function(){
   if(!engineOn()){$("#nfeMsg").innerHTML="Pra IA ler a foto do cupom, ligue o <b>motor</b> (cole sua chave sk-ant-…) no botão do motor, no topo.";return;}
@@ -1185,9 +1192,11 @@ $("#nfeFotoInput").addEventListener("change",async e=>{
     const d=await engineFoto(b64,media);
     if(!d.itens||!d.itens.length)throw new Error("não achei itens no cupom — tente uma foto mais nítida");
     const ent=fotoParaEntrada(d);guardarCotacao(ent);lastCotacao=ent;
+    const add=inserirNaLista(ent.lista);
     fecharNfe();setView("lista");renderListResult(ent.resultado,ent.ts);
-    const box=$("#listResult");if(box){box.insertAdjacentHTML("afterbegin",`<div class="demo-badge">📸 Lido do cupom fiscal · confira os valores</div>`);box.scrollIntoView({behavior:"smooth",block:"start"});}
-    toast("🧾 Compra real lida e guardada no Cofre");
+    const n=ent.lista.length;
+    const box=$("#listResult");if(box){box.insertAdjacentHTML("afterbegin",`<div class="demo-badge">📸 Compra lida do cupom · <b>${n} ${n===1?"item":"itens"} na sua lista</b> · confira os valores</div>`);box.scrollIntoView({behavior:"smooth",block:"start"});}
+    toast(add?`🛒 ${add} ${add===1?"item":"itens"} da nota na sua lista`:"🛒 itens da nota já estavam na sua lista");
   }catch(err){msg.innerHTML="❌ "+esc(erroAmigavel(err.message));}
 });
 
