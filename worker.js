@@ -68,7 +68,7 @@ Priorize supermercados/atacarejos que atendam essa região; considere marketplac
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {"produto":"${produto}","local":"${local || ""}","data":"${hojeBR()}","resultados":[{"loja":"","marca":"","preco":0.00,"unidade":"","preco_unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
 Use ponto decimal. "marca" quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg"). Sem link confiável, use "link":"".`;
-  const data = await callClaude(prompt, MAX_BUSCAS_ITEM, 2200, env);
+  const data = await callClaude(prompt, MAX_BUSCAS_ITEM, 3000, env);
   const parsed = extractJson(data.text);
   if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
   return json({ ok: true, ...parsed }, 200, cors);
@@ -104,7 +104,7 @@ Para cada item informe: a MARCA cotada (ex.: Tio João, Camil, Qualitá), o melh
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {"local":"${local}","data":"${hojeBR()}","itens":[{"nome":"","marca":"","melhor_preco":0.00,"melhor_loja":"","embalagem":"","preco_unidade":"","fonte":"","link":"","obs":""}],"por_mercado":[{"loja":"","total_estimado":0.00,"itens_encontrados":0}],"melhor_mercado":"","economia_estimada":0.00,"cesta_otima":{"total":0.00,"economia":0.00,"itens":[{"nome":"","loja":"","preco":0.00}]},"dicas":[""],"resumo":""}
 Use ponto decimal. "marca" é obrigatória quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg").`;
-  const data = await callClaude(prompt, MAX_BUSCAS_LISTA, 4200, env);
+  const data = await callClaude(prompt, MAX_BUSCAS_LISTA, 8000, env);
   const parsed = extractJson(data.text);
   if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
   return json({ ok: true, modo: "lista", ...parsed }, 200, cors);
@@ -189,8 +189,20 @@ Use ponto decimal. "preco_unit" é o preço unitário e "preco_total" é o valor
 
 async function callClaude(prompt, maxBuscas, maxTokens, env) {
   const model = getModel(env);
+  const primary = webSearchName(model);
+  try {
+    return await callClaudeTool(model, primary, prompt, maxBuscas, maxTokens, env);
+  } catch (e) {
+    // se a ferramenta de busca avançada não rolar na conta, cai pra básica
+    if (primary !== "web_search_20250305" && /web_search|tool.?type|unexpected.*tag|does not match|unsupported|max_uses|invalid.*tool/i.test(String(e && e.message))) {
+      return await callClaudeTool(model, "web_search_20250305", prompt, maxBuscas, maxTokens, env);
+    }
+    throw e;
+  }
+}
+async function callClaudeTool(model, toolType, prompt, maxBuscas, maxTokens, env) {
   let messages = [{ role: "user", content: prompt }];
-  const tools = [{ type: webSearchName(model), name: "web_search", max_uses: maxBuscas }];
+  const tools = [{ type: toolType, name: "web_search", max_uses: maxBuscas }];
   let data, guard = 0;
   // servidores de busca podem pausar o turno (pause_turn) — retomamos reenviando
   while (guard++ < 4) {
