@@ -78,6 +78,8 @@ Quer só ver como fica? Toque em **👀 ver um exemplo de cotação (demo)** —
 - 🧾 **Auditoria:** cada cotação registra data/hora, motor usado e a fonte de cada preço ("X de Y itens com fonte verificável"). O motor é instruído a **nunca inventar preço** — o que não foi encontrado vem marcado como estimativa em Obs.
 - 📊 **Google Sheets:** toque em **Google Sheets** — baixa a planilha (.csv); abra com o app do Sheets ou mande pro Drive.
 - 📄 **PDF:** toque em **Salvar PDF** — abre a tela de impressão; no iPhone, toque em **Compartilhar → Salvar em Arquivos**.
+- 🔗 **Compartilhar a lista com a família:** na aba **Lista**, toque em **Compartilhar** — o app monta um **link** com sua lista dentro dele e abre o menu de compartilhar (WhatsApp, etc.). Quem receber e abrir o link vê a lista e escolhe **Juntar** com a dela ou **Substituir**. É uma **cópia** (não sincroniza ao vivo), e a lista viaja no próprio link — nada fica guardado em servidor.
+- 📲 **Compartilhar a cotação:** na tela do resultado, toque em **📲 Compartilhar** pra mandar um resumo (mercado campeão, cesta ótima e os preços) no WhatsApp ou onde quiser.
 - 🧾📷 **Nota fiscal (NFC-e):** toque em **📷 Ler nota fiscal** (na aba Cofre ou na Lista).
   - **Escanear QR Code:** aponte a câmera para o QR no rodapé do cupom → o app abre a nota oficial na **SEFAZ** (o preço real que você pagou) e a **guarda no Cofre**.
   - **Inserir chave:** se o QR estiver ruim, digite a **chave de acesso (44 dígitos)** que fica embaixo do código de barras → ele detecta o estado, guarda a nota e abre o portal (copia a chave pra você colar).

@@ -291,6 +291,20 @@
   .modal .mbtn{width:100%;margin-top:10px;border:0;background:var(--mint);color:#07130D;font-weight:700;padding:14px;border-radius:13px;cursor:pointer}
   .modal .mbtn.ghost{background:transparent;border:1px solid var(--line-strong);color:var(--muted)}
   .modal .or{text-align:center;color:var(--muted);font-size:12px;margin:12px 0;font-weight:500}
+  /* lista compartilhada recebida */
+  .recv-items{max-height:34vh;overflow:auto;margin-bottom:14px;border:1px solid var(--line);border-radius:13px;padding:8px 4px}
+  .recv-i{padding:7px 12px;font-size:14px;font-weight:500;border-bottom:1px solid var(--line)}
+  .recv-i:last-child{border-bottom:0}
+  .recv-i b{color:var(--gold)}
+  /* boas-vindas (primeira vez) */
+  .wtag{color:var(--muted);font-size:13px;line-height:1.5;margin:-4px 0 16px;font-weight:500}
+  .wsteps{display:flex;flex-direction:column;gap:12px;margin-bottom:18px}
+  .wstep{display:flex;align-items:flex-start;gap:12px}
+  .wstep>span{font-size:22px;line-height:1.2;flex:none;width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--line);border-radius:11px}
+  .wstep b{display:block;font-size:14.5px;font-weight:700;color:var(--text)}
+  .wstep small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+  .wfine{margin-top:12px;font-size:11.5px;line-height:1.5;color:var(--muted)}
+  .wfine b{color:var(--gold)}
 
   /* nota fiscal / QR */
   .nfe-scan{width:100%;aspect-ratio:1/1;max-height:300px;border-radius:18px;overflow:hidden;position:relative;background:#000;display:none;margin-bottom:12px}
@@ -392,6 +406,7 @@
     <div class="list-tools">
       <button id="importBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M4 19h16"/></svg> Importar</button>
       <button id="nfeListaBtn">📷 Nota fiscal</button>
+      <button id="shareListBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v13"/></svg> Compartilhar</button>
       <button id="exportBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9M8 13l4-4 4 4M4 5h16"/></svg> Exportar</button>
       <button id="clearBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg> Limpar</button>
     </div>
@@ -491,6 +506,29 @@
   <p id="nfeMsg"></p>
   <div id="nfeSavedModal"></div>
   <button class="mbtn ghost" id="nfeCloseBtn" style="margin-top:14px">Fechar</button>
+</div></div>
+
+<!-- modal: lista compartilhada recebida (link) -->
+<div class="modal" id="recvModal"><div class="card">
+  <h3>LISTA COMPARTILHADA</h3>
+  <p id="recvInfo" style="color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:12px"></p>
+  <div id="recvItems" class="recv-items"></div>
+  <button class="mbtn" id="recvMerge">➕ Juntar com a minha lista</button>
+  <button class="mbtn ghost" id="recvReplace">Substituir minha lista por esta</button>
+  <button class="mbtn ghost" id="recvCancel">Agora não</button>
+</div></div>
+
+<!-- modal: boas-vindas (primeira vez) -->
+<div class="modal" id="welcomeModal"><div class="card">
+  <h3>👋 BEM-VINDO AO MULTIPLICADOR</h3>
+  <p class="wtag">A compra do mês mais barata — com o preço real do dia.</p>
+  <div class="wsteps">
+    <div class="wstep"><span>🧾</span><div><b>Monte sua lista do seu jeito</b><small>fale, escreva “arroz, 2 leites…” ou diga um prato</small></div></div>
+    <div class="wstep"><span>💰</span><div><b>Cote o preço do dia</b><small>veja qual mercado sai mais barato no total, em R$</small></div></div>
+    <div class="wstep"><span>🔒</span><div><b>Nada se perde</b><small>tudo fica no Cofre e mostra quanto você economiza</small></div></div>
+  </div>
+  <button class="mbtn" id="welcomeStart">Começar 🛒</button>
+  <p class="wfine">Dica: pra ligar o preço real, toque no botão <b>motor</b> lá em cima e cole sua chave. Sem chave, dá pra montar listas e ver um exemplo.</p>
 </div></div>
 
 <script>
@@ -792,7 +830,7 @@ function setList(l){store.set("list",l);updateBadge();}
 function updateBadge(){const n=getList().length;const b=$("#navBadge");if(n){b.style.display="flex";b.textContent=n;}else b.style.display="none";$("#listCount").textContent=n?`${n} ${n===1?"item":"itens"}`:"";}
 function liRow(x,i){
   return `<div class="li"><div class="info"><div class="n">${esc(x.nome)}</div></div>
-    <div class="qty"><button onclick="chQty(${i},-1)">−</button><span>${x.qtd||1}</span><button onclick="chQty(${i},1)">+</button></div>
+    <div class="qty"><button onclick="chQty(${i},-1)" aria-label="diminuir quantidade">−</button><span aria-label="quantidade">${x.qtd||1}</span><button onclick="chQty(${i},1)" aria-label="aumentar quantidade">+</button></div>
     <button class="del" onclick="rmItem(${i})" aria-label="remover"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>`;
 }
 function listView(){return store.get("list_view","simples");}
@@ -1099,7 +1137,7 @@ function renderListResult(d,tsAtual){
     html+=`<div class="tips"><div class="th">💡 Olhar de comprador</div><ul>${dicas.slice(0,6).map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`;
   }
   const comFonte=itens.filter(x=>x.link||x.fonte).length;
-  html+=`<div class="actions" style="margin-top:16px"><button class="act" onclick="exportarSheets()">📊 Google Sheets</button><button class="act" onclick="exportarPDF()">📄 Salvar PDF</button></div>`;
+  html+=`<div class="actions" style="margin-top:16px"><button class="act" onclick="compartilharCotacao()">📲 Compartilhar</button><button class="act" onclick="exportarSheets()">📊 Google Sheets</button><button class="act" onclick="exportarPDF()">📄 Salvar PDF</button></div>`;
   html+=`<div class="source">${esc(d.resumo||"Cotação obtida na web.")} Valores variam por unidade/loja — confirme no mercado antes de comprar. Regra de dono: compare sempre o preço por kg/L.${itens.length?` <b>Auditoria: ${comFonte}/${itens.length} itens com fonte verificável.</b>`:""}</div>`;
   $("#listResult").innerHTML=html||`<p class="hint">Sem resultado desta vez. Tente de novo.</p>`;
 }
@@ -1455,6 +1493,63 @@ window.buscarRadar=function(p){setView("buscar");$("#q").value=p;if(!loc){openLo
 /* ============ share ============ */
 window.compartilhar=function(){if(!lastBest)return;const txt=`🏷️ Achei no MULTIPLICADOR: ${lastBest.produto} por ${money(lastBest.preco)} na ${lastBest.loja}!`;if(navigator.share)navigator.share({title:"MULTIPLICADOR",text:txt}).catch(()=>{});else window.open(`https://wa.me/?text=${enc(txt)}`,"_blank");};
 
+/* compartilhar a LISTA por link (família) — a lista viaja no próprio link (nada em servidor) */
+function b64urlEnc(str){return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+function b64urlDec(s){s=String(s||"").replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";return decodeURIComponent(escape(atob(s)));}
+function encodeLista(l){return b64urlEnc(JSON.stringify({v:1,l:l.map(x=>(x.qtd>1?[x.nome,x.qtd]:[x.nome]))}));}
+function decodeLista(s){try{const o=JSON.parse(b64urlDec(s));if(!o||!Array.isArray(o.l))return null;return o.l.map(a=>({nome:String(a[0]||"").slice(0,80).trim(),qtd:Math.max(1,Math.min(999,Math.round(+a[1]||1)))})).filter(x=>x.nome);}catch(e){return null;}}
+function linkDaLista(l){return location.origin+location.pathname+"#l="+encodeLista(l);}
+window.compartilharLista=function(){
+  const l=getList();if(!l.length){toast("Sua lista está vazia — adicione itens primeiro.");return;}
+  const url=linkDaLista(l);
+  const txt=`🛒 Minha lista do MULTIPLICADOR (${l.length} ${l.length===1?"item":"itens"}). Abra pra ver, editar e cotar o preço do dia:`;
+  if(navigator.share)navigator.share({title:"Lista — MULTIPLICADOR",text:txt,url}).catch(()=>{});
+  else{window.open(`https://wa.me/?text=${enc(txt+"\n"+url)}`,"_blank");toast("🔗 Link da lista pronto pra enviar");}
+};
+let _recvItems=null;
+function checkSharedLink(){
+  const m=(location.hash||"").match(/[#&]l=([^&]+)/);if(!m)return false;
+  const items=decodeLista(m[1]);
+  try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}
+  if(!items||!items.length){toast("Esse link de lista está inválido.");return false;}
+  _recvItems=items;
+  $("#recvInfo").innerHTML=`Alguém compartilhou uma lista com <b style="color:var(--text)">${items.length} ${items.length===1?"item":"itens"}</b>. É uma cópia (não fica sincronizada com quem enviou). O que você quer fazer?`;
+  $("#recvItems").innerHTML=items.slice(0,60).map(x=>`<div class="recv-i">${x.qtd>1?`<b>${x.qtd}x</b> `:""}${esc(x.nome)}</div>`).join("");
+  $("#recvModal").classList.add("open");
+  return true;
+}
+$("#recvMerge").onclick=()=>{if(_recvItems){const a=inserirNaLista(_recvItems);$("#recvModal").classList.remove("open");setView("lista");renderList();toast(a?`➕ ${a} ${a===1?"item":"itens"} da lista compartilhada`:"Esses itens já estavam na sua lista");}};
+$("#recvReplace").onclick=()=>{if(_recvItems){setList(_recvItems.map(x=>({nome:x.nome,qtd:x.qtd})));$("#recvModal").classList.remove("open");setView("lista");renderList();toast("🛒 Lista compartilhada carregada");}};
+$("#recvCancel").onclick=()=>$("#recvModal").classList.remove("open");
+$("#recvModal").addEventListener("click",e=>{if(e.target===$("#recvModal"))$("#recvModal").classList.remove("open");});
+$("#shareListBtn").onclick=window.compartilharLista;
+
+/* compartilhar a COTAÇÃO (resumo em texto) no WhatsApp/onde quiser */
+window.compartilharCotacao=function(){
+  const e=lastCotacao;if(!e||!e.resultado){toast("Faça uma cotação primeiro.");return;}
+  const d=e.resultado;
+  const mkts=(d.por_mercado||[]).map(m=>({loja:m.loja,total:toNum(m.total_estimado)})).filter(m=>m.total>0).sort((a,b)=>a.total-b.total);
+  const L=[`🏷️ MULTIPLICADOR · preço do dia (${d.data||hojeBR()})`];
+  if(mkts[0])L.push(`🏆 Mais barato: ${mkts[0].loja} — total ${money(mkts[0].total)}`);
+  const c=d.cesta_otima;if(c&&toNum(c.total)>0)L.push(`🧺 Cesta ótima (cada item no + barato): ${money(toNum(c.total))}`);
+  (d.itens||[]).slice(0,8).forEach(it=>{const p=toNum(it.melhor_preco);if(p>0)L.push(`• ${it.nome}${it.marca?` (${it.marca})`:""}: ${money(p)}${it.melhor_loja?` — ${it.melhor_loja}`:""}`);});
+  L.push(`(estimativa de busca na web; confirme no mercado)`);
+  const txt=L.join("\n");
+  if(navigator.share)navigator.share({title:"Cotação — MULTIPLICADOR",text:txt}).catch(()=>{});
+  else{window.open(`https://wa.me/?text=${enc(txt)}`,"_blank");toast("📲 Resumo pronto pra compartilhar");}
+};
+
+/* boas-vindas (só na primeira vez) */
+function onboarding(){
+  if(store.get("onboarded",0))return;
+  if($("#recvModal").classList.contains("open"))return; // recebeu um link agora — não sobrepor
+  const wm=$("#welcomeModal");if(!wm)return;
+  const fechar=()=>{wm.classList.remove("open");store.set("onboarded",1);};
+  wm.classList.add("open");
+  $("#welcomeStart").onclick=fechar;
+  wm.addEventListener("click",e=>{if(e.target===wm)fechar();});
+}
+
 /* ============ calc ============ */
 ["a_preco","a_qtd","b_preco","b_qtd"].forEach(id=>$("#"+id).addEventListener("input",calc));
 function calc(){
@@ -1506,6 +1601,8 @@ function escAttr(s){return String(s??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'
 })();
 renderCats();renderChips();loadLoc();refreshEngine();updateBadge();
 setView("lista"); // abre já no fluxo principal: jogar a lista → cotar preço do dia
+checkSharedLink(); // abriu com um link de lista compartilhada? oferece importar
+onboarding();      // primeira vez: mostra as boas-vindas
 </script>
 </body>
 </html>
