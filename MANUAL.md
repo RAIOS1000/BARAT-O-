@@ -123,6 +123,12 @@ Dá pra abrir o Multiplicador **falando com a Siri**. Uma vez configurado:
 
 **"Quero o preço real da semana (encarte)."** Ao **Cotar preço do dia**, o motor agora **procura ativamente o encarte / ofertas da semana** de cada mercado e, quando acha, anota a validade em *Obs* (ex.: "encarte válido até 16/07"). Sem o motor, na aba **Buscar** há atalhos **📰 Encarte da semana** que abrem os folhetos no Google.
 
+**"Ver as ofertas da semana dos meus mercados."** Na aba **Lista**, toque em **🔥 Ver ofertas da semana dos meus mercados**:
+- **Sempre funciona:** aparecem botões que abrem o **encarte oficial de cada mercado** (Assaí, Carrefour, Atacadão, Costa, Moreirinha…) direto no navegador — não depende de conexão com a IA.
+- **Com o motor ligado:** o app **entra nos encartes** e traz as ofertas **pra dentro do app**, mercado por mercado, com **preço e data de validade** (ex.: "válido de 14/07 a 20/07"). Fica guardado no aparelho e atualiza cada vez que você toca de novo.
+- **Depois, monte sua lista e toque em Cotar preço do dia:** os itens que estão no encarte da semana aparecem com um selo **🔥 oferta** (com a loja e a validade). Assim você vê, item por item, o que já está em promoção.
+> ⚠️ Trazer as ofertas *pra dentro do app* usa a IA (busca na web) — então precisa do **motor** e da **conexão** funcionando (se der "Load failed", veja o item acima ou use o **Worker**). Os botões de encarte funcionam sempre.
+
 **"Não quero a chave no navegador."** Use a opção **Worker** (abra "Prefiro usar um Worker" no cartão do motor). A chave fica escondida num servidorzinho grátis da Cloudflare — passo a passo no `README.md`.
 
 **"O 🎤 Falar não abre a gravação no iPhone."** Alguns iPhones não liberam o microfone direto pra páginas web. Sem problema: toque no campo de texto e use o **🎤 do teclado do iPhone** (ao lado da barra de espaço) para ditar — funciona igual. Depois é só tocar em **✨ Montar lista**.

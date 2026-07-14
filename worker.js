@@ -7,6 +7,7 @@
  *   • FOTO   (POST {foto, media})                   -> lê o cupom fiscal por imagem (IA)
  *   • MONTAR (POST {montar:"texto/prato"})          -> monta a lista por fala/texto ou receita
  *   • PRODUTO(POST {foto_produto, media})           -> identifica o produto pela foto da embalagem
+ *   • OFERTAS(POST {ofertas:true, mercados, local}) -> encarte/ofertas da semana por mercado, com validade
  *
  * A chave fica como SECRET do Worker (nunca no site).
  * DEPLOY: veja o README. Secret: ANTHROPIC_API_KEY = sk-ant-...
@@ -41,6 +42,7 @@ export default {
     try {
       if (request.method === "POST") {
         const b = await request.json().catch(() => ({}));
+        if (b.ofertas) return await modoOfertas(b, env, cors);
         if (b.montar) return await modoMontar(b.montar, env, cors);
         if (b.foto_produto) return await modoFotoProduto(b, env, cors);
         if (b.foto) return await modoFoto(b, env, cors);
@@ -108,6 +110,25 @@ Use ponto decimal. "marca" é obrigatória quando houver; "preco_unidade" pode s
   const parsed = extractJson(data.text);
   if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
   return json({ ok: true, modo: "lista", ...parsed }, 200, cors);
+}
+
+async function modoOfertas(b, env, cors) {
+  const local = (b.local || "").toString();
+  const mercados = (b.mercados || "").toString().trim();
+  const marcas = (b.marcas || "").toString().trim();
+  const lojas = mercados || "Assaí, Carrefour, Atacadão, Costa, Moreirinha";
+  const fav = marcas ? ` O comprador tem marcas favoritas: ${marcas} — destaque quando aparecerem no encarte.` : "";
+  const prompt =
+`Você é um comprador esperto no Brasil. Hoje é ${hojeBR()}. Para quem está em ${local || "Brasil"}, PESQUISE na web as OFERTAS DA SEMANA (encarte / folheto / "ofertas da semana") ATUAIS de CADA um destes mercados, um por um: ${lojas}.
+Para cada mercado, procure o encarte/folheto VIGENTE desta semana — no site oficial da rede e em agregadores de encarte — e leia os itens. Traga as principais ofertas do dia a dia (mercearia, limpeza, hortifruti, açougue, bebidas) com a DATA DE VALIDADE do encarte.${fav}
+Só ofertas REAIS que você realmente encontrou na busca; se não achar o encarte de um mercado, devolva "ofertas":[] e explique em "obs". NUNCA invente preço nem validade.
+Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
+{"local":"${local}","data":"${hojeBR()}","mercados":[{"loja":"","validade":"","fonte":"","obs":"","ofertas":[{"produto":"","marca":"","preco":0.00,"preco_unidade":"","validade":"","fonte":""}]}]}
+"validade" do mercado é o período do encarte (ex.: "válido de 14/07 a 20/07"). Use ponto decimal para o preço.`;
+  const data = await callClaude(prompt, MAX_BUSCAS_LISTA, 8000, env);
+  const parsed = extractJson(data.text);
+  if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
+  return json({ ok: true, modo: "ofertas", ...parsed }, 200, cors);
 }
 
 async function modoMontar(texto, env, cors) {
