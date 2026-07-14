@@ -19,7 +19,8 @@ Jogue sua **lista de compras** e o Multiplicador faz a **cotação do preço do 
 - 🧾 **Auditoria de veracidade** — o motor é instruído a **nunca inventar preço** e a citar a fonte de cada item; a cotação mostra "X de Y itens com fonte verificável"
 - 📊📄 **Exportar** — cada cotação vira **planilha (Google Sheets)** e **PDF** com o relatório completo e a linha de auditoria
 - 📲 **Instala no iPhone** — abra no Safari → Compartilhar → *Adicionar à Tela de Início*; vira um app com ícone próprio (passo a passo no `MANUAL.md`)
-- 💰 **Cotar preço do dia** — com o motor ligado, ele pesquisa na web com **olhar de comprador/dono de mercado** (menor custo real, sem visar lucro) e entrega: melhor preço por item **com preço por kg/L/un**, o **mercado campeão** (total num lugar só), a **cesta ótima** (cada item no mais barato + se vale rachar a compra) e **dicas de comprador** (caixa fechada, atacarejo, promoção)
+- 💰 **Cotar preço do dia** — com o motor ligado, ele pesquisa na web com **olhar de comprador/dono de mercado** (menor custo real, sem visar lucro), **caça o encarte/ofertas da semana** de cada mercado (anotando a validade) e entrega: melhor preço por item **com preço por kg/L/un**, o **mercado campeão** (total num lugar só), a **cesta ótima** (cada item no mais barato + se vale rachar a compra) e **dicas de comprador** (caixa fechada, atacarejo, promoção)
+- 🐞 **Debug quando a cotação falha** — se não vier preço, aparece um quadro **detalhes técnicos** (motor, modelo, status, quantas buscas web rodaram, erro e resposta crua) com botão **copiar** — é só colar pra diagnosticar
 - 🔎 **Buscar** — melhor preço de um produto avulso (com o motor) ou comparadores grátis (sem motor)
 - 📡 **Radar de preço** — preço-alvo que acende 🎯 quando a busca acha mais barato
 - 🧮 **Calculadora por unidade** — mostra se o pacote maior compensa
@@ -60,8 +61,8 @@ O modo **Comparador** (grátis) e as ferramentas offline (catálogo, lista, impo
 ## 💸 Custo
 
 Usa a API da Anthropic com busca web. Já vem com **cache (6h)** e **teto de buscas**:
-- busca de 1 item: até **5** pesquisas web
-- cotar lista: **1 chamada** com até **9** pesquisas (mais barato que item por item)
+- busca de 1 item: até **6** pesquisas web
+- cotar lista: **1 chamada** com até **12** pesquisas (inclui caçar **encartes/ofertas da semana**; ainda mais barato que item por item)
 
 Com **Opus 4.8** (padrão), uma cotação de lista custa poucos centavos de dólar. Para gastar menos, troque para **Sonnet 5** ou **Haiku 4.5** no cartão do motor. Recomendo definir um **limite de gasto mensal** no painel da Anthropic.
 

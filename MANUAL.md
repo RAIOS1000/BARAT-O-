@@ -117,6 +117,10 @@ Dá pra abrir o Multiplicador **falando com a Siri**. Uma vez configurado:
 
 **"O motor não respondeu / erro."** Toque em **Testar** no cartão do motor. As mensagens são claras: *sem crédito*, *chave inválida*, *limite de uso* ou *conexão*.
 
+**"A cotação não veio / deu erro — o que houve?"** Quando uma cotação falha, aparece embaixo um quadro **🐞 detalhes técnicos (debug)**. Toque pra abrir: ele mostra o motor usado, o modelo, o status da conexão, **quantas buscas web rodaram**, o erro e o começo da resposta crua. Toque em **📋 copiar tudo** e cole aqui pra eu diagnosticar rapidinho. (Causas comuns: motor desligado, chave sem crédito, ou a busca não achou preço — tente de novo ou ajuste os mercados.)
+
+**"Quero o preço real da semana (encarte)."** Ao **Cotar preço do dia**, o motor agora **procura ativamente o encarte / ofertas da semana** de cada mercado e, quando acha, anota a validade em *Obs* (ex.: "encarte válido até 16/07"). Sem o motor, na aba **Buscar** há atalhos **📰 Encarte da semana** que abrem os folhetos no Google.
+
 **"Não quero a chave no navegador."** Use a opção **Worker** (abra "Prefiro usar um Worker" no cartão do motor). A chave fica escondida num servidorzinho grátis da Cloudflare — passo a passo no `README.md`.
 
 **"O 🎤 Falar não abre a gravação no iPhone."** Alguns iPhones não liberam o microfone direto pra páginas web. Sem problema: toque no campo de texto e use o **🎤 do teclado do iPhone** (ao lado da barra de espaço) para ditar — funciona igual. Depois é só tocar em **✨ Montar lista**.

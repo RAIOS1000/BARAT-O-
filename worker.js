@@ -13,8 +13,8 @@
  * Opcional: variável MODEL para trocar o modelo (padrão: o mais inteligente).
  */
 
-const MAX_BUSCAS_ITEM = 5;   // teto de pesquisas web p/ 1 produto
-const MAX_BUSCAS_LISTA = 9;  // teto de pesquisas web p/ a lista toda
+const MAX_BUSCAS_ITEM = 6;    // teto de pesquisas web p/ 1 produto
+const MAX_BUSCAS_LISTA = 12;  // teto de pesquisas web p/ a lista toda (inclui encartes)
 
 function getModel(env) { return (env && env.MODEL) || "claude-opus-4-8"; }
 // dynamic filtering (mais preciso/econômico) nos modelos recentes; básico p/ os antigos
@@ -63,6 +63,7 @@ async function modoBusca(produto, local, marcas, env, cors) {
     : "";
   const prompt =
 `Você é um comprador esperto no Brasil, com mentalidade de dono de supermercado: quer o MENOR CUSTO REAL, sem visar lucro. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local ? ` para quem está em ${local}` : ""}.${fav}
+BUSQUE O PREÇO REAL DA SEMANA: procure ATIVAMENTE o "encarte"/"ofertas da semana"/"folheto"/"tabloide" atual dos mercados da região, nos sites oficiais das redes e em agregadores de encartes. Prefira o preço do encarte VIGENTE desta semana e anote em "obs" a validade quando houver (ex.: "encarte válido até 16/07"); se o preço veio de encarte/promoção, diga na "fonte".
 Priorize supermercados/atacarejos que atendam essa região; considere marketplaces confiáveis. Informe a MARCA de cada opção, compare o PREÇO POR UNIDADE (kg/L/un) e prefira a embalagem que sai mais barata por unidade. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Preço estimado ou de outra região vai em "obs". NUNCA invente preço: só registre valores realmente encontrados, preenchendo "fonte" com o site.
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {"produto":"${produto}","local":"${local || ""}","data":"${hojeBR()}","resultados":[{"loja":"","marca":"","preco":0.00,"unidade":"","preco_unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
@@ -89,7 +90,7 @@ async function modoLista(b, env, cors) {
 Pense como um comprador experiente:
 - Compare sempre o PREÇO POR UNIDADE (por kg, litro ou unidade), não só o preço da embalagem.
 - Prefira atacarejo e, quando o preço por unidade compensar, embalagem maior / caixa fechada / fardo / saco.
-- Aproveite promoções e o encarte da semana.
+- PREÇO REAL DA SEMANA: procure ATIVAMENTE o "encarte"/"ofertas da semana"/"folheto"/"tabloide" ATUAL de cada mercado (ex.: "encarte Assaí ${local || "sua cidade"}", "ofertas da semana Atacadão"), nos sites oficiais das redes e em agregadores de encartes. Prefira o preço do encarte VIGENTE desta semana e anote a validade em "obs" (ex.: "encarte válido até 16/07"); se o preço veio de encarte/promoção, diga na "fonte".
 - Seja honesto: preço estimado, indisponível ou de outra região vai em "obs".
 - VERACIDADE: nunca invente preço. Só registre valores realmente encontrados na busca, informando a fonte (site); se não achar, use 0 e explique em "obs".
 

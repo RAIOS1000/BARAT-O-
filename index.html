@@ -192,6 +192,14 @@
   .smart-msg b{color:var(--mint)}
   .prod-foto{width:100%;margin-top:10px;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px dashed var(--line-strong);background:transparent;color:var(--muted);font-weight:600;font-size:12.5px;padding:11px;border-radius:12px;cursor:pointer;transition:border-color .2s,color .2s}
   .prod-foto:hover{border-color:rgba(242,193,78,.55);color:var(--gold)}
+  /* painel de debug (quando a cotação falha) */
+  .dbg{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+  .dbg summary{cursor:pointer;padding:11px 14px;font-size:12.5px;font-weight:700;color:var(--muted);list-style:none;user-select:none}
+  .dbg summary::-webkit-details-marker{display:none}
+  .dbg[open] summary{color:var(--gold);border-bottom:1px solid var(--line)}
+  .dbg pre{margin:0;padding:12px 14px;font-size:11.5px;line-height:1.5;color:var(--text);white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;max-height:42vh;overflow:auto}
+  .dbg .dbgcopy{margin:0 14px 12px;border:1px solid var(--line-strong);background:transparent;color:var(--muted);font-weight:700;font-size:12px;padding:8px 12px;border-radius:10px;cursor:pointer}
+  .dbg .dbgcopy:hover{color:var(--gold);border-color:rgba(242,193,78,.5)}
   /* alternar lista simples / por corredor */
   .list-viewtoggle{display:flex;gap:6px;margin-bottom:12px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
   .list-viewtoggle button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;background:transparent;color:var(--muted);font-weight:700;font-size:12.5px;padding:9px;border-radius:9px;cursor:pointer;transition:background .2s,color .2s}
@@ -538,7 +546,7 @@
 <script>
 /* ================= CONFIG ================= */
 const CONFIG = { API_ENDPOINT:"", API_KEY:"", MODEL:"claude-opus-4-8", CACHE_HORAS:6 };
-const MAX_BUSCAS_ITEM=5, MAX_BUSCAS_LISTA=9;
+const MAX_BUSCAS_ITEM=6, MAX_BUSCAS_LISTA=12;
 const MODELS=[
   {id:"claude-opus-4-8", nome:"Opus 4.8 · o mais inteligente (recomendado)"},
   {id:"claude-sonnet-5", nome:"Sonnet 5 · equilíbrio (mais barato)"},
@@ -579,6 +587,7 @@ const SUGGEST = {
 };
 const CMP = {
   base:[
+    {n:"Encarte da semana",s:"folhetos/ofertas",i:"📰",u:(p,l)=>`https://www.google.com/search?q=${enc("encarte ofertas da semana "+p+(l?" "+l:""))}`},
     {n:"Google Shopping",s:"varredura geral",i:"🔎",u:(p,l)=>`https://www.google.com/search?tbm=shop&q=${enc(p+" "+l)}`},
     {n:"Mercado Livre",s:"marketplace",i:"🟡",u:(p)=>`https://lista.mercadolivre.com.br/${enc(p).replace(/%20/g,"-")}`},
     {n:"Zoom",s:"comparador",i:"🔵",u:(p)=>`https://www.zoom.com.br/search?q=${enc(p)}`},
@@ -586,7 +595,10 @@ const CMP = {
   ],
   combustivel:[{n:"Preços locais",s:"postos na região",i:"⛽",u:(p,l)=>`https://www.google.com/search?q=${enc("preço "+p+" postos "+l)}`}],
   farmacia:[{n:"Consulta Remédios",s:"compara farmácias",i:"💊",u:(p)=>`https://consultaremedios.com.br/busca?termo=${enc(p)}`},{n:"CliqueFarma",s:"preço de remédio",i:"➕",u:(p)=>`https://www.cliquefarma.com.br/busca?q=${enc(p)}`}],
-  mercado:[{n:"Menor Preço PR",s:"nota fiscal (Paraná)",i:"🧾",u:(p)=>`https://menorpreco.notaparana.pr.gov.br/app?termo=${enc(p)}`}],
+  mercado:[
+    {n:"Encartes online",s:"folhetos por rede/cidade",i:"📰",u:(p,l)=>`https://www.google.com/search?q=${enc("encarte "+p+(l?" "+l:"")+" ofertas da semana")}`},
+    {n:"Menor Preço PR",s:"nota fiscal (Paraná)",i:"🧾",u:(p)=>`https://menorpreco.notaparana.pr.gov.br/app?termo=${enc(p)}`},
+  ],
 };
 
 let loc=null, cat="tudo", catSec="Tudo", lastBest=null;
@@ -606,6 +618,7 @@ function extractJson(text){if(!text)return null;const t=String(text).replace(/``
 function promptBusca(produto,local,marcas){
   const fav=marcas?`\nMarcas favoritas do comprador: ${marcas}. Priorize essas marcas quando o preço for competitivo; se a favorita estiver bem mais cara, mostre também a alternativa mais barata e explique em "obs".`:"";
   return `Você é um comprador esperto no Brasil, com mentalidade de dono de supermercado: quer o MENOR CUSTO REAL, sem visar lucro. Hoje é ${hojeBR()}. Pesquise na web os MENORES preços ATUAIS de "${produto}"${local?` para quem está em ${local}`:""}.${fav}
+BUSQUE O PREÇO REAL DA SEMANA: procure ATIVAMENTE o "encarte"/"ofertas da semana"/"folheto"/"tabloide" atual dos mercados da região (ex.: "encarte ${produto} ${local||""}", "ofertas da semana"), inclusive os sites oficiais das redes e agregadores de encartes. Prefira o preço do encarte VIGENTE desta semana e registre em "obs" a validade quando houver (ex.: "encarte válido até 16/07"); se o preço veio de encarte/promoção, diga isso na "fonte".
 Priorize supermercados/atacarejos que atendam essa região; considere marketplaces confiáveis. Informe a MARCA de cada opção, compare o PREÇO POR UNIDADE (kg/L/un) e prefira a embalagem que sai mais barata por unidade. Traga de 3 a 6 opções, da mais barata para a mais cara, com link direto quando houver. Preço estimado ou de outra região vai em "obs". NUNCA invente preço: só registre valores realmente encontrados, preenchendo "fonte" com o site.
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {"produto":"${produto}","local":"${local||""}","data":"${hojeBR()}","resultados":[{"loja":"","marca":"","preco":0.00,"unidade":"","preco_unidade":"","local":"cidade/UF ou online","link":"","fonte":"","obs":""}],"resumo":""}
@@ -619,7 +632,7 @@ function promptLista(l,local,mercados,marcas){
 Pense como um comprador experiente:
 - Compare sempre o PREÇO POR UNIDADE (por kg, litro ou unidade), não só o preço da embalagem.
 - Prefira atacarejo e, quando o preço por unidade compensar, embalagem maior / caixa fechada / fardo / saco.
-- Aproveite promoções e o encarte da semana.
+- PREÇO REAL DA SEMANA: procure ATIVAMENTE o "encarte"/"ofertas da semana"/"folheto"/"tabloide" ATUAL de cada mercado (ex.: "encarte Assaí ${local||"sua cidade"}", "ofertas da semana Atacadão"), nos sites oficiais das redes e em agregadores de encartes. Prefira o preço do encarte VIGENTE desta semana e anote a validade em "obs" (ex.: "encarte válido até 16/07"); se o preço veio de encarte/promoção, diga na "fonte".
 - Seja honesto: preço estimado, indisponível ou de outra região vai em "obs".
 - VERACIDADE: nunca invente preço. Só registre valores realmente encontrados na busca, informando a fonte (site); se não achar, use 0 e explique em "obs".
 
@@ -634,11 +647,14 @@ Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {"local":"${local||""}","data":"${hojeBR()}","itens":[{"nome":"","marca":"","melhor_preco":0.00,"melhor_loja":"","embalagem":"","preco_unidade":"","fonte":"","link":"","obs":""}],"por_mercado":[{"loja":"","total_estimado":0.00,"itens_encontrados":0}],"melhor_mercado":"","economia_estimada":0.00,"cesta_otima":{"total":0.00,"economia":0.00,"itens":[{"nome":"","loja":"","preco":0.00}]},"dicas":[""],"resumo":""}
 Use ponto decimal. "marca" é obrigatória quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg").`;
 }
+let lastCallMeta=null;
+function mkErr(msg,debug){const e=new Error(msg);e.debug=debug||{};return e;}
 async function callClaudeDireto(prompt,maxBuscas,maxTokens){
   const model=CONFIG.MODEL||"claude-opus-4-8";
   let messages=[{role:"user",content:prompt}];
   const tools=[{type:webSearchName(model),name:"web_search",max_uses:maxBuscas}];
-  let data,guard=0;
+  let data,guard=0,httpStatus=0;
+  lastCallMeta=null;
   while(guard++<4){
     const r=await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
@@ -650,25 +666,48 @@ async function callClaudeDireto(prompt,maxBuscas,maxTokens){
       },
       body:JSON.stringify({model,max_tokens:maxTokens,messages,tools})
     });
+    httpStatus=r.status;
     data=await r.json();
-    if(data.error) throw new Error(data.error.message||"erro na API");
+    if(data.error) throw mkErr(data.error.message||"erro na API",{fase:"API",httpStatus,apiError:data.error.message,model});
     if(data.stop_reason==="pause_turn"){messages=[messages[0],{role:"assistant",content:data.content}];continue;}
     break;
   }
   const text=(data.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").trim();
+  const su=(data.usage&&data.usage.server_tool_use)||{};
+  lastCallMeta={fase:"ok",httpStatus,model,stop_reason:data.stop_reason,buscasWeb:(su.web_search_requests??null),textLen:text.length};
   return {text};
 }
+let ultimoDebug=null;
+function montarDebug(err,ctx){
+  const d=(err&&err.debug)||{}, m=d.meta||lastCallMeta||{};
+  const L=[];
+  L.push(`quando: ${fmtDH(Date.now())}`);
+  L.push(`motor: ${engineOn()?(CONFIG.API_KEY?"chave direta (sk-ant)":"worker"):"DESLIGADO"}`);
+  L.push(`modelo: ${CONFIG.MODEL||"—"}`);
+  if(ctx)for(const k in ctx)L.push(`${k}: ${ctx[k]??"—"}`);
+  if(d.fase)L.push(`fase: ${d.fase}`);
+  if(d.httpStatus||m.httpStatus)L.push(`http: ${d.httpStatus||m.httpStatus}`);
+  if(m.stop_reason)L.push(`stop_reason: ${m.stop_reason}`);
+  if(m.buscasWeb!=null)L.push(`buscas web feitas: ${m.buscasWeb}`);
+  if(d.apiError)L.push(`erro da API: ${d.apiError}`);
+  L.push(`erro: ${(err&&err.message)||err}`);
+  const raw=d.raw||d.cru||"";
+  ultimoDebug={ts:Date.now(),contexto:ctx||{},...d,meta:m,erro:String((err&&err.message)||err)};
+  try{console.warn("[MULTIPLICADOR debug]",ultimoDebug);}catch(e){}
+  return `<details class="dbg"><summary>🐞 detalhes técnicos (debug) — toque pra abrir</summary><pre>${esc(L.join("\n"))}${raw?`\n\n— resposta crua (início) —\n${esc(String(raw))}`:""}</pre><button type="button" class="dbgcopy" onclick="copiarDebug()">📋 copiar tudo pra me enviar</button></details>`;
+}
+window.copiarDebug=function(){try{navigator.clipboard.writeText(JSON.stringify(ultimoDebug,null,2));toast("📋 debug copiado — cole aqui pra eu analisar");}catch(e){toast("selecione o texto do debug e copie à mão");}};
 async function engineBusca(produto){
   const marcas=getMarcasFav();
   if(CONFIG.API_KEY){
     const data=await callClaudeDireto(promptBusca(produto+(cat!=="tudo"?" "+cat:""),loc.label,marcas),MAX_BUSCAS_ITEM,2200);
     const parsed=extractJson(data.text);
-    if(!parsed) throw new Error("resposta sem JSON (tente de novo)");
+    if(!parsed) throw mkErr("resposta sem JSON (tente de novo)",{fase:"parse",raw:(data.text||"").slice(0,1500),meta:lastCallMeta});
     return parsed;
   }
   const u=`${CONFIG.API_ENDPOINT.replace(/\/$/,"")}/?produto=${enc(produto+(cat!=="tudo"?" "+cat:""))}&local=${enc(loc.label)}${marcas?`&marcas=${enc(marcas)}`:""}`;
   const r=await fetch(u),d=await r.json();
-  if(!d.ok) throw new Error(d.erro||"sem resultados");
+  if(!d.ok) throw mkErr(d.erro||"sem resultados",{fase:"worker",httpStatus:r.status,cru:d.cru||""});
   return d;
 }
 async function engineLista(l){
@@ -676,12 +715,12 @@ async function engineLista(l){
   if(CONFIG.API_KEY){
     const data=await callClaudeDireto(promptLista(l,loc.label,mercados,marcas),MAX_BUSCAS_LISTA,4200);
     const parsed=extractJson(data.text);
-    if(!parsed) throw new Error("resposta sem JSON (tente de novo)");
+    if(!parsed) throw mkErr("resposta sem JSON (tente de novo)",{fase:"parse",raw:(data.text||"").slice(0,1500),meta:lastCallMeta});
     return parsed;
   }
   const r=await fetch(CONFIG.API_ENDPOINT.replace(/\/$/,"")+"/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({lista:l,local:loc.label,mercados,marcas})});
   const d=await r.json();
-  if(!d.ok) throw new Error(d.erro||"erro");
+  if(!d.ok) throw mkErr(d.erro||"erro",{fase:"worker",httpStatus:r.status,cru:d.cru||""});
   return d;
 }
 
@@ -713,7 +752,7 @@ async function buscaInteligente(produto){
     const entry={ts:Date.now(),tipo:"busca",local:loc.label,produto,modelo:CONFIG.API_KEY?CONFIG.MODEL:"worker",resultado:d};
     guardarCotacao(entry);lastCotacao=entry;
     renderInteligente(d,produto,false);
-  }catch(err){ panelError(produto,err.message); }finally{ $("#goBtn").disabled=false; }
+  }catch(err){ panelError(produto,err.message); const dbg=montarDebug(err,{tipo:"busca",produto,local:loc?.label}); if($("#panel"))$("#panel").insertAdjacentHTML("beforeend",dbg); }finally{ $("#goBtn").disabled=false; }
 }
 function renderInteligente(d,produto,cached){
   const items=d.resultados.map(x=>({...x,preco:toNum(x.preco)})).filter(x=>x.preco>0).sort((a,b)=>a.preco-b.preco);
@@ -1047,12 +1086,14 @@ async function compararLista(){
   $("#listResult").innerHTML=`<div class="loading"><div class="barcode">${Array.from({length:30},()=>`<i style="width:${(Math.random()*3+1).toFixed(1)}px"></i>`).join("")}<div class="scanline"></div></div><p>cotando <b>${l.length} itens</b> ${mkt?`em <b>${esc(mkt)}</b>`:`nos mercados de <b>${esc(loc.label)}</b>`}…</p></div>`;
   try{
     const d=await engineLista(l);
+    const nItens=(d.itens||[]).length, nMkt=(d.por_mercado||[]).filter(m=>toNum(m.total_estimado)>0).length;
+    if(!nItens&&!nMkt) throw mkErr("a busca não trouxe preços desta vez — tente de novo, ajuste os mercados, ou veja o debug abaixo",{fase:"vazio",meta:lastCallMeta,raw:JSON.stringify(d).slice(0,1200)});
     const entry={ts:Date.now(),tipo:"lista",local:loc.label,mercados:mkt,marcas:getMarcasFav(),modelo:CONFIG.API_KEY?CONFIG.MODEL:"worker",lista:getList(),resultado:d};
     guardarCotacao(entry);lastCotacao=entry;
     renderListResult(d,entry.ts);
     toast("🔒 Cotação guardada no Cofre");
   }catch(err){
-    $("#listResult").innerHTML=`<div class="source" style="background:rgba(255,122,107,.08);border-color:rgba(255,122,107,.3);color:#ffd0c8">${esc(erroAmigavel(err.message))}</div>`;
+    $("#listResult").innerHTML=`<div class="source" style="background:rgba(255,122,107,.08);border-color:rgba(255,122,107,.3);color:#ffd0c8">${esc(erroAmigavel(err.message))}</div>`+montarDebug(err,{tipo:"lista",local:loc?.label,mercados:mkt||"(automático)",itens:l.length});
   }finally{ $("#compareBtn").disabled=false; }
 }
 function getMercados(){return ($("#mercadosInput")?.value??store.get("mercados","")).trim();}
