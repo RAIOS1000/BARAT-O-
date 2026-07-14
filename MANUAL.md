@@ -54,6 +54,7 @@ O app já abre na **Lista**, com o local em **Goiânia** e seus mercados preench
 1. Na aba **Lista**, monte sua lista do jeito mais fácil:
    - **✨ Fale ou escreva do seu jeito:** no campo de cima, escreva (ou toque em **🎤 Falar**) algo como *"arroz, 2 leites e uma dúzia de ovos"* e toque em **✨ Montar lista** — a IA vira itens com a quantidade certa (entende "uma dúzia" = 12, "meia dúzia" = 6, "2 caixas de leite" = 2).
    - **🍳 De um prato pra lista:** escreva um prato — *"o que preciso p/ um strogonoff"*, *"bolo de cenoura"* — e ela adiciona os **ingredientes** (porção p/ ~4 pessoas). *(Falar receita/quantidade por extenso precisa do motor ligado; sem motor, escreva os itens separados por vírgula.)*
+   - **📷 Foto do produto:** não sabe o nome ou quer ir rápido? Toque em **Foto do produto → a IA identifica e adiciona** e fotografe a **embalagem** — a IA reconhece o produto (nome, marca, tamanho) e joga na lista. *(Precisa do motor ligado. É a alternativa ao leitor de código de barras, que o Safari do iPhone não faz bem.)*
    - Também dá pra adicionar **à mão**, pelo **Catálogo** (+200 itens) ou **Importar** um arquivo (.txt/.csv).
 2. **🏪 Ver por corredor:** com 2+ itens, toque em **Por corredor** e a lista se organiza na **ordem do mercado** (hortifruti → açougue → laticínios → mercearia → limpeza…), pra comprar sem dar voltas. O **Lista simples** volta à ordem normal.
 3. (Opcional) Ajuste **os mercados** que quer cotar e suas **⭐ marcas favoritas**.
@@ -97,7 +98,22 @@ Quer só ver como fica? Toque em **👀 ver um exemplo de cotação (demo)** —
 
 ---
 
-## 7) Dúvidas rápidas
+## 7) Abrir por voz com a Siri (Atalho)
+
+Dá pra abrir o Multiplicador **falando com a Siri**. Uma vez configurado:
+
+1. Instale o app na tela de início (passo 2 acima).
+2. Abra o app **Atalhos** (Shortcuts) do iPhone → **+** (novo atalho).
+3. **Adicionar ação** → busque **"Abrir app"** (ou **"Abrir URL"** e cole `https://raios1000.github.io/BARAT-O-/`).
+4. Escolha o **MULTIPLICADOR** (ou o URL).
+5. Toque no nome do atalho → **Renomear** para algo como **"Abrir Multiplicador"** — essa vira a frase da Siri.
+6. Pronto: diga **"E aí Siri, abrir Multiplicador"** e ele abre.
+
+> **Sendo honesto sobre o iPhone:** um app web (como este) **não** consegue colocar um widget nativo na tela nem aparecer no menu **Compartilhar** de outros apps no iOS — isso é exclusivo de apps da App Store. O Atalho acima é a melhor forma de abrir por voz. Para **enviar** listas/cotações, use o botão **Compartilhar** dentro do app (esse funciona pra qualquer app, inclusive WhatsApp).
+
+---
+
+## 8) Dúvidas rápidas
 
 **"O motor não respondeu / erro."** Toque em **Testar** no cartão do motor. As mensagens são claras: *sem crédito*, *chave inválida*, *limite de uso* ou *conexão*.
 
