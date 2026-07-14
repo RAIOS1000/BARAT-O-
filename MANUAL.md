@@ -119,6 +119,8 @@ Dá pra abrir o Multiplicador **falando com a Siri**. Uma vez configurado:
 
 **"A cotação não veio / deu erro — o que houve?"** Quando uma cotação falha, aparece embaixo um quadro **🐞 detalhes técnicos (debug)**. Toque pra abrir: ele mostra o motor usado, o modelo, o status da conexão, **quantas buscas web rodaram**, o erro e o começo da resposta crua. Toque em **📋 copiar tudo** e cole aqui pra eu diagnosticar rapidinho. (Causas comuns: motor desligado, chave sem crédito, ou a busca não achou preço — tente de novo ou ajuste os mercados.)
 
+**"Deu 'Load failed' / erro de conexão no iPhone."** Isso quer dizer que a chamada **nem chegou** na Anthropic — **não é sua chave nem crédito**. No iPhone quase sempre é: **bloqueador de anúncios/conteúdo no Safari**, o **Relay Privado do iCloud** (Ajustes → seu nome → iCloud → Relay Privado) ou uma **VPN**, ou a busca longa caindo. O app **tenta de novo sozinho** algumas vezes; se ainda falhar: (1) desligue bloqueadores/Relay/VPN para este site e cote de novo, ou (2) use a opção **Worker** — é a forma **mais estável no iPhone**, porque o navegador fala com um servidorzinho seu (Cloudflare) e ele fala com a Anthropic. Passo a passo do Worker no `README.md`.
+
 **"Quero o preço real da semana (encarte)."** Ao **Cotar preço do dia**, o motor agora **procura ativamente o encarte / ofertas da semana** de cada mercado e, quando acha, anota a validade em *Obs* (ex.: "encarte válido até 16/07"). Sem o motor, na aba **Buscar** há atalhos **📰 Encarte da semana** que abrem os folhetos no Google.
 
 **"Não quero a chave no navegador."** Use a opção **Worker** (abra "Prefiro usar um Worker" no cartão do motor). A chave fica escondida num servidorzinho grátis da Cloudflare — passo a passo no `README.md`.

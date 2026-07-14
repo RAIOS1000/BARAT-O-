@@ -649,32 +649,49 @@ Use ponto decimal. "marca" é obrigatória quando houver; "preco_unidade" pode s
 }
 let lastCallMeta=null;
 function mkErr(msg,debug){const e=new Error(msg);e.debug=debug||{};return e;}
+// se a ferramenta de busca avançada der erro na conta, cai pra básica (compatível com tudo)
+function toolErro(msg){return /web_search|tool.?type|unexpected.*tag|does not match|unsupported|max_uses|invalid.*tool/i.test(String(msg||""));}
+// fetch com re-tentativa: "Load failed"/"Failed to fetch" no iPhone costuma ser queda de conexão passageira
+async function anthropicFetch(bodyObj,tries=3){
+  let lastErr;
+  for(let i=0;i<tries;i++){
+    try{
+      return await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",
+        headers:{"content-type":"application/json","x-api-key":CONFIG.API_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+        body:JSON.stringify(bodyObj)
+      });
+    }catch(e){ lastErr=e; if(i<tries-1) await new Promise(r=>setTimeout(r,700*(i+1))); }
+  }
+  throw mkErr((lastErr&&lastErr.message)||"Load failed",{fase:"rede",rede:true,tentativas:tries});
+}
 async function callClaudeDireto(prompt,maxBuscas,maxTokens){
   const model=CONFIG.MODEL||"claude-opus-4-8";
+  const primaria=webSearchName(model);
+  try{ return await _callComTool(model,primaria,prompt,maxBuscas,maxTokens); }
+  catch(e){
+    if(primaria!=="web_search_20250305" && toolErro(e&&e.message)){
+      return await _callComTool(model,"web_search_20250305",prompt,maxBuscas,maxTokens);
+    }
+    throw e;
+  }
+}
+async function _callComTool(model,toolType,prompt,maxBuscas,maxTokens){
   let messages=[{role:"user",content:prompt}];
-  const tools=[{type:webSearchName(model),name:"web_search",max_uses:maxBuscas}];
+  const tools=[{type:toolType,name:"web_search",max_uses:maxBuscas}];
   let data,guard=0,httpStatus=0;
   lastCallMeta=null;
   while(guard++<4){
-    const r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{
-        "content-type":"application/json",
-        "x-api-key":CONFIG.API_KEY,
-        "anthropic-version":"2023-06-01",
-        "anthropic-dangerous-direct-browser-access":"true"
-      },
-      body:JSON.stringify({model,max_tokens:maxTokens,messages,tools})
-    });
+    const r=await anthropicFetch({model,max_tokens:maxTokens,messages,tools});
     httpStatus=r.status;
     data=await r.json();
-    if(data.error) throw mkErr(data.error.message||"erro na API",{fase:"API",httpStatus,apiError:data.error.message,model});
+    if(data.error) throw mkErr(data.error.message||"erro na API",{fase:"API",httpStatus,apiError:data.error.message,model,tool:toolType});
     if(data.stop_reason==="pause_turn"){messages=[messages[0],{role:"assistant",content:data.content}];continue;}
     break;
   }
   const text=(data.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").trim();
   const su=(data.usage&&data.usage.server_tool_use)||{};
-  lastCallMeta={fase:"ok",httpStatus,model,stop_reason:data.stop_reason,buscasWeb:(su.web_search_requests??null),textLen:text.length};
+  lastCallMeta={fase:"ok",httpStatus,model,tool:toolType,stop_reason:data.stop_reason,buscasWeb:(su.web_search_requests??null),textLen:text.length};
   return {text};
 }
 let ultimoDebug=null;
@@ -688,6 +705,8 @@ function montarDebug(err,ctx){
   if(d.fase)L.push(`fase: ${d.fase}`);
   if(d.httpStatus||m.httpStatus)L.push(`http: ${d.httpStatus||m.httpStatus}`);
   if(m.stop_reason)L.push(`stop_reason: ${m.stop_reason}`);
+  if(m.tool||d.tool)L.push(`ferramenta de busca: ${m.tool||d.tool}`);
+  if(d.rede)L.push(`obs: a chamada não chegou na Anthropic (conexão do aparelho) · tentativas: ${d.tentativas||1}`);
   if(m.buscasWeb!=null)L.push(`buscas web feitas: ${m.buscasWeb}`);
   if(d.apiError)L.push(`erro da API: ${d.apiError}`);
   L.push(`erro: ${(err&&err.message)||err}`);
@@ -700,7 +719,7 @@ window.copiarDebug=function(){try{navigator.clipboard.writeText(JSON.stringify(u
 async function engineBusca(produto){
   const marcas=getMarcasFav();
   if(CONFIG.API_KEY){
-    const data=await callClaudeDireto(promptBusca(produto+(cat!=="tudo"?" "+cat:""),loc.label,marcas),MAX_BUSCAS_ITEM,2200);
+    const data=await callClaudeDireto(promptBusca(produto+(cat!=="tudo"?" "+cat:""),loc.label,marcas),MAX_BUSCAS_ITEM,3000);
     const parsed=extractJson(data.text);
     if(!parsed) throw mkErr("resposta sem JSON (tente de novo)",{fase:"parse",raw:(data.text||"").slice(0,1500),meta:lastCallMeta});
     return parsed;
@@ -713,7 +732,7 @@ async function engineBusca(produto){
 async function engineLista(l){
   const mercados=getMercados(), marcas=getMarcasFav();
   if(CONFIG.API_KEY){
-    const data=await callClaudeDireto(promptLista(l,loc.label,mercados,marcas),MAX_BUSCAS_LISTA,4200);
+    const data=await callClaudeDireto(promptLista(l,loc.label,mercados,marcas),MAX_BUSCAS_LISTA,8000);
     const parsed=extractJson(data.text);
     if(!parsed) throw mkErr("resposta sem JSON (tente de novo)",{fase:"parse",raw:(data.text||"").slice(0,1500),meta:lastCallMeta});
     return parsed;
@@ -977,7 +996,7 @@ Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 }
 async function callClaudeTexto(prompt,maxTokens){
   const model=CONFIG.MODEL||"claude-opus-4-8";
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":CONFIG.API_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model,max_tokens:maxTokens,messages:[{role:"user",content:prompt}]})});
+  const r=await anthropicFetch({model,max_tokens:maxTokens,messages:[{role:"user",content:prompt}]});
   const d=await r.json();if(d.error)throw new Error(d.error.message||"erro na API");
   const text=(d.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").trim();return {text};
 }
@@ -1472,7 +1491,7 @@ Devolva APENAS JSON válido, sem markdown, sem texto antes ou depois:
 Use ponto decimal. "preco_unit" é o preço unitário e "preco_total" é o valor daquele item no cupom.`;}
 async function callClaudeVisao(b64,media,prompt,maxTokens){
   const model=CONFIG.MODEL||"claude-opus-4-8";
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":CONFIG.API_KEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model,max_tokens:maxTokens,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:media,data:b64}},{type:"text",text:prompt}]}]})});
+  const r=await anthropicFetch({model,max_tokens:maxTokens,messages:[{role:"user",content:[{type:"image",source:{type:"base64",media_type:media,data:b64}},{type:"text",text:prompt}]}]});
   const d=await r.json();if(d.error)throw new Error(d.error.message||"erro na API");
   const text=(d.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n").trim();return {text};
 }
@@ -1658,7 +1677,7 @@ function erroAmigavel(msg){
   if(/credit|billing|insufficient|quota/.test(m)) return "Sua conta Anthropic está sem crédito. Adicione crédito em console.anthropic.com/settings/billing e tente de novo.";
   if(/authentication|invalid x-api-key|x-api-key|unauthorized|401/.test(m)) return "Chave inválida ou expirada. Confira sua sk-ant-… no botão do motor (topo).";
   if(/rate.?limit|429|overloaded|529/.test(m)) return "Muitas buscas de uma vez. Espere alguns segundos e tente de novo.";
-  if(/failed to fetch|networkerror|load failed|cors|network request failed/.test(m)) return "Não consegui falar com a Anthropic (conexão). Tente de novo; se persistir, use a opção Worker.";
+  if(/failed to fetch|networkerror|load failed|cors|network request failed/.test(m)) return "Não consegui CONECTAR na Anthropic pelo navegador (a chamada nem chegou lá — não é sua chave nem crédito). No iPhone isso quase sempre é: um bloqueador de anúncios/conteúdo no Safari, o Relay Privado do iCloud (ou VPN), ou a busca longa caindo. Tente: desligar bloqueadores/Relay para este site e cotar de novo — ou usar a opção Worker (bem mais estável), no cartão do motor.";
   if(/sem json|sem resultados/.test(m)) return "Não achei preços dessa vez. Tente de novo ou ajuste a lista.";
   return "Não consegui agora: "+(msg||"erro")+". Tente de novo em instantes.";
 }
