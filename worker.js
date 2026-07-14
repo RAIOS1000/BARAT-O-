@@ -1,5 +1,5 @@
 /**
- * MULTIPLICADOR — Motor de Preço Real (Cloudflare Worker) v3
+ * MULTIPLICADOR — Motor de Preço Real (Cloudflare Worker) v4
  * ------------------------------------------------------------
  * Modos:
  *   • BUSCA  (GET  ?produto=&local=)                -> melhores preços de 1 produto
@@ -12,6 +12,11 @@
  * A chave fica como SECRET do Worker (nunca no site).
  * DEPLOY: veja o README. Secret: ANTHROPIC_API_KEY = sk-ant-...
  * Opcional: variável MODEL para trocar o modelo (padrão: o mais inteligente).
+ *
+ * v4: resposta em STREAMING. O Worker manda os cabeçalhos na hora e vai
+ * "pingando" espaços enquanto a IA pesquisa, para NUNCA estourar o limite de
+ * ~100s da Cloudflare (o erro "code: 524"). O corpo final continua sendo um
+ * JSON válido (espaços em volta do JSON são ignorados na leitura).
  */
 
 const MAX_BUSCAS_ITEM = 6;    // teto de pesquisas web p/ 1 produto
@@ -30,7 +35,7 @@ function hojeBR() {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const cors = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -39,27 +44,69 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
     if (!env.ANTHROPIC_API_KEY) return json({ ok: false, erro: "configure o secret ANTHROPIC_API_KEY no Worker" }, 500, cors);
 
-    try {
-      if (request.method === "POST") {
-        const b = await request.json().catch(() => ({}));
-        if (b.ofertas) return await modoOfertas(b, env, cors);
-        if (b.montar) return await modoMontar(b.montar, env, cors);
-        if (b.foto_produto) return await modoFotoProduto(b, env, cors);
-        if (b.foto) return await modoFoto(b, env, cors);
-        if (Array.isArray(b.lista) && b.lista.length) return await modoLista(b, env, cors);
-        return await modoBusca(b.produto, b.local, b.marcas, env, cors);
-      } else {
-        const u = new URL(request.url);
-        return await modoBusca(u.searchParams.get("produto"), u.searchParams.get("local"), u.searchParams.get("marcas"), env, cors);
-      }
-    } catch (e) {
-      return json({ ok: false, erro: String(e) }, 502, cors);
+    // Lê o pedido (rápido) e decide o modo; a parte lenta (IA) roda dentro do stream.
+    let work;
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => ({}));
+      work = () => dispatchPost(b, env);
+    } else {
+      const u = new URL(request.url);
+      const produto = u.searchParams.get("produto");
+      const local = u.searchParams.get("local");
+      const marcas = u.searchParams.get("marcas");
+      work = () => modoBusca(produto, local, marcas, env);
     }
+    return streamJson(work, cors, ctx);
   },
 };
 
-async function modoBusca(produto, local, marcas, env, cors) {
-  if (!produto) return json({ ok: false, erro: "faltou 'produto'" }, 400, cors);
+function dispatchPost(b, env) {
+  if (b.ofertas) return modoOfertas(b, env);
+  if (b.montar) return modoMontar(b.montar, env);
+  if (b.foto_produto) return modoFotoProduto(b, env);
+  if (b.foto) return modoFoto(b, env);
+  if (Array.isArray(b.lista) && b.lista.length) return modoLista(b, env);
+  return modoBusca(b.produto, b.local, b.marcas, env);
+}
+
+/**
+ * Abre a resposta IMEDIATAMENTE (cabeçalhos já vão embora -> derruba o 524),
+ * manda um espaço a cada 15s pra segurar a conexão, e escreve o JSON quando a
+ * IA terminar. Como espaços antes/depois do JSON são ignorados na leitura
+ * (r.json() no app), o corpo continua um JSON válido.
+ */
+function streamJson(work, cors, ctx) {
+  const { readable, writable } = new TransformStream();
+  const writer = writable.getWriter();
+  const enc = new TextEncoder();
+  let done = false;
+  const pump = (async () => {
+    try {
+      await writer.write(enc.encode(" ")); // 1º byte -> cabeçalhos saem na hora
+      const beat = () => {
+        if (done) return;
+        writer.write(enc.encode(" ")).catch(() => {});
+        setTimeout(beat, 15000);
+      };
+      setTimeout(beat, 15000);
+      let obj;
+      try { obj = await work(); }
+      catch (e) { obj = { ok: false, erro: String((e && e.message) || e) }; }
+      done = true;
+      await writer.write(enc.encode(JSON.stringify(obj)));
+    } catch (_) {
+      /* conexão caiu: nada a fazer */
+    } finally {
+      done = true;
+      try { await writer.close(); } catch (_) {}
+    }
+  })();
+  if (ctx && ctx.waitUntil) ctx.waitUntil(pump);
+  return new Response(readable, { status: 200, headers: { ...cors, "Content-Type": "application/json; charset=utf-8" } });
+}
+
+async function modoBusca(produto, local, marcas, env) {
+  if (!produto) return { ok: false, erro: "faltou 'produto'" };
   const fav = (marcas || "").toString().trim()
     ? `\nMarcas favoritas do comprador: ${marcas}. Priorize essas marcas quando o preço for competitivo; se a favorita estiver bem mais cara, mostre também a alternativa mais barata e explique em "obs".`
     : "";
@@ -72,11 +119,11 @@ Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 Use ponto decimal. "marca" quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg"). Sem link confiável, use "link":"".`;
   const data = await callClaude(prompt, MAX_BUSCAS_ITEM, 3000, env);
   const parsed = extractJson(data.text);
-  if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
-  return json({ ok: true, ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) };
+  return { ok: true, ...parsed };
 }
 
-async function modoLista(b, env, cors) {
+async function modoLista(b, env) {
   const itens = b.lista.map(x => (typeof x === "string" ? x : `${x.qtd > 1 ? x.qtd + "x " : ""}${x.nome}`)).slice(0, 40);
   const local = b.local || "";
   const mercados = (b.mercados || "").toString().trim();
@@ -108,11 +155,11 @@ Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 Use ponto decimal. "marca" é obrigatória quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg").`;
   const data = await callClaude(prompt, MAX_BUSCAS_LISTA, 8000, env);
   const parsed = extractJson(data.text);
-  if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
-  return json({ ok: true, modo: "lista", ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) };
+  return { ok: true, modo: "lista", ...parsed };
 }
 
-async function modoOfertas(b, env, cors) {
+async function modoOfertas(b, env) {
   const local = (b.local || "").toString();
   const mercados = (b.mercados || "").toString().trim();
   const marcas = (b.marcas || "").toString().trim();
@@ -127,11 +174,11 @@ Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 "validade" do mercado é o período do encarte (ex.: "válido de 14/07 a 20/07"). Use ponto decimal para o preço.`;
   const data = await callClaude(prompt, MAX_BUSCAS_LISTA, 8000, env);
   const parsed = extractJson(data.text);
-  if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
-  return json({ ok: true, modo: "ofertas", ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) };
+  return { ok: true, modo: "ofertas", ...parsed };
 }
 
-async function modoMontar(texto, env, cors) {
+async function modoMontar(texto, env) {
   const prompt =
 `O usuário quer montar uma LISTA DE COMPRAS de supermercado. Ele escreveu (pode ser fala transcrita, informal, com erros de digitação):
 """${String(texto).slice(0, 1200)}"""
@@ -153,11 +200,11 @@ Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
   if (data.error) throw new Error(data.error.message || "erro na API");
   const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
   const parsed = extractJson(text);
-  if (!parsed) return json({ ok: false, erro: "não consegui montar a lista", cru: text.slice(0, 400) }, 502, cors);
-  return json({ ok: true, modo: "montar", ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "não consegui montar a lista", cru: text.slice(0, 400) };
+  return { ok: true, modo: "montar", ...parsed };
 }
 
-async function modoFotoProduto(b, env, cors) {
+async function modoFotoProduto(b, env) {
   const media = (b.media || "image/jpeg").toString();
   const prompt =
 `Você recebeu a FOTO de um ou mais PRODUTOS de supermercado (a embalagem/rótulo). Identifique cada produto claramente visível. Devolva APENAS JSON válido, sem markdown, sem texto antes ou depois:
@@ -178,11 +225,11 @@ async function modoFotoProduto(b, env, cors) {
   if (data.error) throw new Error(data.error.message || "erro na API");
   const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
   const parsed = extractJson(text);
-  if (!parsed) return json({ ok: false, erro: "não consegui identificar o produto", cru: text.slice(0, 400) }, 502, cors);
-  return json({ ok: true, modo: "foto_produto", ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "não consegui identificar o produto", cru: text.slice(0, 400) };
+  return { ok: true, modo: "foto_produto", ...parsed };
 }
 
-async function modoFoto(b, env, cors) {
+async function modoFoto(b, env) {
   const media = (b.media || "image/jpeg").toString();
   const prompt =
 `Você recebeu a FOTO de um cupom fiscal brasileiro (NFC-e/SAT). Hoje é ${hojeBR()}. Leia com atenção e extraia os dados REAIS impressos no cupom — NUNCA invente; o que não der pra ler com certeza vai em "obs".
@@ -204,8 +251,8 @@ Use ponto decimal. "preco_unit" é o preço unitário e "preco_total" é o valor
   if (data.error) throw new Error(data.error.message || "erro na API");
   const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
   const parsed = extractJson(text);
-  if (!parsed) return json({ ok: false, erro: "não consegui ler o cupom", cru: text.slice(0, 400) }, 502, cors);
-  return json({ ok: true, modo: "foto", ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "não consegui ler o cupom", cru: text.slice(0, 400) };
+  return { ok: true, modo: "foto", ...parsed };
 }
 
 async function callClaude(prompt, maxBuscas, maxTokens, env) {
@@ -226,7 +273,7 @@ async function callClaudeTool(model, toolType, prompt, maxBuscas, maxTokens, env
   const tools = [{ type: toolType, name: "web_search", max_uses: maxBuscas }];
   let data, guard = 0;
   // servidores de busca podem pausar o turno (pause_turn) — retomamos reenviando
-  while (guard++ < 4) {
+  while (guard++ < 8) {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
