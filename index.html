@@ -190,6 +190,8 @@
   .smart-msg{margin-top:8px;font-size:12.5px;font-weight:500;color:var(--muted);line-height:1.4}
   .smart-msg:empty{display:none}
   .smart-msg b{color:var(--mint)}
+  .prod-foto{width:100%;margin-top:10px;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px dashed var(--line-strong);background:transparent;color:var(--muted);font-weight:600;font-size:12.5px;padding:11px;border-radius:12px;cursor:pointer;transition:border-color .2s,color .2s}
+  .prod-foto:hover{border-color:rgba(242,193,78,.55);color:var(--gold)}
   /* alternar lista simples / por corredor */
   .list-viewtoggle{display:flex;gap:6px;margin-bottom:12px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
   .list-viewtoggle button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;background:transparent;color:var(--muted);font-weight:700;font-size:12.5px;padding:9px;border-radius:9px;cursor:pointer;transition:background .2s,color .2s}
@@ -397,6 +399,8 @@
         <button id="smartGo" class="smart-go" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Z"/><path d="M19 15v4M17 17h4"/></svg> Montar lista</button>
       </div>
       <div id="smartMsg" class="smart-msg"></div>
+      <button id="prodFotoBtn" class="prod-foto" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Foto do produto → a IA identifica e adiciona</button>
+      <input type="file" id="prodFotoInput" accept="image/*" capture="environment" style="display:none" />
     </div>
 
     <div class="manual-add">
@@ -1451,6 +1455,36 @@ function inserirNaLista(items){
   (items||[]).forEach(it=>{const k=low(it.nome);if(!k)return;if(map.has(k)){const i=map.get(k);l[i].qtd=Math.max(l[i].qtd||1,it.qtd||1);}else{l.push({nome:it.nome,qtd:it.qtd||1});map.set(k,l.length-1);add++;}});
   setList(l);return add;
 }
+/* foto do PRODUTO (embalagem) → IA identifica → adiciona à lista (alternativa ao código de barras) */
+function promptProduto(){return `Você recebeu a FOTO de um ou mais PRODUTOS de supermercado (a embalagem/rótulo). Identifique cada produto claramente visível. Devolva APENAS JSON válido, sem markdown, sem texto antes ou depois:
+{"itens":[{"nome":"","marca":"","tamanho":"","qtd":1}]}
+"nome" = nome genérico e comum do produto para uma lista de compras (ex.: "arroz", "leite integral", "sabão em pó", "café"), SEM a marca. "marca" = a marca do rótulo, se der pra ler. "tamanho" = peso/volume que aparecer (ex.: "5kg", "1L", "500g"). "qtd" = quantas unidades iguais aparecem, senão 1. Se não tiver certeza de algo, deixe em branco — NUNCA invente. Se não for um produto de mercado, devolva {"itens":[]}.`;}
+async function engineFotoProduto(b64,media){
+  if(CONFIG.API_KEY){const data=await callClaudeVisao(b64,media,promptProduto(),1200);const p=extractJson(data.text);if(!p)throw new Error("não consegui identificar o produto");return p;}
+  const r=await fetch(CONFIG.API_ENDPOINT.replace(/\/$/,"")+"/",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({foto_produto:b64,media})});
+  const d=await r.json();if(!d.ok)throw new Error(d.erro||"erro");return d;
+}
+function nomeProduto(it){const nome=String(it.nome||"").trim(),tam=String(it.tamanho||"").trim();return (nome+(tam?` ${tam}`:"")).trim();}
+$("#prodFotoBtn").onclick=function(){
+  if(!engineOn()){$("#smartMsg").innerHTML="📷 Pra IA identificar o produto pela foto, ligue o <b>motor</b> (cole sua chave sk-ant-…) no botão do motor lá em cima.";return;}
+  $("#prodFotoInput").click();
+};
+$("#prodFotoInput").addEventListener("change",async e=>{
+  const f=e.target.files[0];e.target.value="";if(!f)return;
+  const msg=$("#smartMsg");msg.innerHTML="📸 Identificando o produto com a IA…";
+  const btn=$("#prodFotoBtn");btn.disabled=true;
+  try{
+    const {b64,media}=await fotoReduzida(f);
+    const d=await engineFotoProduto(b64,media);
+    const itens=(d.itens||[]).map(it=>({nome:nomeProduto(it),qtd:Math.max(1,Math.round(toNum(it.qtd)||1))})).filter(it=>it.nome);
+    if(!itens.length)throw new Error("não reconheci um produto de mercado — tente uma foto mais nítida do rótulo");
+    const add=inserirNaLista(itens);renderList();
+    const nomes=itens.map(x=>x.nome).slice(0,4).join(", ");
+    msg.innerHTML=`✅ <b>${add||itens.length}</b> na sua lista: ${esc(nomes)}${itens.length>4?"…":""}. Confira o nome antes de cotar.`;
+    toast(`📷 ${add||itens.length} ${(add||itens.length)===1?"produto":"produtos"} na lista`);
+  }catch(err){msg.innerHTML="❌ "+esc(erroAmigavel(err.message));}
+  finally{btn.disabled=false;}
+});
 $("#nfeFotoBtn").onclick=function(){
   if(!engineOn()){$("#nfeMsg").innerHTML="Pra IA ler a foto do cupom, ligue o <b>motor</b> (cole sua chave sk-ant-…) no botão do motor, no topo.";return;}
   $("#nfeFotoInput").click();

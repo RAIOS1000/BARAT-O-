@@ -6,6 +6,7 @@
  *   • LISTA  (POST {lista:[...], local, mercados})  -> compara a lista toda de uma vez
  *   • FOTO   (POST {foto, media})                   -> lê o cupom fiscal por imagem (IA)
  *   • MONTAR (POST {montar:"texto/prato"})          -> monta a lista por fala/texto ou receita
+ *   • PRODUTO(POST {foto_produto, media})           -> identifica o produto pela foto da embalagem
  *
  * A chave fica como SECRET do Worker (nunca no site).
  * DEPLOY: veja o README. Secret: ANTHROPIC_API_KEY = sk-ant-...
@@ -41,6 +42,7 @@ export default {
       if (request.method === "POST") {
         const b = await request.json().catch(() => ({}));
         if (b.montar) return await modoMontar(b.montar, env, cors);
+        if (b.foto_produto) return await modoFotoProduto(b, env, cors);
         if (b.foto) return await modoFoto(b, env, cors);
         if (Array.isArray(b.lista) && b.lista.length) return await modoLista(b, env, cors);
         return await modoBusca(b.produto, b.local, b.marcas, env, cors);
@@ -131,6 +133,31 @@ Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
   const parsed = extractJson(text);
   if (!parsed) return json({ ok: false, erro: "não consegui montar a lista", cru: text.slice(0, 400) }, 502, cors);
   return json({ ok: true, modo: "montar", ...parsed }, 200, cors);
+}
+
+async function modoFotoProduto(b, env, cors) {
+  const media = (b.media || "image/jpeg").toString();
+  const prompt =
+`Você recebeu a FOTO de um ou mais PRODUTOS de supermercado (a embalagem/rótulo). Identifique cada produto claramente visível. Devolva APENAS JSON válido, sem markdown, sem texto antes ou depois:
+{"itens":[{"nome":"","marca":"","tamanho":"","qtd":1}]}
+"nome" = nome genérico e comum do produto para uma lista de compras (ex.: "arroz", "leite integral", "sabão em pó", "café"), SEM a marca. "marca" = a marca do rótulo, se der pra ler. "tamanho" = peso/volume que aparecer (ex.: "5kg", "1L", "500g"). "qtd" = quantas unidades iguais aparecem, senão 1. Se não tiver certeza, deixe em branco — NUNCA invente. Se não for um produto de mercado, devolva {"itens":[]}.`;
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+    body: JSON.stringify({
+      model: getModel(env), max_tokens: 1200,
+      messages: [{ role: "user", content: [
+        { type: "image", source: { type: "base64", media_type: media, data: b.foto_produto } },
+        { type: "text", text: prompt },
+      ] }],
+    }),
+  });
+  const data = await r.json();
+  if (data.error) throw new Error(data.error.message || "erro na API");
+  const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
+  const parsed = extractJson(text);
+  if (!parsed) return json({ ok: false, erro: "não consegui identificar o produto", cru: text.slice(0, 400) }, 502, cors);
+  return json({ ok: true, modo: "foto_produto", ...parsed }, 200, cors);
 }
 
 async function modoFoto(b, env, cors) {
