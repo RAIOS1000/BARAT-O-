@@ -1,5 +1,5 @@
 /**
- * MULTIPLICADOR — Motor de Preço Real (Cloudflare Worker) v3
+ * MULTIPLICADOR — Motor de Preço Real (Cloudflare Worker) v4
  * ------------------------------------------------------------
  * Modos:
  *   • BUSCA  (GET  ?produto=&local=)                -> melhores preços de 1 produto
@@ -12,10 +12,15 @@
  * A chave fica como SECRET do Worker (nunca no site).
  * DEPLOY: veja o README. Secret: ANTHROPIC_API_KEY = sk-ant-...
  * Opcional: variável MODEL para trocar o modelo (padrão: o mais inteligente).
+ *
+ * v4: resposta em STREAMING. O Worker manda os cabeçalhos na hora e vai
+ * "pingando" espaços enquanto a IA pesquisa, para NUNCA estourar o limite de
+ * ~100s da Cloudflare (o erro "code: 524"). O corpo final continua sendo um
+ * JSON válido (espaços em volta do JSON são ignorados na leitura).
  */
 
 const MAX_BUSCAS_ITEM = 6;    // teto de pesquisas web p/ 1 produto
-const MAX_BUSCAS_LISTA = 12;  // teto de pesquisas web p/ a lista toda (inclui encartes)
+const MAX_BUSCAS_LISTA = 20;  // teto de pesquisas web p/ a lista toda (streaming removeu o limite de tempo)
 
 function getModel(env) { return (env && env.MODEL) || "claude-opus-4-8"; }
 // dynamic filtering (mais preciso/econômico) nos modelos recentes; básico p/ os antigos
@@ -30,7 +35,7 @@ function hojeBR() {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const cors = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -39,27 +44,69 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
     if (!env.ANTHROPIC_API_KEY) return json({ ok: false, erro: "configure o secret ANTHROPIC_API_KEY no Worker" }, 500, cors);
 
-    try {
-      if (request.method === "POST") {
-        const b = await request.json().catch(() => ({}));
-        if (b.ofertas) return await modoOfertas(b, env, cors);
-        if (b.montar) return await modoMontar(b.montar, env, cors);
-        if (b.foto_produto) return await modoFotoProduto(b, env, cors);
-        if (b.foto) return await modoFoto(b, env, cors);
-        if (Array.isArray(b.lista) && b.lista.length) return await modoLista(b, env, cors);
-        return await modoBusca(b.produto, b.local, b.marcas, env, cors);
-      } else {
-        const u = new URL(request.url);
-        return await modoBusca(u.searchParams.get("produto"), u.searchParams.get("local"), u.searchParams.get("marcas"), env, cors);
-      }
-    } catch (e) {
-      return json({ ok: false, erro: String(e) }, 502, cors);
+    // Lê o pedido (rápido) e decide o modo; a parte lenta (IA) roda dentro do stream.
+    let work;
+    if (request.method === "POST") {
+      const b = await request.json().catch(() => ({}));
+      work = () => dispatchPost(b, env);
+    } else {
+      const u = new URL(request.url);
+      const produto = u.searchParams.get("produto");
+      const local = u.searchParams.get("local");
+      const marcas = u.searchParams.get("marcas");
+      work = () => modoBusca(produto, local, marcas, env);
     }
+    return streamJson(work, cors, ctx);
   },
 };
 
-async function modoBusca(produto, local, marcas, env, cors) {
-  if (!produto) return json({ ok: false, erro: "faltou 'produto'" }, 400, cors);
+function dispatchPost(b, env) {
+  if (b.ofertas) return modoOfertas(b, env);
+  if (b.montar) return modoMontar(b.montar, env);
+  if (b.foto_produto) return modoFotoProduto(b, env);
+  if (b.foto) return modoFoto(b, env);
+  if (Array.isArray(b.lista) && b.lista.length) return modoLista(b, env);
+  return modoBusca(b.produto, b.local, b.marcas, env);
+}
+
+/**
+ * Abre a resposta IMEDIATAMENTE (cabeçalhos já vão embora -> derruba o 524),
+ * manda um espaço a cada 15s pra segurar a conexão, e escreve o JSON quando a
+ * IA terminar. Como espaços antes/depois do JSON são ignorados na leitura
+ * (r.json() no app), o corpo continua um JSON válido.
+ */
+function streamJson(work, cors, ctx) {
+  const { readable, writable } = new TransformStream();
+  const writer = writable.getWriter();
+  const enc = new TextEncoder();
+  let done = false;
+  const pump = (async () => {
+    try {
+      await writer.write(enc.encode(" ")); // 1º byte -> cabeçalhos saem na hora
+      const beat = () => {
+        if (done) return;
+        writer.write(enc.encode(" ")).catch(() => {});
+        setTimeout(beat, 15000);
+      };
+      setTimeout(beat, 15000);
+      let obj;
+      try { obj = await work(); }
+      catch (e) { obj = { ok: false, erro: String((e && e.message) || e) }; }
+      done = true;
+      await writer.write(enc.encode(JSON.stringify(obj)));
+    } catch (_) {
+      /* conexão caiu: nada a fazer */
+    } finally {
+      done = true;
+      try { await writer.close(); } catch (_) {}
+    }
+  })();
+  if (ctx && ctx.waitUntil) ctx.waitUntil(pump);
+  return new Response(readable, { status: 200, headers: { ...cors, "Content-Type": "application/json; charset=utf-8" } });
+}
+
+async function modoBusca(produto, local, marcas, env) {
+  if (!produto) return { ok: false, erro: "faltou 'produto'" };
   const fav = (marcas || "").toString().trim()
     ? `\nMarcas favoritas do comprador: ${marcas}. Priorize essas marcas quando o preço for competitivo; se a favorita estiver bem mais cara, mostre também a alternativa mais barata e explique em "obs".`
     : "";
@@ -72,11 +119,11 @@ Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 Use ponto decimal. "marca" quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg"). Sem link confiável, use "link":"".`;
   const data = await callClaude(prompt, MAX_BUSCAS_ITEM, 3000, env);
   const parsed = extractJson(data.text);
-  if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
-  return json({ ok: true, ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) };
+  return { ok: true, ...parsed };
 }
 
-async function modoLista(b, env, cors) {
+async function modoLista(b, env) {
   const itens = b.lista.map(x => (typeof x === "string" ? x : `${x.qtd > 1 ? x.qtd + "x " : ""}${x.nome}`)).slice(0, 40);
   const local = b.local || "";
   const mercados = (b.mercados || "").toString().trim();
@@ -92,7 +139,8 @@ async function modoLista(b, env, cors) {
 Pense como um comprador experiente:
 - Compare sempre o PREÇO POR UNIDADE (por kg, litro ou unidade), não só o preço da embalagem.
 - Prefira atacarejo e, quando o preço por unidade compensar, embalagem maior / caixa fechada / fardo / saco.
-- PREÇO REAL DA SEMANA: procure ATIVAMENTE o "encarte"/"ofertas da semana"/"folheto"/"tabloide" ATUAL de cada mercado (ex.: "encarte Assaí ${local || "sua cidade"}", "ofertas da semana Atacadão"), nos sites oficiais das redes e em agregadores de encartes. Prefira o preço do encarte VIGENTE desta semana e anote a validade em "obs" (ex.: "encarte válido até 16/07"); se o preço veio de encarte/promoção, diga na "fonte".
+- ESTRATÉGIA (importante p/ lista grande): NÃO pesquise item por item — o orçamento de busca acaba. PRIMEIRO encontre o ENCARTE VIGENTE desta semana de CADA mercado e leia dele o MÁXIMO de itens da lista de uma vez só. Procure o encarte de cada rede nesta ordem: (1) site oficial da rede; (2) o INSTAGRAM e o FACEBOOK da loja — mercados regionais (ex.: Costa, Moreirinha) quase sempre postam o folheto da semana nas redes sociais, não no site; (3) sites agregadores de encarte (buscas como "encarte <loja> ${local || "cidade"}", "ofertas da semana <loja>", "folheto <loja>"). Só DEPOIS, se sobrar busca, procure os itens que faltaram.
+- VIGÊNCIA: hoje é ${hojeBR()}. Use SOMENTE encarte cuja validade cubra HOJE. Folheto de semanas/meses atrás (ex.: de 2025) NÃO vale — descarte e trate o item como "não encontrado" em vez de usar preço velho. Anote em "obs" a validade do encarte usado (ex.: "encarte válido até 16/07").
 - Seja honesto: preço estimado, indisponível ou de outra região vai em "obs".
 - VERACIDADE: nunca invente preço. Só registre valores realmente encontrados na busca, informando a fonte (site); se não achar, use 0 e explique em "obs".
 
@@ -108,11 +156,11 @@ Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 Use ponto decimal. "marca" é obrigatória quando houver; "preco_unidade" pode ser texto (ex.: "R$ 5,40/kg").`;
   const data = await callClaude(prompt, MAX_BUSCAS_LISTA, 8000, env);
   const parsed = extractJson(data.text);
-  if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
-  return json({ ok: true, modo: "lista", ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) };
+  return { ok: true, modo: "lista", ...parsed };
 }
 
-async function modoOfertas(b, env, cors) {
+async function modoOfertas(b, env) {
   const local = (b.local || "").toString();
   const mercados = (b.mercados || "").toString().trim();
   const marcas = (b.marcas || "").toString().trim();
@@ -120,18 +168,18 @@ async function modoOfertas(b, env, cors) {
   const fav = marcas ? ` O comprador tem marcas favoritas: ${marcas} — destaque quando aparecerem no encarte.` : "";
   const prompt =
 `Você é um comprador esperto no Brasil. Hoje é ${hojeBR()}. Para quem está em ${local || "Brasil"}, PESQUISE na web as OFERTAS DA SEMANA (encarte / folheto / "ofertas da semana") ATUAIS de CADA um destes mercados, um por um: ${lojas}.
-Para cada mercado, procure o encarte/folheto VIGENTE desta semana — no site oficial da rede e em agregadores de encarte — e leia os itens. Traga as principais ofertas do dia a dia (mercearia, limpeza, hortifruti, açougue, bebidas) com a DATA DE VALIDADE do encarte.${fav}
-Só ofertas REAIS que você realmente encontrou na busca; se não achar o encarte de um mercado, devolva "ofertas":[] e explique em "obs". NUNCA invente preço nem validade.
+Para cada mercado, procure o encarte/folheto VIGENTE desta semana em (1) site oficial da rede, (2) INSTAGRAM e FACEBOOK da loja — mercados regionais (ex.: Costa, Moreirinha) quase sempre postam o folheto da semana nas redes sociais, não no site — e (3) agregadores de encarte. Leia os itens e traga as principais ofertas do dia a dia (mercearia, limpeza, hortifruti, açougue, bebidas) com a DATA DE VALIDADE do encarte.${fav}
+VIGÊNCIA: use SOMENTE encarte cuja validade cubra HOJE (${hojeBR()}); descarte folhetos antigos (ex.: de 2025). Só ofertas REAIS que você realmente encontrou na busca; se não achar o encarte VIGENTE de um mercado, devolva "ofertas":[] e explique em "obs". NUNCA invente preço nem validade.
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {"local":"${local}","data":"${hojeBR()}","mercados":[{"loja":"","validade":"","fonte":"","obs":"","ofertas":[{"produto":"","marca":"","preco":0.00,"preco_unidade":"","validade":"","fonte":""}]}]}
 "validade" do mercado é o período do encarte (ex.: "válido de 14/07 a 20/07"). Use ponto decimal para o preço.`;
   const data = await callClaude(prompt, MAX_BUSCAS_LISTA, 8000, env);
   const parsed = extractJson(data.text);
-  if (!parsed) return json({ ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) }, 502, cors);
-  return json({ ok: true, modo: "ofertas", ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "resposta sem JSON", cru: (data.text || "").slice(0, 400) };
+  return { ok: true, modo: "ofertas", ...parsed };
 }
 
-async function modoMontar(texto, env, cors) {
+async function modoMontar(texto, env) {
   const prompt =
 `O usuário quer montar uma LISTA DE COMPRAS de supermercado. Ele escreveu (pode ser fala transcrita, informal, com erros de digitação):
 """${String(texto).slice(0, 1200)}"""
@@ -153,11 +201,11 @@ Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
   if (data.error) throw new Error(data.error.message || "erro na API");
   const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
   const parsed = extractJson(text);
-  if (!parsed) return json({ ok: false, erro: "não consegui montar a lista", cru: text.slice(0, 400) }, 502, cors);
-  return json({ ok: true, modo: "montar", ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "não consegui montar a lista", cru: text.slice(0, 400) };
+  return { ok: true, modo: "montar", ...parsed };
 }
 
-async function modoFotoProduto(b, env, cors) {
+async function modoFotoProduto(b, env) {
   const media = (b.media || "image/jpeg").toString();
   const prompt =
 `Você recebeu a FOTO de um ou mais PRODUTOS de supermercado (a embalagem/rótulo). Identifique cada produto claramente visível. Devolva APENAS JSON válido, sem markdown, sem texto antes ou depois:
@@ -178,11 +226,11 @@ async function modoFotoProduto(b, env, cors) {
   if (data.error) throw new Error(data.error.message || "erro na API");
   const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
   const parsed = extractJson(text);
-  if (!parsed) return json({ ok: false, erro: "não consegui identificar o produto", cru: text.slice(0, 400) }, 502, cors);
-  return json({ ok: true, modo: "foto_produto", ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "não consegui identificar o produto", cru: text.slice(0, 400) };
+  return { ok: true, modo: "foto_produto", ...parsed };
 }
 
-async function modoFoto(b, env, cors) {
+async function modoFoto(b, env) {
   const media = (b.media || "image/jpeg").toString();
   const prompt =
 `Você recebeu a FOTO de um cupom fiscal brasileiro (NFC-e/SAT). Hoje é ${hojeBR()}. Leia com atenção e extraia os dados REAIS impressos no cupom — NUNCA invente; o que não der pra ler com certeza vai em "obs".
@@ -204,8 +252,8 @@ Use ponto decimal. "preco_unit" é o preço unitário e "preco_total" é o valor
   if (data.error) throw new Error(data.error.message || "erro na API");
   const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
   const parsed = extractJson(text);
-  if (!parsed) return json({ ok: false, erro: "não consegui ler o cupom", cru: text.slice(0, 400) }, 502, cors);
-  return json({ ok: true, modo: "foto", ...parsed }, 200, cors);
+  if (!parsed) return { ok: false, erro: "não consegui ler o cupom", cru: text.slice(0, 400) };
+  return { ok: true, modo: "foto", ...parsed };
 }
 
 async function callClaude(prompt, maxBuscas, maxTokens, env) {
@@ -224,9 +272,12 @@ async function callClaude(prompt, maxBuscas, maxTokens, env) {
 async function callClaudeTool(model, toolType, prompt, maxBuscas, maxTokens, env) {
   let messages = [{ role: "user", content: prompt }];
   const tools = [{ type: toolType, name: "web_search", max_uses: maxBuscas }];
-  let data, guard = 0;
-  // servidores de busca podem pausar o turno (pause_turn) — retomamos reenviando
-  while (guard++ < 4) {
+  let text = "", guard = 0;
+  // STREAMING: pedimos a resposta em stream. Assim a Anthropic começa a responder
+  // em ~1s e a subchamada do Worker recebe bytes continuamente — ela nunca fica
+  // "parada esperando" >100s, que era o que gerava "error code: 524" aqui dentro.
+  // servidores de busca podem pausar o turno (pause_turn) — retomamos reenviando.
+  while (guard++ < 16) {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -234,18 +285,69 @@ async function callClaudeTool(model, toolType, prompt, maxBuscas, maxTokens, env
         "x-api-key": env.ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
       },
-      body: JSON.stringify({ model, max_tokens: maxTokens, messages, tools }),
+      body: JSON.stringify({ model, max_tokens: maxTokens, messages, tools, stream: true }),
     });
-    data = await r.json();
-    if (data.error) throw new Error(data.error.message || "erro na API");
-    if (data.stop_reason === "pause_turn") {
-      messages = [messages[0], { role: "assistant", content: data.content }];
+    if (!r.ok || !r.body) {
+      const t = await r.text().catch(() => "");
+      throw new Error("erro na API (HTTP " + r.status + ") " + t.slice(0, 200));
+    }
+    const acc = await lerStreamAnthropic(r.body);
+    if (acc.error) throw new Error(acc.error);
+    text = (acc.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
+    if (acc.stop_reason === "pause_turn" && acc.content && acc.content.length) {
+      messages = [messages[0], { role: "assistant", content: acc.content }];
       continue;
     }
     break;
   }
-  const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
   return { text };
+}
+
+// Lê o stream SSE da Anthropic e remonta os blocos de conteúdo + o stop_reason.
+// Eventos vêm separados por linha em branco; cada um tem "event:" e "data:".
+async function lerStreamAnthropic(body) {
+  const reader = body.getReader();
+  const dec = new TextDecoder();
+  const blocks = [];   // blocos de conteúdo por índice
+  const pj = {};       // índice -> input_json parcial (para blocos de tool_use)
+  let stop_reason = null, error = null, buf = "";
+  const trata = (ev, obj) => {
+    if (ev === "content_block_start") {
+      blocks[obj.index] = obj.content_block || {};
+      if (blocks[obj.index].type === "text" && blocks[obj.index].text == null) blocks[obj.index].text = "";
+    } else if (ev === "content_block_delta") {
+      const b = blocks[obj.index]; if (!b) return;
+      const d = obj.delta || {};
+      if (d.type === "text_delta") b.text = (b.text || "") + (d.text || "");
+      else if (d.type === "input_json_delta") pj[obj.index] = (pj[obj.index] || "") + (d.partial_json || "");
+    } else if (ev === "content_block_stop") {
+      const b = blocks[obj.index];
+      if (b && pj[obj.index] != null) { try { b.input = JSON.parse(pj[obj.index] || "{}"); } catch (_) {} }
+    } else if (ev === "message_delta") {
+      if (obj.delta && obj.delta.stop_reason) stop_reason = obj.delta.stop_reason;
+    } else if (ev === "error") {
+      error = (obj.error && obj.error.message) || "erro no stream da API";
+    }
+  };
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const parts = buf.split("\n\n");
+    buf = parts.pop();
+    for (const part of parts) {
+      let ev = null, dataStr = "";
+      for (let line of part.split("\n")) {
+        line = line.replace(/\r$/, "");
+        if (line.startsWith("event:")) ev = line.slice(6).trim();
+        else if (line.startsWith("data:")) dataStr += line.slice(5).trim();
+      }
+      if (!dataStr || dataStr === "[DONE]") continue;
+      let obj; try { obj = JSON.parse(dataStr); } catch (_) { continue; }
+      trata(ev || obj.type, obj);
+    }
+  }
+  return { content: blocks.filter(b => b != null), stop_reason, error };
 }
 
 function extractJson(text) {

@@ -196,6 +196,15 @@
   .ofertas-btn{display:block;width:100%;margin-top:10px;border:1px solid rgba(255,138,107,.5);background:rgba(255,138,107,.09);color:var(--coral);font-weight:800;font-size:13.5px;padding:13px;border-radius:14px;cursor:pointer;transition:background .2s}
   .ofertas-btn:hover{background:rgba(255,138,107,.16)}
   .ofertas-btn:disabled{opacity:.5;cursor:default}
+  /* comparar grátis (atalho p/ preço real) */
+  .gratis-btn{display:block;width:100%;margin-top:10px;border:1px solid rgba(74,222,157,.5);background:rgba(74,222,157,.10);color:var(--mint);font-weight:800;font-size:13.5px;padding:13px;border-radius:14px;cursor:pointer;transition:background .2s}
+  .gratis-btn:hover{background:rgba(74,222,157,.18)}
+  .gr-list{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .gr-item{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 13px}
+  .gr-name{font-weight:700;font-size:14px;margin-bottom:9px;color:var(--text)}
+  .gr-chips{display:flex;flex-wrap:wrap;gap:7px}
+  .cmp-mini{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--text);text-decoration:none;font-size:12.5px;font-weight:600;transition:border-color .15s,transform .12s}
+  .cmp-mini:hover{border-color:rgba(74,222,157,.55);transform:translateY(-1px)}
   .oferta-loja{display:flex;align-items:center;gap:8px;margin:18px 2px 9px;font-size:13px;font-weight:800;color:var(--gold)}
   .oferta-loja .val{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.2px}
   .oferta-row{display:flex;align-items:center;gap:11px;padding:10px 13px;border:1px solid var(--line);background:var(--surface);border-radius:13px;margin-bottom:7px}
@@ -446,6 +455,7 @@
     <input id="marcasInput" class="mercados-input" type="text" placeholder="⭐ minhas marcas favoritas (opcional): Tio João, Pilão, OMO…" autocomplete="off" />
     <button class="big-compare" id="compareBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg> COTAR PREÇO DO DIA</button>
     <button class="ofertas-btn" id="ofertasBtn" type="button">🔥 Ver ofertas da semana dos meus mercados</button>
+    <button class="gratis-btn" id="gratisBtn" type="button">🛒 Comparar grátis · preço real (sem gastar nada)</button>
     <button class="demo-link" id="demoBtn">👀 ver um exemplo de cotação (demo, sem chave)</button>
     <div id="listResult" style="margin-top:16px"></div>
   </section>
@@ -562,7 +572,7 @@
 <script>
 /* ================= CONFIG ================= */
 const CONFIG = { API_ENDPOINT:"", API_KEY:"", MODEL:"claude-opus-4-8", CACHE_HORAS:6 };
-const MAX_BUSCAS_ITEM=6, MAX_BUSCAS_LISTA=12;
+const MAX_BUSCAS_ITEM=6, MAX_BUSCAS_LISTA=16;
 const MODELS=[
   {id:"claude-opus-4-8", nome:"Opus 4.8 · o mais inteligente (recomendado)"},
   {id:"claude-sonnet-5", nome:"Sonnet 5 · equilíbrio (mais barato)"},
@@ -603,11 +613,12 @@ const SUGGEST = {
 };
 const CMP = {
   base:[
+    {n:"Rappi",s:"preço real na loja",i:"🛵",u:(p)=>`https://www.rappi.com.br/search?query=${enc(p)}`},
+    {n:"iFood Mercado",s:"preço real na loja",i:"🛒",u:(p)=>`https://www.ifood.com.br/busca?q=${enc(p)}`},
+    {n:"Carrefour",s:"preço com seu CEP",i:"🔵",u:(p)=>`https://mercado.carrefour.com.br/s?q=${enc(p)}`},
     {n:"Encarte da semana",s:"folhetos/ofertas",i:"📰",u:(p,l)=>`https://www.google.com/search?q=${enc("encarte ofertas da semana "+p+(l?" "+l:""))}`},
     {n:"Google Shopping",s:"varredura geral",i:"🔎",u:(p,l)=>`https://www.google.com/search?tbm=shop&q=${enc(p+" "+l)}`},
     {n:"Mercado Livre",s:"marketplace",i:"🟡",u:(p)=>`https://lista.mercadolivre.com.br/${enc(p).replace(/%20/g,"-")}`},
-    {n:"Zoom",s:"comparador",i:"🔵",u:(p)=>`https://www.zoom.com.br/search?q=${enc(p)}`},
-    {n:"Buscapé",s:"comparador",i:"🟠",u:(p)=>`https://www.buscape.com.br/search?q=${enc(p)}`},
   ],
   combustivel:[{n:"Preços locais",s:"postos na região",i:"⛽",u:(p,l)=>`https://www.google.com/search?q=${enc("preço "+p+" postos "+l)}`}],
   farmacia:[{n:"Consulta Remédios",s:"compara farmácias",i:"💊",u:(p)=>`https://consultaremedios.com.br/busca?termo=${enc(p)}`},{n:"CliqueFarma",s:"preço de remédio",i:"➕",u:(p)=>`https://www.cliquefarma.com.br/busca?q=${enc(p)}`}],
@@ -648,7 +659,8 @@ function promptLista(l,local,mercados,marcas){
 Pense como um comprador experiente:
 - Compare sempre o PREÇO POR UNIDADE (por kg, litro ou unidade), não só o preço da embalagem.
 - Prefira atacarejo e, quando o preço por unidade compensar, embalagem maior / caixa fechada / fardo / saco.
-- PREÇO REAL DA SEMANA: procure ATIVAMENTE o "encarte"/"ofertas da semana"/"folheto"/"tabloide" ATUAL de cada mercado (ex.: "encarte Assaí ${local||"sua cidade"}", "ofertas da semana Atacadão"), nos sites oficiais das redes e em agregadores de encartes. Prefira o preço do encarte VIGENTE desta semana e anote a validade em "obs" (ex.: "encarte válido até 16/07"); se o preço veio de encarte/promoção, diga na "fonte".
+- ESTRATÉGIA (importante p/ lista grande): NÃO pesquise item por item — o orçamento de busca acaba. PRIMEIRO encontre o ENCARTE VIGENTE desta semana de CADA mercado e leia dele o MÁXIMO de itens da lista de uma vez só. Procure o encarte de cada rede nesta ordem: (1) site oficial da rede; (2) o INSTAGRAM e o FACEBOOK da loja — mercados regionais (ex.: Costa, Moreirinha) quase sempre postam o folheto da semana nas redes sociais, não no site; (3) agregadores de encarte ("encarte <loja> ${local||"cidade"}", "ofertas da semana <loja>", "folheto <loja>"). Só DEPOIS, se sobrar busca, procure os itens que faltaram.
+- VIGÊNCIA: hoje é ${hojeBR()}. Use SOMENTE encarte cuja validade cubra HOJE. Folheto de semanas/meses atrás (ex.: de 2025) NÃO vale — descarte e trate o item como "não encontrado" em vez de usar preço velho. Anote em "obs" a validade do encarte usado.
 - Seja honesto: preço estimado, indisponível ou de outra região vai em "obs".
 - VERACIDADE: nunca invente preço. Só registre valores realmente encontrados na busca, informando a fonte (site); se não achar, use 0 e explique em "obs".
 
@@ -765,8 +777,8 @@ function promptOfertas(mercados,local,marcas){
   const lojas=mercados||"Assaí, Carrefour, Atacadão, Costa, Moreirinha";
   const fav=marcas?` O comprador tem marcas favoritas: ${marcas} — destaque quando aparecerem no encarte.`:"";
   return `Você é um comprador esperto no Brasil. Hoje é ${hojeBR()}. Para quem está em ${local||"Brasil"}, PESQUISE na web as OFERTAS DA SEMANA (encarte / folheto / "ofertas da semana") ATUAIS de CADA um destes mercados, um por um: ${lojas}.
-Para cada mercado, procure o encarte/folheto VIGENTE desta semana — no site oficial da rede e em agregadores de encarte — e leia os itens. Traga as principais ofertas do dia a dia (mercearia, limpeza, hortifruti, açougue, bebidas) com a DATA DE VALIDADE do encarte.${fav}
-Só ofertas REAIS que você realmente encontrou na busca; se não achar o encarte de um mercado, devolva "ofertas":[] e explique em "obs". NUNCA invente preço nem validade.
+Para cada mercado, procure o encarte/folheto VIGENTE desta semana em (1) site oficial da rede, (2) INSTAGRAM e FACEBOOK da loja — mercados regionais (ex.: Costa, Moreirinha) quase sempre postam o folheto da semana nas redes sociais, não no site — e (3) agregadores de encarte. Leia os itens e traga as principais ofertas do dia a dia (mercearia, limpeza, hortifruti, açougue, bebidas) com a DATA DE VALIDADE do encarte.${fav}
+VIGÊNCIA: use SOMENTE encarte cuja validade cubra HOJE (${hojeBR()}); descarte folhetos antigos (ex.: de 2025). Só ofertas REAIS que você realmente encontrou na busca; se não achar o encarte VIGENTE de um mercado, devolva "ofertas":[] e explique em "obs". NUNCA invente preço nem validade.
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {"local":"${local||""}","data":"${hojeBR()}","mercados":[{"loja":"","validade":"","fonte":"","obs":"","ofertas":[{"produto":"","marca":"","preco":0.00,"preco_unidade":"","validade":"","fonte":""}]}]}
 "validade" do mercado é o período do encarte (ex.: "válido de 14/07 a 20/07"). Use ponto decimal para o preço.`;
@@ -1174,6 +1186,33 @@ function getMarcasFav(){return ($("#marcasInput")?.value??store.get("marcas_fav"
 function linksEncarte(){
   const cid=(loc&&loc.label)||"";
   return `<div class="oferta-links">`+lojasArr().map(l=>`<a href="https://www.google.com/search?q=${enc("encarte ofertas da semana "+l+" "+cid)}" target="_blank" rel="noopener">📰 ${esc(l)}</a>`).join("")+`</div>`;
+}
+/* ===== COMPARAR GRÁTIS: atalho pro preço real (sem IA, sem custo) ===== */
+function fontesMercado(p,l){
+  const g=enc(p), gl=enc(p+(l?" "+l:""));
+  return [
+    {n:"Rappi",i:"🛵",u:`https://www.rappi.com.br/search?query=${g}`},
+    {n:"iFood",i:"🛒",u:`https://www.ifood.com.br/busca?q=${g}`},
+    {n:"Carrefour",i:"🔵",u:`https://mercado.carrefour.com.br/s?q=${g}`},
+    {n:"Shopping",i:"🔎",u:`https://www.google.com/search?tbm=shop&q=${gl}`},
+    {n:"Encarte",i:"📰",u:`https://www.google.com/search?q=${enc("encarte "+p+(l?" "+l:"")+" ofertas da semana")}`},
+  ];
+}
+$("#gratisBtn").onclick=compararGratis;
+function compararGratis(){
+  const l=getList(), box=$("#listResult");
+  if(!l.length){ box.innerHTML=`<div class="source">Sua lista está vazia — adicione itens acima e toque de novo.</div>`; box.scrollIntoView({behavior:"smooth",block:"start"}); return; }
+  const cidade=loc?.label||"";
+  const cards=l.map(it=>{
+    const nome=(typeof it==="string"?it:it.nome)||"";
+    const chips=fontesMercado(nome,cidade).map(f=>`<a class="cmp-mini" href="${esc(f.u)}" target="_blank" rel="noopener">${f.i} ${esc(f.n)}</a>`).join("");
+    return `<div class="gr-item"><div class="gr-name">${esc(nome)}</div><div class="gr-chips">${chips}</div></div>`;
+  }).join("");
+  box.innerHTML=`<div class="section-label" style="margin-top:6px">🛒 Comparar grátis · preço real${cidade?` · ${esc(cidade)}`:""}</div>
+    <p class="hint" style="text-align:left;padding:2px 2px 10px">Toque numa fonte pra ver o <b>preço real</b> daquele item — abre no app/site do mercado. <b>De graça, sem IA, sem gastar nada.</b> 💡 No Rappi/iFood, coloque seu endereço uma vez e o preço aparece por loja.</p>
+    <div class="gr-list">${cards}</div>
+    <div class="source">✅ O preço real mora nos apps dos mercados (Rappi, iFood, Carrefour com seu CEP). O MULTIPLICADOR te leva direto lá — <b>sem custo nenhum</b>.</div>`;
+  box.scrollIntoView({behavior:"smooth",block:"start"});
 }
 $("#ofertasBtn").onclick=verOfertas;
 async function verOfertas(){
