@@ -272,8 +272,11 @@ async function callClaude(prompt, maxBuscas, maxTokens, env) {
 async function callClaudeTool(model, toolType, prompt, maxBuscas, maxTokens, env) {
   let messages = [{ role: "user", content: prompt }];
   const tools = [{ type: toolType, name: "web_search", max_uses: maxBuscas }];
-  let data, guard = 0;
-  // servidores de busca podem pausar o turno (pause_turn) — retomamos reenviando
+  let text = "", guard = 0;
+  // STREAMING: pedimos a resposta em stream. Assim a Anthropic começa a responder
+  // em ~1s e a subchamada do Worker recebe bytes continuamente — ela nunca fica
+  // "parada esperando" >100s, que era o que gerava "error code: 524" aqui dentro.
+  // servidores de busca podem pausar o turno (pause_turn) — retomamos reenviando.
   while (guard++ < 16) {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -282,18 +285,69 @@ async function callClaudeTool(model, toolType, prompt, maxBuscas, maxTokens, env
         "x-api-key": env.ANTHROPIC_API_KEY,
         "anthropic-version": "2023-06-01",
       },
-      body: JSON.stringify({ model, max_tokens: maxTokens, messages, tools }),
+      body: JSON.stringify({ model, max_tokens: maxTokens, messages, tools, stream: true }),
     });
-    data = await r.json();
-    if (data.error) throw new Error(data.error.message || "erro na API");
-    if (data.stop_reason === "pause_turn") {
-      messages = [messages[0], { role: "assistant", content: data.content }];
+    if (!r.ok || !r.body) {
+      const t = await r.text().catch(() => "");
+      throw new Error("erro na API (HTTP " + r.status + ") " + t.slice(0, 200));
+    }
+    const acc = await lerStreamAnthropic(r.body);
+    if (acc.error) throw new Error(acc.error);
+    text = (acc.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
+    if (acc.stop_reason === "pause_turn" && acc.content && acc.content.length) {
+      messages = [messages[0], { role: "assistant", content: acc.content }];
       continue;
     }
     break;
   }
-  const text = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("\n").trim();
   return { text };
+}
+
+// Lê o stream SSE da Anthropic e remonta os blocos de conteúdo + o stop_reason.
+// Eventos vêm separados por linha em branco; cada um tem "event:" e "data:".
+async function lerStreamAnthropic(body) {
+  const reader = body.getReader();
+  const dec = new TextDecoder();
+  const blocks = [];   // blocos de conteúdo por índice
+  const pj = {};       // índice -> input_json parcial (para blocos de tool_use)
+  let stop_reason = null, error = null, buf = "";
+  const trata = (ev, obj) => {
+    if (ev === "content_block_start") {
+      blocks[obj.index] = obj.content_block || {};
+      if (blocks[obj.index].type === "text" && blocks[obj.index].text == null) blocks[obj.index].text = "";
+    } else if (ev === "content_block_delta") {
+      const b = blocks[obj.index]; if (!b) return;
+      const d = obj.delta || {};
+      if (d.type === "text_delta") b.text = (b.text || "") + (d.text || "");
+      else if (d.type === "input_json_delta") pj[obj.index] = (pj[obj.index] || "") + (d.partial_json || "");
+    } else if (ev === "content_block_stop") {
+      const b = blocks[obj.index];
+      if (b && pj[obj.index] != null) { try { b.input = JSON.parse(pj[obj.index] || "{}"); } catch (_) {} }
+    } else if (ev === "message_delta") {
+      if (obj.delta && obj.delta.stop_reason) stop_reason = obj.delta.stop_reason;
+    } else if (ev === "error") {
+      error = (obj.error && obj.error.message) || "erro no stream da API";
+    }
+  };
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const parts = buf.split("\n\n");
+    buf = parts.pop();
+    for (const part of parts) {
+      let ev = null, dataStr = "";
+      for (let line of part.split("\n")) {
+        line = line.replace(/\r$/, "");
+        if (line.startsWith("event:")) ev = line.slice(6).trim();
+        else if (line.startsWith("data:")) dataStr += line.slice(5).trim();
+      }
+      if (!dataStr || dataStr === "[DONE]") continue;
+      let obj; try { obj = JSON.parse(dataStr); } catch (_) { continue; }
+      trata(ev || obj.type, obj);
+    }
+  }
+  return { content: blocks.filter(b => b != null), stop_reason, error };
 }
 
 function extractJson(text) {
