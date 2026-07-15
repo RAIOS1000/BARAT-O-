@@ -205,6 +205,17 @@
   .gr-chips{display:flex;flex-wrap:wrap;gap:7px}
   .cmp-mini{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--text);text-decoration:none;font-size:12.5px;font-weight:600;transition:border-color .15s,transform .12s}
   .cmp-mini:hover{border-color:rgba(74,222,157,.55);transform:translateY(-1px)}
+  /* anotar preços (comparação manual, sem IA) */
+  .anotar-btn{display:block;width:100%;margin-top:10px;border:1px solid rgba(242,193,78,.5);background:rgba(242,193,78,.10);color:var(--gold);font-weight:800;font-size:13.5px;padding:13px;border-radius:14px;cursor:pointer;transition:background .2s}
+  .anotar-btn:hover{background:rgba(242,193,78,.18)}
+  .pm-list{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .pm-item{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:11px 12px}
+  .pm-name{font-weight:700;font-size:14px;margin-bottom:8px;color:var(--text)}
+  .pm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(94px,1fr));gap:7px}
+  .pm-cell{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .pm-cell span{font-size:11px;color:var(--muted);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pm-cell input{width:100%;padding:8px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--text);font-size:14px;font-weight:600}
+  .pm-cell input:focus{outline:none;border-color:var(--gold)}
   .oferta-loja{display:flex;align-items:center;gap:8px;margin:18px 2px 9px;font-size:13px;font-weight:800;color:var(--gold)}
   .oferta-loja .val{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.2px}
   .oferta-row{display:flex;align-items:center;gap:11px;padding:10px 13px;border:1px solid var(--line);background:var(--surface);border-radius:13px;margin-bottom:7px}
@@ -456,6 +467,7 @@
     <button class="big-compare" id="compareBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg> COTAR PREÇO DO DIA</button>
     <button class="ofertas-btn" id="ofertasBtn" type="button">🔥 Ver ofertas da semana dos meus mercados</button>
     <button class="gratis-btn" id="gratisBtn" type="button">🛒 Comparar grátis · preço real (sem gastar nada)</button>
+    <button class="anotar-btn" id="anotarBtn" type="button">✍️ Anotar preços e comparar (sem gastar nada)</button>
     <button class="demo-link" id="demoBtn">👀 ver um exemplo de cotação (demo, sem chave)</button>
     <div id="listResult" style="margin-top:16px"></div>
   </section>
@@ -1214,6 +1226,57 @@ function compararGratis(){
     <div class="source">✅ O preço real mora nos apps dos mercados (Rappi, iFood, Carrefour com seu CEP). O MULTIPLICADOR te leva direto lá — <b>sem custo nenhum</b>.</div>`;
   box.scrollIntoView({behavior:"smooth",block:"start"});
 }
+/* ===== ANOTAR PREÇOS: comparação manual, 100% no aparelho (zero token) ===== */
+function precosManStore(){return store.get("precosman",{})||{};}
+window.salvarPrecoM=function(item,loja,val){
+  const s=precosManStore(); s[item]=s[item]||{}; const n=toNum(val);
+  if(n>0) s[item][loja]=n; else if(s[item]){delete s[item][loja]; if(!Object.keys(s[item]).length) delete s[item];}
+  store.set("precosman",s);
+};
+$("#anotarBtn").onclick=preencherPrecos;
+function preencherPrecos(){
+  const l=getList(), box=$("#listResult");
+  if(!l.length){ box.innerHTML=`<div class="source">Sua lista está vazia — adicione itens acima e toque de novo.</div>`; box.scrollIntoView({behavior:"smooth",block:"start"}); return; }
+  const lojas=lojasArr(), saved=precosManStore();
+  const cards=l.map(it=>{
+    const nome=(typeof it==="string"?it:it.nome)||"";
+    const cells=lojas.map(loja=>{
+      const v=(saved[nome]&&saved[nome][loja])||"";
+      return `<label class="pm-cell"><span title="${esc(loja)}">${esc(loja)}</span><input type="number" inputmode="decimal" step="0.01" min="0" placeholder="R$" value="${v}" oninput="salvarPrecoM('${escAttr(nome)}','${escAttr(loja)}',this.value)"></label>`;
+    }).join("");
+    return `<div class="pm-item"><div class="pm-name">${esc(nome)}</div><div class="pm-grid">${cells}</div></div>`;
+  }).join("");
+  box.innerHTML=`<div class="section-label" style="margin-top:6px">✍️ Anotar preços · comparar grátis</div>
+    <p class="hint" style="text-align:left;padding:2px 2px 10px">Viu o preço no app do mercado (Rappi, iFood, Carrefour…)? <b>Anote aqui</b> — só o que quiser, não precisa preencher tudo. O app calcula sozinho <b>qual mercado sai mais barato</b> e monta a <b>cesta ótima</b>, sem gastar nada. Fica salvo pra você continuar depois.</p>
+    <div class="pm-list">${cards}</div>
+    <button class="big-compare" style="margin-top:14px" onclick="calcPrecosManual()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg> Calcular o mais barato</button>
+    <div id="pmResult" style="margin-top:16px"></div>`;
+  box.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function calcManual(nomes,lojas,saved){
+  const perM=lojas.map(loja=>{let total=0,cob=0;nomes.forEach(n=>{const v=saved[n]&&saved[n][loja];if(v>0){total+=v;cob++;}});return {loja,total,cob};});
+  let cesta=0; const cestaItens=[];
+  nomes.forEach(n=>{let best=null,bl=null;lojas.forEach(loja=>{const v=saved[n]&&saved[n][loja];if(v>0&&(best===null||v<best)){best=v;bl=loja;}});if(best!==null){cesta+=best;cestaItens.push({nome:n,loja:bl,preco:best});}});
+  const nItens=nomes.length, full=perM.filter(m=>m.cob===nItens&&nItens>0);
+  const champ=full.slice().sort((a,b)=>a.total-b.total)[0]||null;
+  return {perM,cesta,cestaItens,champ,eco:champ?champ.total-cesta:0,nItens};
+}
+window.calcPrecosManual=function(){
+  const l=getList(), lojas=lojasArr(), saved=precosManStore();
+  const nomes=l.map(it=>(typeof it==="string"?it:it.nome)||"").filter(Boolean);
+  const R=calcManual(nomes,lojas,saved);
+  if(!R.perM.some(m=>m.cob>0)){ $("#pmResult").innerHTML=`<div class="source">Anote pelo menos um preço pra eu calcular. 😉</div>`; return; }
+  const champ=R.champ;
+  const champHtml=champ?`<div class="best"><div class="selo">MAIS BARATO NO TOTAL</div><div class="store">🏆 ${esc(champ.loja)}</div><div class="loc">comprando os ${R.nItens} itens num lugar só</div><div class="best-bottom"><div class="pricetag"><span class="cur">R$</span><span class="val">${money(champ.total,false)}</span></div></div></div>`:`<div class="source">Preencha <b>todos os itens</b> em pelo menos um mercado pra ver o campeão no total. Por enquanto, veja a <b>cesta ótima</b> e os parciais abaixo 👇</div>`;
+  const cestaHtml=R.cestaItens.map(c=>`<div class="row"><div class="info"><div class="n">${esc(c.nome)}</div><div class="d">${esc(c.loja)}</div></div><div class="p"><small>R$</small>${money(c.preco,false)}</div></div>`).join("");
+  const perMHtml=R.perM.filter(m=>m.cob>0).sort((a,b)=>a.total-b.total).map((m,i)=>`<div class="row ${champ&&m.loja===champ.loja?"":""}"><span class="rank">${i+1}º</span><div class="info"><div class="n">${esc(m.loja)}</div><div class="d">${m.cob} de ${R.nItens} ${m.cob<R.nItens?"itens (parcial)":"itens"}</div></div><div class="p"><small>R$</small>${money(m.total,false)}</div></div>`).join("");
+  $("#pmResult").innerHTML=`${champHtml}
+    <div class="section-label" style="margin-top:20px">🧺 Cesta ótima · cada item no mais barato</div><div class="rows">${cestaHtml}</div>
+    <div class="best-bottom" style="margin-top:10px;padding:0 2px"><div class="pricetag"><span class="cur">R$</span><span class="val">${money(R.cesta,false)}</span></div>${champ&&R.eco>0.009?`<span class="save">economiza ${money(R.eco)} vs comprar tudo no ${esc(champ.loja)}</span>`:""}</div>
+    <div class="section-label" style="margin-top:20px">🏪 Total por mercado</div><div class="rows">${perMHtml}</div>
+    <div class="source">💚 Calculado no seu aparelho, <b>sem gastar tokens</b>. Confira no mercado antes de fechar a compra.</div>`;
+  $("#pmResult").scrollIntoView({behavior:"smooth",block:"nearest"});
+};
 $("#ofertasBtn").onclick=verOfertas;
 async function verOfertas(){
   if(!loc){openLoc();return;}
