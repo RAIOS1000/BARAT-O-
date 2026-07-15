@@ -20,7 +20,7 @@
  */
 
 const MAX_BUSCAS_ITEM = 6;    // teto de pesquisas web p/ 1 produto
-const MAX_BUSCAS_LISTA = 12;  // teto de pesquisas web p/ a lista toda (inclui encartes)
+const MAX_BUSCAS_LISTA = 20;  // teto de pesquisas web p/ a lista toda (streaming removeu o limite de tempo)
 
 function getModel(env) { return (env && env.MODEL) || "claude-opus-4-8"; }
 // dynamic filtering (mais preciso/econômico) nos modelos recentes; básico p/ os antigos
@@ -139,7 +139,8 @@ async function modoLista(b, env) {
 Pense como um comprador experiente:
 - Compare sempre o PREÇO POR UNIDADE (por kg, litro ou unidade), não só o preço da embalagem.
 - Prefira atacarejo e, quando o preço por unidade compensar, embalagem maior / caixa fechada / fardo / saco.
-- PREÇO REAL DA SEMANA: procure ATIVAMENTE o "encarte"/"ofertas da semana"/"folheto"/"tabloide" ATUAL de cada mercado (ex.: "encarte Assaí ${local || "sua cidade"}", "ofertas da semana Atacadão"), nos sites oficiais das redes e em agregadores de encartes. Prefira o preço do encarte VIGENTE desta semana e anote a validade em "obs" (ex.: "encarte válido até 16/07"); se o preço veio de encarte/promoção, diga na "fonte".
+- ESTRATÉGIA (importante p/ lista grande): NÃO pesquise item por item — o orçamento de busca acaba. PRIMEIRO encontre o ENCARTE VIGENTE desta semana de CADA mercado e leia dele o MÁXIMO de itens da lista de uma vez só. Procure o encarte de cada rede nesta ordem: (1) site oficial da rede; (2) o INSTAGRAM e o FACEBOOK da loja — mercados regionais (ex.: Costa, Moreirinha) quase sempre postam o folheto da semana nas redes sociais, não no site; (3) sites agregadores de encarte (buscas como "encarte <loja> ${local || "cidade"}", "ofertas da semana <loja>", "folheto <loja>"). Só DEPOIS, se sobrar busca, procure os itens que faltaram.
+- VIGÊNCIA: hoje é ${hojeBR()}. Use SOMENTE encarte cuja validade cubra HOJE. Folheto de semanas/meses atrás (ex.: de 2025) NÃO vale — descarte e trate o item como "não encontrado" em vez de usar preço velho. Anote em "obs" a validade do encarte usado (ex.: "encarte válido até 16/07").
 - Seja honesto: preço estimado, indisponível ou de outra região vai em "obs".
 - VERACIDADE: nunca invente preço. Só registre valores realmente encontrados na busca, informando a fonte (site); se não achar, use 0 e explique em "obs".
 
@@ -167,8 +168,8 @@ async function modoOfertas(b, env) {
   const fav = marcas ? ` O comprador tem marcas favoritas: ${marcas} — destaque quando aparecerem no encarte.` : "";
   const prompt =
 `Você é um comprador esperto no Brasil. Hoje é ${hojeBR()}. Para quem está em ${local || "Brasil"}, PESQUISE na web as OFERTAS DA SEMANA (encarte / folheto / "ofertas da semana") ATUAIS de CADA um destes mercados, um por um: ${lojas}.
-Para cada mercado, procure o encarte/folheto VIGENTE desta semana — no site oficial da rede e em agregadores de encarte — e leia os itens. Traga as principais ofertas do dia a dia (mercearia, limpeza, hortifruti, açougue, bebidas) com a DATA DE VALIDADE do encarte.${fav}
-Só ofertas REAIS que você realmente encontrou na busca; se não achar o encarte de um mercado, devolva "ofertas":[] e explique em "obs". NUNCA invente preço nem validade.
+Para cada mercado, procure o encarte/folheto VIGENTE desta semana em (1) site oficial da rede, (2) INSTAGRAM e FACEBOOK da loja — mercados regionais (ex.: Costa, Moreirinha) quase sempre postam o folheto da semana nas redes sociais, não no site — e (3) agregadores de encarte. Leia os itens e traga as principais ofertas do dia a dia (mercearia, limpeza, hortifruti, açougue, bebidas) com a DATA DE VALIDADE do encarte.${fav}
+VIGÊNCIA: use SOMENTE encarte cuja validade cubra HOJE (${hojeBR()}); descarte folhetos antigos (ex.: de 2025). Só ofertas REAIS que você realmente encontrou na busca; se não achar o encarte VIGENTE de um mercado, devolva "ofertas":[] e explique em "obs". NUNCA invente preço nem validade.
 Responda APENAS com JSON válido, sem markdown, sem texto antes ou depois:
 {"local":"${local}","data":"${hojeBR()}","mercados":[{"loja":"","validade":"","fonte":"","obs":"","ofertas":[{"produto":"","marca":"","preco":0.00,"preco_unidade":"","validade":"","fonte":""}]}]}
 "validade" do mercado é o período do encarte (ex.: "válido de 14/07 a 20/07"). Use ponto decimal para o preço.`;
@@ -273,7 +274,7 @@ async function callClaudeTool(model, toolType, prompt, maxBuscas, maxTokens, env
   const tools = [{ type: toolType, name: "web_search", max_uses: maxBuscas }];
   let data, guard = 0;
   // servidores de busca podem pausar o turno (pause_turn) — retomamos reenviando
-  while (guard++ < 8) {
+  while (guard++ < 16) {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
