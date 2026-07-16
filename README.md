@@ -32,10 +32,8 @@ Tudo é salvo no próprio navegador.
 
 ## 🚀 Usar agora (2 passos)
 
-1. Abra o app — ele já abre na **Lista**, com o local em **Goiânia** e seus mercados preenchidos (dá pra trocar tudo tocando em cima).
-2. Toque no botão **motor** (topo) → cole sua chave da Anthropic **`sk-ant-…`** → **Ativar**.
-
-Pronto. Jogue suas compras e toque em **Cotar preço do dia**. 🛒
+1. Abra o app — ele já abre em **Comprar**, guiado em 3 passos: **1** monte a lista → **2** veja os preços (grátis) → **3** anote e compare (grátis).
+2. Só isso. **Não precisa de chave nem de motor** pro fluxo grátis. A cotação automática por IA é opcional (fica recolhida no fim da tela e custa centavos).
 
 > A chave fica **só no seu aparelho** (localStorage do navegador) e vai apenas para a API da Anthropic — nada é guardado em servidor nosso. Pegue a sua em <https://console.anthropic.com/settings/keys> e defina um **limite de gasto mensal** por segurança.
 
