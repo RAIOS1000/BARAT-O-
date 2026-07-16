@@ -205,6 +205,29 @@
   .gr-chips{display:flex;flex-wrap:wrap;gap:7px}
   .cmp-mini{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border:1px solid var(--line);border-radius:999px;background:var(--bg);color:var(--text);text-decoration:none;font-size:12.5px;font-weight:600;transition:border-color .15s,transform .12s}
   .cmp-mini:hover{border-color:rgba(74,222,157,.55);transform:translateY(-1px)}
+  /* passos 1-2-3 da tela Comprar */
+  .step-card{border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:16px 14px;margin-top:14px}
+  .step-head{display:flex;align-items:center;gap:10px}
+  .step-num{flex:none;width:26px;height:26px;border-radius:50%;background:linear-gradient(180deg,var(--gold),var(--gold-deep));color:#191204;font-weight:800;font-size:14px;display:grid;place-items:center}
+  .step-tit{font-weight:800;font-size:15.5px}
+  .free-tag{margin-left:auto;font-size:10px;font-weight:800;color:var(--mint);background:rgba(74,222,157,.12);padding:4px 9px;border-radius:999px;letter-spacing:.5px}
+  .step-sub{color:var(--muted);font-size:12.5px;margin:6px 0 10px 36px;text-align:left}
+  .step-card .smart-add{margin-top:12px}
+  /* IA opcional, recolhida */
+  .ia-box{margin-top:14px;border:1px dashed var(--line-strong);border-radius:16px;padding:13px 14px}
+  .ia-box summary{cursor:pointer;font-weight:700;font-size:13.5px;color:var(--gold);list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .ia-box summary::-webkit-details-marker{display:none}
+  .ia-box .ia-note{font-size:11px;color:var(--muted);font-weight:600}
+  .ia-box[open]{border-style:solid;background:var(--surface)}
+  /* hub Ferramentas */
+  .ferr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .ferr-card{border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:18px 14px;cursor:pointer;text-align:left;color:var(--text);display:flex;flex-direction:column;gap:6px;transition:border-color .2s,transform .12s}
+  .ferr-card:hover{border-color:rgba(242,193,78,.4);transform:translateY(-2px)}
+  .ferr-card .fi{font-size:24px}
+  .ferr-card .ft{font-weight:800;font-size:14.5px}
+  .ferr-card .fs{color:var(--muted);font-size:12px;line-height:1.4}
+  .back-ferr{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--muted);font-size:12.5px;font-weight:700;cursor:pointer;padding:0 2px 10px}
+  .back-ferr:hover{color:var(--gold)}
   /* anotar preços (comparação manual, sem IA) */
   .anotar-btn{display:block;width:100%;margin-top:10px;border:1px solid rgba(242,193,78,.5);background:rgba(242,193,78,.10);color:var(--gold);font-weight:800;font-size:13.5px;padding:13px;border-radius:14px;cursor:pointer;transition:background .2s}
   .anotar-btn:hover{background:rgba(242,193,78,.18)}
@@ -422,6 +445,7 @@
 
   <!-- CATÁLOGO -->
   <section id="view-catalogo" style="display:none">
+    <button class="back-ferr" onclick="setView('ferramentas')">← Ferramentas</button>
     <div class="cat-search">
       <svg class="mg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="catFilter" type="text" placeholder="filtrar no catálogo (ex: arroz, sabão...)" />
@@ -430,9 +454,11 @@
     <div id="catList" style="margin-top:14px"></div>
   </section>
 
-  <!-- LISTA -->
+  <!-- COMPRAR (lista em 3 passos) -->
   <section id="view-lista" style="display:none">
-    <div class="section-label">Minha lista de compras <span class="save" id="listCount"></span></div>
+
+    <div class="step-card">
+    <div class="step-head"><span class="step-num">1</span><span class="step-tit">Sua lista</span><span class="save" id="listCount"></span></div>
 
     <!-- montar a lista falando/escrevendo do seu jeito, ou por prato (IA) -->
     <div class="smart-add">
@@ -462,18 +488,36 @@
       <button data-lv="corredor" id="lvCorredor" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg> Por corredor</button>
     </div>
     <div id="listBody"></div>
-    <input id="mercadosInput" class="mercados-input" type="text" placeholder="mercados p/ cotar (opcional): Assaí, Carrefour, Atacadão…" autocomplete="off" />
-    <input id="marcasInput" class="mercados-input" type="text" placeholder="⭐ minhas marcas favoritas (opcional): Tio João, Pilão, OMO…" autocomplete="off" />
-    <button class="big-compare" id="compareBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg> COTAR PREÇO DO DIA</button>
-    <button class="ofertas-btn" id="ofertasBtn" type="button">🔥 Ver ofertas da semana dos meus mercados</button>
-    <button class="gratis-btn" id="gratisBtn" type="button">🛒 Comparar grátis · preço real (sem gastar nada)</button>
-    <button class="anotar-btn" id="anotarBtn" type="button">✍️ Anotar preços e comparar (sem gastar nada)</button>
-    <button class="demo-link" id="demoBtn">👀 ver um exemplo de cotação (demo, sem chave)</button>
+    </div><!-- /passo 1 -->
+
+    <div class="step-card">
+      <div class="step-head"><span class="step-num">2</span><span class="step-tit">Ver preços</span><span class="free-tag">GRÁTIS</span></div>
+      <p class="step-sub">O preço real, direto no app de cada mercado — sem gastar nada.</p>
+      <button class="gratis-btn" id="gratisBtn" type="button">🛒 Ver os preços da minha lista</button>
+      <button class="ofertas-btn" id="ofertasBtn" type="button">🔥 Encartes da semana dos meus mercados</button>
+    </div><!-- /passo 2 -->
+
+    <div class="step-card">
+      <div class="step-head"><span class="step-num">3</span><span class="step-tit">Anotar e comparar</span><span class="free-tag">GRÁTIS</span></div>
+      <p class="step-sub">Digite o que viu — o app calcula sozinho o mercado mais barato e a cesta ótima.</p>
+      <input id="mercadosInput" class="mercados-input" type="text" placeholder="meus mercados: Assaí, Carrefour, Costa Atacadão…" autocomplete="off" />
+      <button class="anotar-btn" id="anotarBtn" type="button">✍️ Anotar preços e calcular o mais barato</button>
+    </div><!-- /passo 3 -->
+
+    <details class="ia-box">
+      <summary>⚡ Cotação automática por IA <span class="ia-note">opcional · custa centavos</span></summary>
+      <p class="step-sub" style="margin-top:10px">A IA pesquisa os preços na web pra você. Precisa do motor ligado (chave ou Worker) e <b>consome créditos da sua conta Anthropic</b> a cada cotação.</p>
+      <input id="marcasInput" class="mercados-input" type="text" placeholder="⭐ minhas marcas favoritas (opcional): Tio João, Pilão, OMO…" autocomplete="off" />
+      <button class="big-compare" id="compareBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg> COTAR PREÇO DO DIA (IA)</button>
+      <button class="demo-link" id="demoBtn">👀 ver um exemplo de cotação (demo, sem chave)</button>
+    </details>
+
     <div id="listResult" style="margin-top:16px"></div>
   </section>
 
   <!-- RADAR -->
   <section id="view-radar" style="display:none">
+    <button class="back-ferr" onclick="setView('ferramentas')">← Ferramentas</button>
     <div class="section-label">Meu radar de preço</div>
     <p class="hint" style="text-align:left;padding:0 2px 10px">Salve produtos com um <b style="color:var(--mint)">preço-alvo</b>. Quando uma busca achar igual ou mais barato, o item acende 🎯.</p>
     <div id="radarList"></div>
@@ -481,6 +525,7 @@
 
   <!-- CALC -->
   <section id="view-calc" style="display:none">
+    <button class="back-ferr" onclick="setView('ferramentas')">← Ferramentas</button>
     <div class="section-label">Preço por unidade · compare embalagens</div>
     <div class="calc">
       <div class="lbl">EMBALAGEM A</div>
@@ -494,6 +539,17 @@
       <div class="calc-badge" id="calc_badge"></div>
     </div>
     <p class="hint" style="text-align:left;padding:14px 2px 0">Use a mesma unidade nos dois (g, ml, un). Mostra qual sai mais barato — o pacote maior nem sempre compensa.</p>
+  </section>
+
+  <!-- FERRAMENTAS (hub) -->
+  <section id="view-ferramentas" style="display:none">
+    <div class="section-label">Ferramentas</div>
+    <div class="ferr-grid">
+      <button class="ferr-card" onclick="setView('catalogo')"><span class="fi">🗂️</span><span class="ft">Catálogo</span><span class="fs">+200 itens prontos pra sua lista</span></button>
+      <button class="ferr-card" onclick="abrirNfe()"><span class="fi">🧾</span><span class="ft">Nota fiscal</span><span class="fs">leia o QR do cupom e guarde no Cofre</span></button>
+      <button class="ferr-card" onclick="setView('calc')"><span class="fi">🧮</span><span class="ft">Calculadora</span><span class="fs">qual embalagem sai mais barata</span></button>
+      <button class="ferr-card" onclick="setView('radar')"><span class="fi">📡</span><span class="ft">Radar de preço</span><span class="fs">avisa quando achar mais barato</span></button>
+    </div>
   </section>
 
   <!-- COFRE (histórico seguro) -->
@@ -513,11 +569,9 @@
 </div>
 
 <nav class="nav"><div class="inner">
-  <button class="on" data-view="buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Buscar</button>
-  <button data-view="catalogo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Catálogo</button>
-  <button data-view="lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Lista<span class="badge" id="navBadge" style="display:none">0</span></button>
-  <button data-view="radar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg>Radar</button>
-  <button data-view="calc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h4M8 15h2M12 15h4"/></svg>Calc</button>
+  <button class="on" data-view="lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1.6"/><circle cx="19" cy="21" r="1.6"/><path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L22 7H6"/></svg>Comprar<span class="badge" id="navBadge" style="display:none">0</span></button>
+  <button data-view="buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Buscar</button>
+  <button data-view="ferramentas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6.4 6.4L3 18v3h3l5.3-5.3a4.5 4.5 0 0 0 6.4-6.4L14 13l-3-3 3.7-3.7Z"/></svg>Ferramentas</button>
   <button data-view="hist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3.5V12c0 4.8-3.4 7.9-8 9-4.6-1.1-8-4.2-8-9V6.5L12 3Z"/><path d="M9.2 12.2l2 2 3.6-3.9"/></svg>Cofre</button>
 </div></nav>
 
@@ -571,14 +625,14 @@
 <!-- modal: boas-vindas (primeira vez) -->
 <div class="modal" id="welcomeModal"><div class="card">
   <h3>👋 BEM-VINDO AO MULTIPLICADOR</h3>
-  <p class="wtag">A compra do mês mais barata — com o preço real do dia.</p>
+  <p class="wtag">A compra do mês mais barata — em 3 passos, de graça.</p>
   <div class="wsteps">
-    <div class="wstep"><span>🧾</span><div><b>Monte sua lista do seu jeito</b><small>fale, escreva “arroz, 2 leites…” ou diga um prato</small></div></div>
-    <div class="wstep"><span>💰</span><div><b>Cote o preço do dia</b><small>veja qual mercado sai mais barato no total, em R$</small></div></div>
-    <div class="wstep"><span>🔒</span><div><b>Nada se perde</b><small>tudo fica no Cofre e mostra quanto você economiza</small></div></div>
+    <div class="wstep"><span>🧾</span><div><b>1 · Monte sua lista</b><small>fale, escreva “arroz, 2 leites…” ou diga um prato</small></div></div>
+    <div class="wstep"><span>🛒</span><div><b>2 · Veja os preços — grátis</b><small>o preço real, direto no app de cada mercado</small></div></div>
+    <div class="wstep"><span>🏆</span><div><b>3 · Anote e compare — grátis</b><small>o app calcula qual mercado sai mais barato no total</small></div></div>
   </div>
   <button class="mbtn" id="welcomeStart">Começar 🛒</button>
-  <p class="wfine">Dica: pra ligar o preço real, toque no botão <b>motor</b> lá em cima e cole sua chave. Sem chave, dá pra montar listas e ver um exemplo.</p>
+  <p class="wfine">Tudo isso <b>sem gastar nada</b>. A cotação automática por IA é opcional (custa centavos) e fica recolhida no fim da tela.</p>
 </div></div>
 
 <script>
@@ -979,7 +1033,7 @@ function renderList(){
   if(!l.length){
     const last=ultimaListaSalva();
     const rebuy=last?`<div class="rebuy"><div class="rt">🔁 Recomprar sua última lista</div><div class="rs">${(last.lista||[]).length} ${((last.lista||[]).length)===1?"item":"itens"} · ${fmtD(last.ts)}${last.tipo==="compra"&&last.loja?` · ${esc(last.loja)}`:(last.local?` · ${esc(last.local)}`:"")}</div><button onclick="histUsar(${last.ts})">Trazer de volta em 1 toque</button></div>`:"";
-    $("#listBody").innerHTML=rebuy+`<p class="hint" style="text-align:left;padding:8px 2px">Sua lista está vazia. Fale ou escreva do seu jeito no campo acima ✨, adicione pelo <b style="color:var(--gold)">Catálogo</b>, à mão, ou <b style="color:var(--mint)">importe um arquivo</b>.</p>`;$("#compareBtn").disabled=true;$("#listResult").innerHTML="";if(tg)tg.style.display="none";return;}
+    $("#listBody").innerHTML=rebuy+`<p class="hint" style="text-align:left;padding:8px 2px">Sua lista está vazia. Fale ou escreva do seu jeito no campo acima ✨, adicione à mão, pelo <b style="color:var(--gold)">Catálogo</b> (em Ferramentas), ou <b style="color:var(--mint)">importe um arquivo</b>.</p>`;$("#compareBtn").disabled=true;$("#listResult").innerHTML="";if(tg)tg.style.display="none";return;}
   $("#compareBtn").disabled=false;
   if(tg){tg.style.display=l.length>=2?"flex":"none";const v=listView();$("#lvSimples").classList.toggle("on",v!=="corredor");$("#lvCorredor").classList.toggle("on",v==="corredor");}
   if(l.length>=2&&listView()==="corredor"){
@@ -1868,13 +1922,16 @@ function toast(msg){let el=$("#toast");if(!el){el=document.createElement("div");
 
 /* ============ views ============ */
 function setView(v){
-  ["buscar","catalogo","lista","radar","calc","hist"].forEach(x=>$("#view-"+x).style.display=x===v?"block":"none");
-  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===v));
+  ["buscar","catalogo","lista","radar","calc","hist","ferramentas"].forEach(x=>{const el=$("#view-"+x);if(el)el.style.display=x===v?"block":"none";});
+  // catálogo, radar e calc moram dentro de "Ferramentas" — a aba certa continua acesa
+  const tab={catalogo:"ferramentas",radar:"ferramentas",calc:"ferramentas"}[v]||v;
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.view===tab));
   if(v==="radar")renderRadar();
   if(v==="lista")renderList();
   if(v==="hist")renderHist();
   if(v==="catalogo"){renderCatSecs();renderCatalog();}
 }
+window.setView=setView;window.abrirNfe=abrirNfe;
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>setView(b.dataset.view));
 
 /* ============ utils ============ */
