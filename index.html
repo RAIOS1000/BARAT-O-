@@ -14,9 +14,13 @@
      Cole o link do seu checkout do Kiwify entre as aspas. Pronto: TODOS os
      botões de compra passam a apontar pra lá de uma vez.
 
-  2) PREÇO → procure por  "EDITAR PREÇO"  (aparece 1 vez). Troque os valores.
+  2) PREÇO e E-MAIL → também no final do arquivo:  const PRECO  e  const CONTATO_EMAIL.
+     Enquanto estiverem vazios, o preço e o contato simplesmente não aparecem.
 
-  3) TEXTOS → procure pelos comentários  <!-- EDITAR ... -->  pra achar
+  ⚠️ DEPOIMENTOS → a seção está ESCONDIDA porque os textos são exemplos.
+     Procure por  "DEPOIMENTOS"  pra trocar pelos reais e mostrar a seção.
+
+  3) TEXTOS → procure pela palavra  EDITAR  nos comentários pra achar
      rapidinho o que dá pra personalizar (depoimentos, nome, contato, etc.).
 
   4) Qualquer dúvida é só me chamar aqui no chat que eu altero pra você.
@@ -62,7 +66,7 @@
 
   /* ---- Botões ---- */
   .btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
     background:var(--verde);color:#fff;font-weight:700;font-size:18px;
     padding:18px 32px;border-radius:999px;text-decoration:none;border:none;cursor:pointer;
     box-shadow:0 10px 24px rgba(22,163,74,.35);transition:transform .15s ease,box-shadow .15s ease;
@@ -70,7 +74,7 @@
   }
   .btn:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(22,163,74,.45)}
   .btn:active{transform:translateY(0)}
-  .btn .sub{font-size:12px;font-weight:500;opacity:.9}
+  .btn-sub{display:block;font-size:12px;font-weight:500;opacity:.9;color:inherit;letter-spacing:.2px}
   .btn-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
   .btn-note{font-size:13px;color:var(--cinza-claro)}
 
@@ -216,7 +220,7 @@
 <body>
 
 <!-- EDITAR: barra de aviso (promoção/urgência). Apague a linha se não quiser. -->
-<div class="topbar">🔥 <strong>Turma com vagas limitadas</strong> — condição especial de lançamento por tempo limitado</div>
+<div class="topbar">🎯 <strong>Aprovadão</strong> — estude com foco no que realmente cai na prova</div>
 
 <!-- =================== HERO =================== -->
 <header class="hero">
@@ -234,12 +238,12 @@
     </ul>
 
     <div class="btn-wrap" style="align-items:flex-start">
-      <a class="btn js-checkout" href="#oferta">QUERO SER APROVADO <span class="sub">Acesso imediato</span></a>
+      <a class="btn js-checkout" href="#oferta">QUERO SER APROVADO <span class="btn-sub">Acesso imediato</span></a>
       <span class="btn-note" style="color:#c7d6ff">✅ Pagamento 100% seguro pelo Kiwify • 🔒 Garantia de 7 dias</span>
     </div>
 
     <div class="trust">
-      <span>⭐ Método aprovado por alunos</span>
+      <span>🎯 Foco no que mais cai</span>
       <span>📱 100% online</span>
       <span>♾️ Acesso vitalício</span>
     </div>
@@ -253,14 +257,14 @@
     <h2 class="title">O Aprovadão é feito pra quem está cansado de…</h2>
     <div class="grid grid-2" style="text-align:left;margin-top:30px">
       <ul class="checklist painlist">
-        <li><span class="ck">✕</span> Estudar muitas horas e sentir que <b>não evolui</b></li>
-        <li><span class="ck">✕</span> Se perder num <b>monte de matéria</b> sem saber o que priorizar</li>
-        <li><span class="ck">✕</span> Ficar <b>travado em questões</b> e não entender onde errou</li>
+        <li><span class="ck">✕</span><span>Estudar muitas horas e sentir que <b>não evolui</b></span></li>
+        <li><span class="ck">✕</span><span>Se perder num <b>monte de matéria</b> sem saber o que priorizar</span></li>
+        <li><span class="ck">✕</span><span>Ficar <b>travado em questões</b> e não entender onde errou</span></li>
       </ul>
       <ul class="checklist painlist">
-        <li><span class="ck">✕</span> Ver as <b>vagas abrirem e fecharem</b> sem se sentir preparado</li>
-        <li><span class="ck">✕</span> Perder dinheiro em <b>cursos enrolados</b> e longos demais</li>
-        <li><span class="ck">✕</span> Estudar sozinho, <b>sem um caminho claro</b> a seguir</li>
+        <li><span class="ck">✕</span><span>Ver as <b>vagas abrirem e fecharem</b> sem se sentir preparado</span></li>
+        <li><span class="ck">✕</span><span>Perder dinheiro em <b>cursos enrolados</b> e longos demais</span></li>
+        <li><span class="ck">✕</span><span>Estudar sozinho, <b>sem um caminho claro</b> a seguir</span></li>
       </ul>
     </div>
     <p class="sub center" style="margin-top:28px">Se você se identificou com pelo menos um desses, continue lendo — o Aprovadão foi feito exatamente pra resolver isso. 👇</p>
@@ -376,7 +380,9 @@
 </section>
 
 <!-- =================== DEPOIMENTOS =================== -->
-<section>
+<!-- ESCONDIDA de propósito: os depoimentos abaixo são EXEMPLOS. Quando tiver depoimentos
+     reais, troque os textos/nomes e apague a palavra  hidden  da linha <section> abaixo. -->
+<section hidden>
   <div class="container">
     <div class="center">
       <div class="kicker">Quem fez, aprova</div>
@@ -422,13 +428,15 @@
         <li><span class="ck">✓</span> Suporte e comunidade de alunos</li>
       </ul>
 
-      <!-- EDITAR PREÇO: troque os valores abaixo -->
-      <div class="de">de R$ 297,00</div>
-      <div class="por"><small>12x de</small> R$ 00,00</div>
-      <div class="parcela">ou <b>R$ 000,00</b> à vista no Pix/cartão</div>
+      <!-- PREÇO: configure no final do arquivo (const PRECO). Enquanto estiver vazio, este bloco fica escondido. -->
+      <div id="preco" hidden>
+        <div class="de" id="preco-de"></div>
+        <div class="por"><small id="preco-parcelas"></small> <span id="preco-valor"></span></div>
+        <div class="parcela" id="preco-avista"></div>
+      </div>
 
       <div class="btn-wrap">
-        <a class="btn js-checkout" href="#" style="width:100%">QUERO GARANTIR MINHA VAGA <span class="sub">Clique e finalize no Kiwify</span></a>
+        <a class="btn js-checkout" href="#" style="width:100%">QUERO GARANTIR MINHA VAGA <span class="btn-sub">Clique e finalize no Kiwify</span></a>
         <span class="btn-note">🔒 Compra 100% segura • Acesso liberado na hora</span>
       </div>
 
@@ -469,7 +477,7 @@
       </details>
       <details>
         <summary>Serve pra qualquer concurso?</summary>
-        <div class="resp"><!-- EDITAR: ajuste conforme o seu produto -->O método é aplicável a diversos concursos. Ajuste esta resposta pra deixar claro pra quais áreas/concursos o seu material é indicado.</div>
+        <div class="resp"><!-- EDITAR: ajuste conforme o seu produto -->O método de estudo (plano, foco no que mais cai, revisão e treino com questões) serve para a maioria dos concursos. Se tiver dúvida sobre o seu concurso específico, fale com a gente antes de comprar.</div>
       </details>
       <details>
         <summary>E se eu não gostar?</summary>
@@ -500,7 +508,7 @@
   <div class="container">
     <!-- EDITAR: nome/contato -->
     <strong style="color:#fff;font-size:16px">Aprovadão</strong>
-    <p style="margin-top:8px">Dúvidas? Fale com a gente: <a href="mailto:seu-email@exemplo.com">seu-email@exemplo.com</a></p>
+    <p style="margin-top:8px" id="contato" hidden>Dúvidas? Fale com a gente: <a id="contato-link" href="#"></a></p>
     <p class="disc">
       Aprovadão © <span id="ano"></span>. Todos os direitos reservados. Este produto não garante a aprovação do aluno —
       os resultados dependem do empenho e da dedicação de cada pessoa. Os depoimentos refletem experiências individuais.
@@ -520,6 +528,37 @@
         Enquanto estiver vazio, os botões rolam até a seção de preço.
      ========================================================================= */
   const LINK_KIWIFY = ""; // ex.: "https://pay.kiwify.com.br/XXXXXXX"
+
+  /* 👉 PREÇO — preencha entre as aspas. Enquanto "valor" estiver vazio, o preço não aparece. */
+  const PRECO = {
+    de: "",        // preço antigo riscado, ex.: "R$ 297,00" (deixe "" pra não mostrar)
+    parcelas: "",  // ex.: "12x de"
+    valor: "",     // ex.: "R$ 19,70"
+    avista: ""     // ex.: "R$ 197,00"
+  };
+
+  /* 👉 E-MAIL DE CONTATO — enquanto estiver vazio, a linha de contato não aparece. */
+  const CONTATO_EMAIL = ""; // ex.: "contato@aprovadao.com.br"
+
+  (function () {
+    if (PRECO.valor) {
+      document.getElementById("preco-de").textContent = PRECO.de ? "de " + PRECO.de : "";
+      document.getElementById("preco-parcelas").textContent = PRECO.parcelas;
+      document.getElementById("preco-valor").textContent = PRECO.valor;
+      var av = document.getElementById("preco-avista");
+      if (PRECO.avista) {
+        av.innerHTML = "ou <b></b> à vista no Pix/cartão";
+        av.querySelector("b").textContent = PRECO.avista;
+      }
+      document.getElementById("preco").hidden = false;
+    }
+    if (CONTATO_EMAIL) {
+      var link = document.getElementById("contato-link");
+      link.href = "mailto:" + CONTATO_EMAIL;
+      link.textContent = CONTATO_EMAIL;
+      document.getElementById("contato").hidden = false;
+    }
+  })();
 
   (function () {
     var botoes = document.querySelectorAll(".js-checkout");

@@ -20,12 +20,12 @@ Tudo está no arquivo **`index.html`**. Os pontos que você vai querer trocar es
 | O que | Onde |
 |---|---|
 | **Link do Kiwify** | No final do arquivo, na linha `const LINK_KIWIFY = ""` — cole o link do seu checkout entre as aspas. Todos os botões passam a apontar pra lá. |
-| **Preço** | Procure por `EDITAR PREÇO` e troque os valores. |
+| **Preço** | No final do arquivo, em `const PRECO` (valor, parcelas, à vista, preço "de"). |
+| **E-mail de contato** | No final do arquivo, em `const CONTATO_EMAIL`. |
 | **Textos / benefícios / módulos** | Procure pelos comentários `<!-- EDITAR ... -->`. |
-| **Depoimentos** | Substitua pelos depoimentos reais dos seus alunos. |
-| **E-mail de contato** | No rodapé (`seu-email@exemplo.com`). |
+| **Depoimentos** | A seção está **escondida** (os textos são exemplos). Troque pelos reais e apague o `hidden` da `<section>`. |
 
-Enquanto o link do Kiwify estiver vazio, os botões rolam até a seção de preço — nada quebra.
+Enquanto o link do Kiwify estiver vazio, os botões rolam até a seção de preço. Preço e contato vazios simplesmente não aparecem — nada quebra.
 
 ## 🌐 Domínio próprio (opcional)
 
