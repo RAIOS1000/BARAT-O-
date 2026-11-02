@@ -391,6 +391,10 @@
         <div class="resp">Após a confirmação do pagamento, a Kiwify envia ao seu e-mail o acesso à área de membros, onde ficam os 9 PDFs do curso (para ler online ou baixar). No Pix e no cartão costuma ser na hora; no boleto, após a compensação.</div>
       </details>
       <details>
+        <summary>Como é feito o pagamento?</summary>
+        <div class="resp">Pelo checkout da Kiwify, a plataforma que processa a compra: Pix, cartão de crédito (à vista ou em até 2x) ou boleto. O valor de cada parcela aparece no checkout antes de você confirmar.</div>
+      </details>
+      <details>
         <summary>Funciona no celular?</summary>
         <div class="resp">Sim: no celular, no tablet e no computador.</div>
       </details>
@@ -451,9 +455,9 @@
   const LINK_KIWIFY = "https://pay.kiwify.com.br/7dk3EDK";
   const PRECO = {
     valor: "R$ 49,99",               // ex.: "R$ 197,00"
-    parcelas: ""                     // número máximo de parcelas, ex.: "12"
+    parcelas: "2"                    // número máximo de parcelas, ex.: "12"
   };
-  const ACESSO = "";                 // ex.: "12 meses" ou "vitalício"
+  const ACESSO = "vitalício";        // ex.: "12 meses" ou "vitalício"
   const CONTATO_EMAIL = "cursomerp8020@gmail.com";
   /* ========================================================================= */
 
@@ -468,7 +472,7 @@
 
     if (PRECO.valor) {
       var n = String(PRECO.parcelas).trim().replace(/x$/i, ""); // aceita "12" ou "12x"
-      var parc = n ? "ou em até " + n + "x no cartão" : "";
+      var parc = n ? "ou em até " + n + "x no cartão (valor das parcelas no checkout)" : "";
       document.getElementById("preco-valor").textContent = PRECO.valor;
       document.getElementById("preco-parcelas").textContent = parc;
       document.getElementById("preco").hidden = false;
