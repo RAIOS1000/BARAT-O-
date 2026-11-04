@@ -493,7 +493,7 @@
 
     if (PRECO.valor) {
       var n = String(PRECO.parcelas).trim().replace(/x$/i, ""); // aceita "12" ou "12x"
-      var parc = n ? "ou em até " + n + "x no cartão (valor das parcelas no checkout)" : "";
+      var parc = n ? "à vista ou em " + n + "x no cartão (valor das parcelas no checkout)" : "";
       document.getElementById("preco-valor").textContent = PRECO.valor;
       document.getElementById("preco-parcelas").textContent = parc;
       document.getElementById("preco").hidden = false;
