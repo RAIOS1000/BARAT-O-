@@ -203,8 +203,8 @@
 </head>
 <body>
 
-<!-- PROMO ANTECIPA BLACK FRIDAY (até 06/11) - para remover, apague esta faixa e tire o comentário da linha abaixo -->
-<div class="topbar" style="background:#0b0b0f"><strong style="background:#f59e0b;color:#0b0b0f;padding:3px 10px;border-radius:999px;margin-right:8px;font-size:13px;letter-spacing:.5px">ANTECIPA BLACK FRIDAY</strong> Compre até <strong>06/11</strong> e ganhe de bônus o <strong style="color:#ffd37a">Caderno com 3.000 Questões Comentadas</strong></div>
+<!-- PROMO DE INAUGURAÇÃO (R$ 19,99 até 11/11/2026). Some sozinha depois do prazo (ver PROMO no script). -->
+<div class="topbar js-promo" style="background:#0b0b0f"><strong style="background:#f59e0b;color:#0b0b0f;padding:3px 10px;border-radius:999px;margin-right:8px;font-size:13px;letter-spacing:.5px">PROMOÇÃO DE INAUGURAÇÃO</strong> De <s style="opacity:.7">R$ 49,99</s> por <strong style="color:#ffd37a">R$ 19,99</strong> só até <strong>11/11</strong> · termina em <strong class="js-contagem" style="color:#ffd37a">—</strong></div>
 <!-- <div class="topbar">🎯 <strong>Preparatório específico TJ-GO</strong> — baseado no Edital nº 02/2021 (UFG / Instituto Verbena)</div> -->
 <!-- /PROMO -->
 
@@ -330,12 +330,12 @@
         <p>Pronto para seguir: você abre e já sabe o que estudar em cada semana.</p>
       </div>
     </div>
-    <!-- PROMO ANTECIPA BLACK FRIDAY (até 06/11) -->
+    <!-- BÔNUS DO MÊS (até 30/11) -->
     <div class="bonus" style="margin-top:14px">
-      <span class="tag">🎁 BÔNUS ATÉ 06/11</span>
+      <span class="tag">🎁 BÔNUS ATÉ 30/11</span>
       <div>
         <h3>Caderno com 3.000 Questões Comentadas</h3>
-        <p>2.176 questões de provas anteriores + 824 inéditas, todas comentadas. Só para compras até 06/11, às 23h59.</p>
+        <p>2.176 questões de provas anteriores + 824 inéditas, todas comentadas. Só para compras até 30/11, às 23h59.</p>
       </div>
     </div>
     <!-- /PROMO -->
@@ -374,6 +374,8 @@
         <li><span class="ck">✓</span><span>Entrega: 9 PDFs na área de membros da Kiwify</span></li>
       </ul>
       <div id="preco" hidden>
+        <div class="js-promo" style="margin-top:14px"><span style="display:inline-block;background:#f59e0b;color:#0b0b0f;font-weight:800;padding:4px 12px;border-radius:999px;font-size:13px;letter-spacing:.5px">PROMOÇÃO DE INAUGURAÇÃO · ATÉ 11/11</span></div>
+        <div class="js-promo" style="font-size:20px;opacity:.75;margin-top:8px">de <s>R$ 49,99</s> por</div>
         <div class="valor" id="preco-valor"></div>
         <div class="parcelas" id="preco-parcelas"></div>
       </div>
@@ -474,8 +476,11 @@
      CONFIGURAÇÃO — preencha entre as aspas. O que ficar vazio não aparece.
      ========================================================================= */
   const LINK_KIWIFY = "https://pay.kiwify.com.br/7dk3EDK";
+  // PROMO de inauguração: até o fim do prazo mostra R$ 19,99; depois volta ao preço cheio sozinho.
+  const PROMO = { fim: "2026-11-11T23:59:59-03:00", valor: "R$ 19,99", cheio: "R$ 49,99" };
+  const PROMO_ATIVA = Date.now() < new Date(PROMO.fim).getTime();
   const PRECO = {
-    valor: "R$ 49,99",               // ex.: "R$ 197,00"
+    valor: PROMO_ATIVA ? PROMO.valor : PROMO.cheio,
     parcelas: "2"                    // número máximo de parcelas, ex.: "12"
   };
   const ACESSO = "vitalício";        // ex.: "12 meses" ou "vitalício"
@@ -483,6 +488,18 @@
   /* ========================================================================= */
 
   (function () {
+    if (!PROMO_ATIVA) { document.querySelectorAll(".js-promo").forEach(function (e) { e.remove(); }); }
+    else {
+      var fimMs = new Date(PROMO.fim).getTime();
+      var tick = function () {
+        var s = Math.max(0, Math.floor((fimMs - Date.now()) / 1000));
+        var d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+        var txt = (d ? d + "d " : "") + h + "h " + (m < 10 ? "0" : "") + m + "min";
+        document.querySelectorAll(".js-contagem").forEach(function (e) { e.textContent = txt; });
+        if (s === 0) location.reload();
+      };
+      tick(); setInterval(tick, 30000);
+    }
     // Aceita o link colado com ou sem "https://"
     var link = String(LINK_KIWIFY).trim();
     if (link && !/^https?:\/\//i.test(link)) link = "https://" + link;
