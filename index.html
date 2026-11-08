@@ -64,6 +64,15 @@
   .btn-sub{display:block;font-size:12px;font-weight:500;opacity:.9;letter-spacing:.2px}
   .btn-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
   .btn-note{font-size:13px;color:var(--cinza-claro)}
+  /* Volume 1 grátis: só o e-mail */
+  .lead{display:flex;gap:10px;max-width:560px;margin:28px auto 0;flex-wrap:wrap;justify-content:center}
+  .lead input{flex:1 1 260px;min-width:0;font-size:17px;padding:16px 20px;border:2px solid var(--linha);border-radius:999px;font-family:inherit;color:var(--tinta);background:#fff}
+  .lead input:focus{outline:none;border-color:var(--verde)}
+  .lead .btn{flex:0 0 auto;padding:16px 30px}
+  .lead-msg{text-align:center;margin:12px auto 0;font-weight:600;min-height:1.2em}
+  .lead-msg.ok{color:var(--verde-escuro)} .lead-msg.erro{color:#b91c1c}
+  .lead-note{text-align:center;font-size:13px;color:var(--cinza-claro);max-width:60ch;margin:8px auto 0}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
   /* Hero */
   .hero{background:linear-gradient(160deg,var(--azul) 0%,var(--azul-escuro) 100%);color:#fff;padding:52px 0 60px;position:relative;overflow:hidden}
@@ -373,10 +382,13 @@
       <figure class="card previa"><img src="img/vol1-teoria.jpg" alt="Página de teoria com quadro e exemplos" loading="lazy"><figcaption>Teoria com quadro e exemplos: certo, errado e pegadinha</figcaption></figure>
       <figure class="card previa"><img src="img/vol1-questao.jpg" alt="Questão comentada" loading="lazy"><figcaption>Questão com o porquê de cada alternativa</figcaption></figure>
     </div>
-    <div class="btn-wrap" style="margin-top:28px">
-      <a class="btn" href="https://docs.google.com/forms/d/1AfMBZMSVrAOZ9VfbH44i_jNDFDjMMPCuOzqmB9Y0qzk/viewform" target="_blank" rel="noopener">Quero o Volume 1 grátis<span class="btn-sub">Informe nome e e-mail e baixe na hora</span></a>
-      <span class="btn-note">Material não oficial, sem vínculo com o TJ-GO. Seus dados ficam só com o Ed e não são repassados.</span>
-    </div>
+    <form class="lead" id="lead" novalidate>
+      <label for="lead-email" class="sr">Seu e-mail</label>
+      <input id="lead-email" type="email" inputmode="email" autocomplete="email" placeholder="Seu melhor e-mail" required>
+      <button class="btn" type="submit">Baixar grátis</button>
+    </form>
+    <p class="lead-msg" id="lead-msg" role="status" aria-live="polite"></p>
+    <p class="lead-note">Ao baixar, você aceita receber avisos do Ed sobre editais e materiais. Dá para sair quando quiser.<br>Material não oficial, sem vínculo com o TJ-GO. Seu e-mail fica só com o Ed e não é repassado.</p>
   </div>
 </section>
 
@@ -556,6 +568,28 @@
 
     document.getElementById("ano").textContent = new Date().getFullYear();
   })();
+</script>
+<script>
+(function(){
+  var f=document.getElementById('lead'); if(!f) return;
+  var FORM='https://docs.google.com/forms/d/e/1FAIpQLSchcMAV8E2IOzpucczTkOSPoFVIotQVc9UnEuihQN1Z5ABwMQ/formResponse';
+  var PDF='volume-1-gratis.pdf';
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var inp=document.getElementById('lead-email'), msg=document.getElementById('lead-msg');
+    var em=(inp.value||'').trim();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){msg.className='lead-msg erro';msg.textContent='Confira o e-mail, por favor.';inp.focus();return;}
+    var b=f.querySelector('button'); b.disabled=true; b.textContent='Enviando...';
+    var d=new URLSearchParams(); d.append('entry.352900362',em); d.append('entry.1101246898','Concordo');
+    var fim=function(){
+      msg.className='lead-msg ok';
+      msg.innerHTML='Pronto! Seu download começou. Se não abrir, <a href="'+PDF+'" download>clique aqui</a>.';
+      b.textContent='Baixar de novo'; b.disabled=false;
+      var a=document.createElement('a'); a.href=PDF; a.download='Volume-1-Aprovadao-TJGO-gratis.pdf'; document.body.appendChild(a); a.click(); a.remove();
+    };
+    fetch(FORM,{method:'POST',mode:'no-cors',body:d}).then(fim,fim);
+  });
+})();
 </script>
 </body>
 </html>
