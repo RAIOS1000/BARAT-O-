@@ -215,8 +215,8 @@
 </head>
 <body>
 
-<!-- PROMO DE INAUGURAÇÃO (R$ 19,99 até 11/11/2026). Some sozinha depois do prazo (ver PROMO no script). -->
-<div class="topbar js-promo" style="background:#0b0b0f"><strong style="background:#f59e0b;color:#0b0b0f;padding:3px 10px;border-radius:999px;margin-right:8px;font-size:13px;letter-spacing:.5px">PROMOÇÃO DE INAUGURAÇÃO</strong> De <s style="opacity:.7">R$ 49,99</s> por <strong style="color:#ffd37a">R$ 19,99</strong> só até <strong>11/11</strong> · termina em <strong class="js-contagem" style="color:#ffd37a">—</strong></div>
+<!-- PROMO: fase 1 = inauguração até 11/11 (com de/por); fase 2 = prorrogada até 30/11 (sem de/por), troca sozinha à meia-noite de 11 para 12/11 (ver PROMO no script). -->
+<div class="topbar js-promo" style="background:#0b0b0f"><span class="js-fase1"><strong style="background:#f59e0b;color:#0b0b0f;padding:3px 10px;border-radius:999px;margin-right:8px;font-size:13px;letter-spacing:.5px">PROMOÇÃO DE INAUGURAÇÃO</strong> De <s style="opacity:.7">R$ 49,99</s> por <strong style="color:#ffd37a">R$ 19,99</strong> só até <strong>11/11</strong></span><span class="js-fase2" hidden><strong style="background:#f59e0b;color:#0b0b0f;padding:3px 10px;border-radius:999px;margin-right:8px;font-size:13px;letter-spacing:.5px">PROMOÇÃO PRORROGADA</strong> <strong style="color:#ffd37a">R$ 19,99</strong> até <strong>30/11</strong>, com o bônus</span> · termina em <strong class="js-contagem" style="color:#ffd37a">—</strong></div>
 <!-- <div class="topbar">🎯 <strong>Preparatório específico TJ-GO</strong> — baseado no Edital nº 02/2021 (UFG / Instituto Verbena)</div> -->
 <!-- /PROMO -->
 
@@ -409,8 +409,8 @@
         <li><span class="ck">✓</span><span>Entrega: 9 PDFs na área de membros da Kiwify</span></li>
       </ul>
       <div id="preco" hidden>
-        <div class="js-promo" style="margin-top:14px"><span style="display:inline-block;background:#f59e0b;color:#0b0b0f;font-weight:800;padding:4px 12px;border-radius:999px;font-size:13px;letter-spacing:.5px">PROMOÇÃO DE INAUGURAÇÃO · ATÉ 11/11</span></div>
-        <div class="js-promo" style="font-size:20px;opacity:.75;margin-top:8px">de <s>R$ 49,99</s> por</div>
+        <div class="js-promo" style="margin-top:14px"><span style="display:inline-block;background:#f59e0b;color:#0b0b0f;font-weight:800;padding:4px 12px;border-radius:999px;font-size:13px;letter-spacing:.5px"><span class="js-fase1">PROMOÇÃO DE INAUGURAÇÃO · ATÉ 11/11</span><span class="js-fase2" hidden>PROMOÇÃO PRORROGADA · ATÉ 30/11</span></span></div>
+        <div class="js-promo js-fase1" style="font-size:20px;opacity:.75;margin-top:8px">de <s>R$ 49,99</s> por</div>
         <div class="valor" id="preco-valor"></div>
         <div class="parcelas" id="preco-parcelas"></div>
       </div>
@@ -511,9 +511,11 @@
      CONFIGURAÇÃO — preencha entre as aspas. O que ficar vazio não aparece.
      ========================================================================= */
   const LINK_KIWIFY = "https://pay.kiwify.com.br/7dk3EDK";
-  // PROMO de inauguração: até o fim do prazo mostra R$ 19,99; depois volta ao preço cheio sozinho.
-  const PROMO = { fim: "2026-11-11T23:59:59-03:00", valor: "R$ 19,99", cheio: "R$ 49,99" };
+  // PROMO: R$ 19,99 até o fim do prazo; depois volta ao preço cheio sozinho.
+  // Fase 1 (inauguração) até 11/11, 23h59; fase 2 (prorrogada, decisão de 08/11) até 30/11, 23h59.
+  const PROMO = { fase1: "2026-11-11T23:59:59-03:00", fim: "2026-11-30T23:59:59-03:00", valor: "R$ 19,99", cheio: "R$ 49,99" };
   const PROMO_ATIVA = Date.now() < new Date(PROMO.fim).getTime();
+  const PROMO_FASE2 = Date.now() >= new Date(PROMO.fase1).getTime();
   const PRECO = {
     valor: PROMO_ATIVA ? PROMO.valor : PROMO.cheio,
     parcelas: "2"                    // número máximo de parcelas, ex.: "12"
@@ -525,7 +527,9 @@
   (function () {
     if (!PROMO_ATIVA) { document.querySelectorAll(".js-promo").forEach(function (e) { e.remove(); }); }
     else {
-      var fimMs = new Date(PROMO.fim).getTime();
+      document.querySelectorAll(PROMO_FASE2 ? ".js-fase1" : ".js-fase2").forEach(function (e) { e.remove(); });
+      document.querySelectorAll(".js-fase2").forEach(function (e) { e.hidden = false; });
+      var fimMs = new Date(PROMO_FASE2 ? PROMO.fim : PROMO.fase1).getTime();
       var tick = function () {
         var s = Math.max(0, Math.floor((fimMs - Date.now()) / 1000));
         var d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
