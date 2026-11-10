@@ -227,6 +227,8 @@
 <script>
 (function(){
   var f=document.getElementById('lead'); if(!f) return;
+  // De qual rede a pessoa veio (o link curto edconcurseiro.netlify.app/<rede> manda ?utm_source=<rede>).
+  var REDE=(new URLSearchParams(location.search).get('utm_source')||'').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,20);
   // Mesma lista do Ed usada no Volume 1 grátis do TJ-GO; a origem vai no campo "Nome".
   var FORM='https://docs.google.com/forms/d/e/1FAIpQLSchcMAV8E2IOzpucczTkOSPoFVIotQVc9UnEuihQN1Z5ABwMQ/formResponse';
   var CURSOS={agente:{pdf:'amostra-agente-educativo.pdf',nome:'Amostra-gratis-Agente-Educativo-Aparecida-2026.pdf',origem:'AMOSTRA APARECIDA - Agente Educativo'},
@@ -242,7 +244,7 @@
     if(tel && (dig.length<10 || dig.length>13)){msg.className='lead-msg erro';msg.textContent='Confira o celular (com DDD) ou deixe em branco.';cel.focus();return;}
     var c=CURSOS[(f.querySelector('input[name=curso]:checked')||{}).value]||CURSOS.agente;
     var b=f.querySelector('button'); b.disabled=true; b.textContent='Enviando...';
-    var d=new URLSearchParams(); d.append('entry.352900362',em); d.append('entry.2146424814',c.origem);
+    var d=new URLSearchParams(); d.append('entry.352900362',em); d.append('entry.2146424814',c.origem+(REDE?' - '+REDE:''));
     if(tel) d.append('entry.1211684924',tel);
     d.append('entry.1101246898','Concordo');
     var fim=function(){
