@@ -58,7 +58,13 @@
   .btn{display:block;background:var(--laranja);color:#fff;font-weight:700;font-size:18px;padding:16px 20px;border-radius:999px;text-decoration:none;font-family:"Poppins",sans-serif;box-shadow:0 10px 24px rgba(232,118,43,.35)}
   .btn:hover{background:var(--laranja-escuro)}
   .band{background:#fff;border-top:1px solid var(--linha);border-bottom:1px solid var(--linha)}
-  .previas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-top:26px}
+  .amostras{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:22px}
+  .btn2{display:block;text-align:center;background:#fff;color:var(--azul);border:2px solid var(--azul);font-weight:700;font-size:17px;padding:14px 18px;border-radius:14px;text-decoration:none;font-family:"Poppins",sans-serif}
+  .btn2:hover{background:var(--azul);color:#fff}
+  .btn2 small{display:block;font-family:"Inter",sans-serif;font-weight:500;font-size:13.5px;opacity:.8;margin-top:2px}
+  h3.sub{font-size:19px;color:var(--azul);margin-top:34px}
+  .amostra-link{display:block;text-align:center;margin-top:12px;font-size:15px;font-weight:600;color:var(--azul)}
+  .previas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:14px}
   .previas figure{margin:0;text-align:center}
   .previas img{border:1px solid var(--linha);border-radius:10px;box-shadow:var(--sombra)}
   .previas figcaption{font-size:14px;color:var(--cinza);margin-top:10px}
@@ -68,7 +74,7 @@
   .faq p{color:var(--cinza);margin-top:10px}
   footer{background:var(--azul-escuro);color:#9fb0cf;padding:28px 0;font-size:13px}
   footer a{color:#fff}
-  @media (max-width:760px){.cursos,.previas{grid-template-columns:1fr}}
+  @media (max-width:760px){.cursos,.amostras{grid-template-columns:1fr}.previas{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -108,6 +114,7 @@
           <div class="por js-por">R$ 13,99</div>
           <div class="cond">à vista, ou em 2x no cartão (com acréscimo)</div>
           <a class="btn" href="https://pay.kiwify.com.br/5i1EC7d" rel="noopener">Quero o curso de Agente Educativo</a>
+          <a class="amostra-link" href="amostra-agente-educativo.pdf" target="_blank" rel="noopener">Ver a amostra grátis (PDF)</a>
         </div>
       </article>
 
@@ -129,6 +136,7 @@
           <div class="por js-por">R$ 13,99</div>
           <div class="cond">à vista, ou em 2x no cartão (com acréscimo)</div>
           <a class="btn" href="https://pay.kiwify.com.br/PFyJMXJ" rel="noopener">Quero o curso de Pedagogo PE-I</a>
+          <a class="amostra-link" href="amostra-pedagogo-pe-i.pdf" target="_blank" rel="noopener">Ver a amostra grátis (PDF)</a>
         </div>
       </article>
 
@@ -136,13 +144,27 @@
   </div>
 </section>
 
-<section class="band">
+<section class="band" id="amostra">
   <div class="container">
-    <h2 class="title">Veja por dentro</h2>
-    <p class="texto">Páginas reais do caderno de questões (Volume 2) de cada curso.</p>
+    <h2 class="title">Veja por dentro antes de comprar</h2>
+    <p class="texto">Baixe a amostra grátis: páginas reais, escolhidas para mostrar cada parte do curso. Tem teoria, mapa mental, questões, gabarito comentado e simulado. Não precisa de cadastro.</p>
+    <div class="amostras">
+      <a class="btn2" href="amostra-agente-educativo.pdf" target="_blank" rel="noopener">Baixar a amostra do Agente Educativo<small>PDF grátis · 21 páginas</small></a>
+      <a class="btn2" href="amostra-pedagogo-pe-i.pdf" target="_blank" rel="noopener">Baixar a amostra do Pedagogo PE-I<small>PDF grátis · 20 páginas</small></a>
+    </div>
+    <h3 class="sub">Agente Educativo</h3>
     <div class="previas">
-      <figure><img src="img/agente-por-dentro.jpg" width="700" height="990" alt="Página do caderno de questões do curso de Agente Educativo"><figcaption>Agente Educativo · Volume 2</figcaption></figure>
-      <figure><img src="img/pedagogo-por-dentro.jpg" width="700" height="990" alt="Página do caderno de questões do curso de Professor Pedagogo PE-I"><figcaption>Professor Pedagogo PE-I · Volume 2</figcaption></figure>
+      <figure><img loading="lazy" src="img/agente-amostra-1.jpg" width="700" height="990" alt="Mapa mental de crase e quadro esquemático do curso de Agente Educativo"><figcaption>Mapa mental e quadro esquemático</figcaption></figure>
+      <figure><img loading="lazy" src="img/agente-amostra-2.jpg" width="700" height="990" alt="Resumo de como a banca escreve as questões, em uma página"><figcaption>A banca em uma página</figcaption></figure>
+      <figure><img loading="lazy" src="img/agente-amostra-3.jpg" width="700" height="990" alt="Gabarito comentado das questões de fixação"><figcaption>Gabarito comentado</figcaption></figure>
+      <figure><img loading="lazy" src="img/agente-por-dentro.jpg" width="700" height="990" alt="Página do caderno de questões do curso de Agente Educativo"><figcaption>Caderno de questões (Volume 2)</figcaption></figure>
+    </div>
+    <h3 class="sub">Professor Pedagogo PE-I</h3>
+    <div class="previas">
+      <figure><img loading="lazy" src="img/pedagogo-amostra-1.jpg" width="700" height="990" alt="Critérios da redação e quantas redações serão corrigidas"><figcaption>A redação na prova, já com o edital de 09/11</figcaption></figure>
+      <figure><img loading="lazy" src="img/pedagogo-amostra-2.jpg" width="700" height="990" alt="Mapa mental da LDB e quadro esquemático"><figcaption>Mapa mental e quadro esquemático</figcaption></figure>
+      <figure><img loading="lazy" src="img/pedagogo-amostra-3.jpg" width="700" height="990" alt="Estrutura da redação em 30 linhas"><figcaption>A redação em 30 linhas</figcaption></figure>
+      <figure><img loading="lazy" src="img/pedagogo-por-dentro.jpg" width="700" height="990" alt="Página do caderno de questões do curso de Professor Pedagogo PE-I"><figcaption>Caderno de questões (Volume 2)</figcaption></figure>
     </div>
   </div>
 </section>
