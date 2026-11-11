@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teste das 10 Pegadinhas dos TRTs · Ed. Concurseiro</title>
+<meta name="description" content="10 afirmações de Certo ou Errado sobre CLT, Lei nº 8.112/1990 e Constituição de 1988. Veja em quantas pegadinhas você cai. Grátis, sem cadastro.">
+<meta property="og:title" content="Você cai em quantas pegadinhas dos TRTs?">
+<meta property="og:description" content="10 afirmações de Certo ou Errado, com a explicação e a lei de cada uma. Grátis, sem cadastro.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--marinho:#0b2545;--marinho2:#06162c;--dourado:#d4a017;--gelo:#f4f6f8;--tinta:#0f172a;--cinza:#475569;--linha:#e2e8f0;--verde:#1f7a4c;--verm:#c2413d}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Inter",system-ui,sans-serif;color:var(--tinta);background:var(--gelo);line-height:1.5}
+  h1,h2,.btn,.num{font-family:"Montserrat","Inter",sans-serif}
+  header{background:linear-gradient(160deg,var(--marinho),var(--marinho2));color:#fff;text-align:center;padding:34px 16px 28px}
+  header .tag{display:inline-block;background:var(--dourado);color:var(--marinho);font-weight:800;font-size:13px;letter-spacing:.06em;padding:6px 14px;border-radius:99px}
+  header h1{font-size:28px;margin-top:12px}
+  header h1 b{color:var(--dourado)}
+  header p{color:#c9d6ea;margin-top:8px;font-size:15.5px}
+  main{max-width:600px;margin:0 auto;padding:20px 16px 36px}
+  .card{background:#fff;border:1px solid var(--linha);border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+  .topo{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--cinza);margin-bottom:10px}
+  .barra{height:8px;background:var(--linha);border-radius:9px;overflow:hidden;margin-bottom:18px}
+  .barra i{display:block;height:100%;background:var(--dourado);width:0;transition:width .3s}
+  .afirm{font-size:18px;font-weight:600}
+  .botoes{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+  .btn{border:0;border-radius:12px;padding:15px;font-size:17px;font-weight:800;cursor:pointer;color:#fff}
+  .btn.c{background:var(--verde)} .btn.e{background:var(--verm)}
+  .btn:disabled{opacity:.45;cursor:default}
+  .resp{margin-top:16px;padding:14px;border-radius:12px;font-size:15.5px;display:none}
+  .resp.ok{background:#e8f5ee;border:1px solid #b7e0c8} .resp.no{background:#fbeceb;border:1px solid #f1c3c1}
+  .resp b.t{display:block;font-size:16px;margin-bottom:4px}
+  .resp small{display:block;color:var(--cinza);margin-top:6px}
+  .prox{display:none;width:100%;margin-top:14px;background:var(--marinho);color:#fff}
+  .fim{display:none;text-align:center}
+  .num{font-size:64px;font-weight:800;color:var(--marinho)}
+  .num b{color:var(--dourado)}
+  .fim h2{font-size:22px;margin:4px 0 10px}
+  .fim p{color:var(--cinza);margin-top:8px}
+  .oferta{margin-top:20px;border-top:6px solid var(--dourado)}
+  .oferta h2{font-size:20px;color:var(--marinho)}
+  .oferta ul{text-align:left;margin:12px 0 0 20px;color:var(--tinta)}
+  .oferta li{margin:4px 0}
+  .preco{font-family:"Montserrat",sans-serif;font-size:30px;font-weight:800;color:var(--marinho);margin-top:14px}
+  .preco small{display:block;font-family:"Inter",sans-serif;font-size:14px;font-weight:500;color:var(--cinza)}
+  .cupom{background:#fff7e0;border:1px dashed var(--dourado);border-radius:10px;padding:10px;margin-top:12px;font-size:15px}
+  a.cta{display:block;text-decoration:none;text-align:center;margin-top:14px;background:var(--dourado);color:var(--marinho);font-family:"Montserrat",sans-serif;font-weight:800;font-size:18px;padding:16px;border-radius:12px}
+  a.sec{display:block;text-decoration:none;text-align:center;margin-top:10px;color:var(--marinho);border:2px solid var(--marinho);font-weight:700;padding:12px;border-radius:12px}
+  .refazer{background:none;border:0;color:var(--cinza);text-decoration:underline;margin-top:14px;cursor:pointer;font-size:14px}
+  footer{max-width:600px;margin:0 auto;padding:0 16px 32px;color:var(--cinza);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <span class="tag">TESTE GRÁTIS · SEM CADASTRO</span>
+  <h1>Você cai em quantas <b>pegadinhas</b> dos TRTs?</h1>
+  <p>10 afirmações de Certo ou Errado sobre a CLT (Decreto-Lei nº 5.452/1943), a Lei nº 8.112/1990 e a Constituição Federal de 1988. Cada resposta vem com a explicação e o artigo da lei.</p>
+</header>
+<main>
+  <section class="card" id="quiz">
+    <div class="topo"><span id="pos">Afirmação 1 de 10</span><span id="placar">Acertos: 0</span></div>
+    <div class="barra"><i id="barra"></i></div>
+    <p class="afirm" id="afirm"></p>
+    <div class="botoes">
+      <button class="btn c" id="bc" onclick="responder('C')">CERTO</button>
+      <button class="btn e" id="be" onclick="responder('E')">ERRADO</button>
+    </div>
+    <div class="resp" id="resp"></div>
+    <button class="btn prox" id="prox" onclick="proxima()">Próxima →</button>
+  </section>
+
+  <section class="fim" id="fim">
+    <div class="card">
+      <div class="num"><b id="nota">0</b>/10</div>
+      <h2 id="titulo"></h2>
+      <p id="frase"></p>
+      <button class="refazer" onclick="recomecar()">Refazer o teste</button>
+    </div>
+    <div class="card oferta">
+      <h2>Coleção 5D dos TRTs</h2>
+      <p>Analista, Técnico e Oficial de Justiça Avaliador. Regra, pegadinha e explicação, em 20 temas.</p>
+      <ul>
+        <li><b>145 regras-chave</b>, cada uma com a base legal</li>
+        <li>A <b>pegadinha</b> de cada regra, explicada</li>
+        <li><b>Aplicativo</b> com questões de treino feitas a partir das regras</li>
+        <li><b>Flashcards e PDFs</b> para revisar</li>
+      </ul>
+      <div class="preco">R$ 297 à vista<small>ou 12x de R$ 30,72 no cartão (com juros)</small></div>
+      <p class="cupom">Cupom de lançamento <b>TRT33</b>: 33% de desconto até 18/11/2026, às 23h59. Com ele, R$ 198,99 à vista ou 12x de R$ 20,58 no cartão (com juros). O botão abaixo já aplica o cupom.</p>
+      <a class="cta" href="https://pay.kiwify.com.br/ZIOVCIg?utm_source=teste-pegadinhas&amp;utm_medium=site&amp;utm_campaign=lancamento-trts&amp;coupon=TRT33" rel="noopener">Quero a Coleção 5D</a>
+      <p style="font-size:13.5px;color:var(--cinza);margin-top:10px">Garantia de 7 dias pela Kiwify: não gostou, peça o reembolso.</p>
+      <a class="sec" href="https://edconcurseiro.netlify.app/canal" rel="noopener">Seguir o canal do Ed no WhatsApp (grátis)</a>
+    </div>
+  </section>
+</main>
+<footer>
+  Afirmações de treino criadas pelo Ed. Concurseiro, conferidas no texto da lei em 11/11/2026 (planalto.gov.br). Não são questões de provas anteriores.<br>
+  Material não oficial, sem vínculo com os TRTs ou com as bancas. Não garante aprovação.
+</footer>
+<script>
+const Q = [{"a": "Pela redação atual da CLT (Decreto-Lei nº 5.452/1943), o prazo do recurso ordinário é de 15 dias úteis, igual ao da apelação no Código de Processo Civil (Lei nº 13.105/2015).", "g": "E", "e": "Na CLT, o prazo do recurso ordinário é de 8 dias, contados em dias úteis. Os 15 dias são do CPC (Lei nº 13.105/2015, art. 1.003, § 5º).", "b": "CLT (Decreto-Lei nº 5.452/1943), art. 895, I, e art. 775"}, {"a": "Pela redação atual da CLT (Decreto-Lei nº 5.452/1943), no trabalho urbano é noturno o trabalho entre as 22h de um dia e as 5h do dia seguinte, e a hora noturna é contada como 52 minutos e 30 segundos.", "g": "C", "e": "É exatamente o que diz o art. 73 da CLT, que também garante adicional de pelo menos 20% sobre a hora diurna.", "b": "CLT (Decreto-Lei nº 5.452/1943), art. 73, caput e §§ 1º e 2º"}, {"a": "Pela redação atual da CLT (Decreto-Lei nº 5.452/1943), no rito ordinário cada parte pode indicar no máximo 2 testemunhas.", "g": "E", "e": "No rito ordinário são até 3 testemunhas por parte; no inquérito para apuração de falta grave, até 6. O limite de 2 é do rito sumaríssimo.", "b": "CLT (Decreto-Lei nº 5.452/1943), art. 821 e art. 852-H, § 2º"}, {"a": "Pela redação atual da CLT (Decreto-Lei nº 5.452/1943), o tempo de deslocamento de casa até o posto de trabalho em transporte fornecido pelo empregador é computado na jornada.", "g": "E", "e": "Desde a Reforma Trabalhista (Lei nº 13.467/2017), esse tempo não é computado na jornada, mesmo em transporte fornecido pelo empregador, porque não é tempo à disposição.", "b": "CLT (Decreto-Lei nº 5.452/1943), art. 58, § 2º, na redação da Lei nº 13.467/2017"}, {"a": "Pela redação atual da CLT (Decreto-Lei nº 5.452/1943), na execução de pagamento em dinheiro, o executado é citado para pagar ou garantir a execução em 48 horas, sob pena de penhora.", "g": "C", "e": "É o prazo do art. 880 da CLT. Não se confunde com os 15 dias do cumprimento de sentença do CPC (Lei nº 13.105/2015, art. 523).", "b": "CLT (Decreto-Lei nº 5.452/1943), art. 880"}, {"a": "Pela redação atual da CLT (Decreto-Lei nº 5.452/1943), quem encerra o contrato por acordo com o empregador (art. 484-A) tem direito ao seguro-desemprego.", "g": "E", "e": "O acordo do art. 484-A, incluído pela Lei nº 13.467/2017, paga metade do aviso prévio indenizado e da multa do FGTS e libera até 80% do FGTS, mas não dá direito ao seguro-desemprego.", "b": "CLT (Decreto-Lei nº 5.452/1943), art. 484-A, § 2º"}, {"a": "Pela redação atual da CLT (Decreto-Lei nº 5.452/1943), com a concordância do empregado, as férias podem ser divididas em até 3 períodos, um deles com pelo menos 14 dias corridos e os demais com pelo menos 5 dias corridos cada.", "g": "C", "e": "É a regra do art. 134, § 1º, da CLT, na redação da Lei nº 13.467/2017. E as férias não podem começar nos 2 dias antes de feriado ou do repouso semanal.", "b": "CLT (Decreto-Lei nº 5.452/1943), art. 134, §§ 1º e 3º"}, {"a": "Pela Lei nº 8.112/1990, a posse ocorre em até 30 dias da publicação do ato de provimento, e o servidor empossado tem 15 dias, contados da posse, para entrar em exercício.", "g": "C", "e": "Os dois prazos estão na Lei nº 8.112/1990. Perder o prazo da posse torna sem efeito o provimento; não entrar em exercício leva à exoneração.", "b": "Lei nº 8.112/1990, art. 13, §§ 1º e 6º, e art. 15, §§ 1º e 2º"}, {"a": "Pela Constituição Federal de 1988, o Conselho Nacional de Justiça tem 15 membros, com mandato de 2 anos, admitida 1 recondução.", "g": "C", "e": "É o texto do art. 103-B da Constituição, na redação da Emenda Constitucional nº 61/2009. O CNJ é presidido pelo Presidente do STF.", "b": "Constituição Federal de 1988, art. 103-B, caput e § 1º"}, {"a": "Pela redação atual da CLT (Decreto-Lei nº 5.452/1943), no regime de tempo parcial de até 30 horas semanais, o empregado pode fazer até 6 horas extras por semana.", "g": "E", "e": "No regime de até 30 horas não cabem horas suplementares. As até 6 horas extras semanais valem para o regime de até 26 horas (redação da Lei nº 13.467/2017).", "b": "CLT (Decreto-Lei nº 5.452/1943), art. 58-A"}];
+let i = 0, acertos = 0;
+const $ = id => document.getElementById(id);
+function mostrar(){
+  $("pos").textContent = "Afirmação " + (i + 1) + " de " + Q.length;
+  $("placar").textContent = "Acertos: " + acertos;
+  $("barra").style.width = (i / Q.length * 100) + "%";
+  $("afirm").textContent = Q[i].a;
+  $("resp").style.display = "none"; $("prox").style.display = "none";
+  $("bc").disabled = $("be").disabled = false;
+}
+function responder(r){
+  const q = Q[i], ok = r === q.g;
+  if (ok) acertos++;
+  $("bc").disabled = $("be").disabled = true;
+  const el = $("resp");
+  el.className = "resp " + (ok ? "ok" : "no");
+  el.innerHTML = "";
+  const t = document.createElement("b"); t.className = "t";
+  t.textContent = (ok ? "Acertou! " : "Caiu na pegadinha. ") + "Gabarito: " + (q.g === "C" ? "CERTO" : "ERRADO") + ".";
+  const p = document.createElement("span"); p.textContent = q.e;
+  const s = document.createElement("small"); s.textContent = "Base: " + q.b + ".";
+  el.append(t, p, s); el.style.display = "block";
+  $("placar").textContent = "Acertos: " + acertos;
+  $("prox").textContent = i + 1 < Q.length ? "Próxima →" : "Ver meu resultado";
+  $("prox").style.display = "block";
+}
+function proxima(){
+  i++;
+  if (i < Q.length) { mostrar(); return; }
+  $("quiz").style.display = "none"; $("fim").style.display = "block";
+  $("nota").textContent = acertos;
+  const caiu = Q.length - acertos;
+  $("titulo").textContent = caiu === 0 ? "Nenhuma pegadinha te pegou." : "Você caiu em " + caiu + (caiu === 1 ? " pegadinha." : " pegadinhas.");
+  $("frase").textContent = caiu === 0
+    ? "Bom sinal. Agora são outras 145 regras para manter afiadas até a prova."
+    : "Cada uma dessas é ponto perdido na prova. A Coleção 5D tem 145 regras, cada uma com a sua pegadinha.";
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+function recomecar(){ i = 0; acertos = 0; $("fim").style.display = "none"; $("quiz").style.display = "block"; mostrar(); }
+mostrar();
+</script>
+</body>
+</html>
