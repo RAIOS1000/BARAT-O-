@@ -50,6 +50,12 @@
     <a class="b vazio" href="../aparecida/">Ver a página dos cursos de Aparecida</a>
   </section>
   <section class="grupo tj">
+    <h2>Concursos dos TRTs</h2>
+    <p id="trts-texto">Coleção 5D dos TRTs: Analista, Técnico e Oficial de Justiça Avaliador. Cupom TRT33: 33% de desconto até 18/11/2026, às 23h59.</p>
+    <a class="b cheio" href="../trts/?utm_source=instagram&utm_medium=bio&utm_campaign=lancamento-trts">Teste grátis: 10 pegadinhas dos TRTs<small>Certo ou Errado, com a explicação e o artigo da lei</small></a>
+    <a class="b vazio" id="trts-compra" href="https://pay.kiwify.com.br/ZIOVCIg?utm_source=instagram&utm_medium=bio&utm_campaign=lancamento-trts&coupon=TRT33" rel="noopener">Ver a Coleção 5D dos TRTs<small>o link já aplica o cupom TRT33</small></a>
+  </section>
+  <section class="grupo tj">
     <h2>Canal do Ed no WhatsApp</h2>
     <p>Frase do dia às 08h, questões e avisos do concurso. É gratuito, e ninguém vê o seu número.</p>
     <a class="b cheio" href="https://edconcurseiro.netlify.app/canal" rel="noopener">Seguir o canal no WhatsApp</a>
@@ -63,12 +69,17 @@
 </main>
 <footer>
   <p>Instagram <a href="https://www.instagram.com/edoconcurseiro/" rel="noopener">@edoconcurseiro</a> · YouTube e TikTok @edconcurseiro</p>
-  <p style="margin-top:8px">Materiais não oficiais, sem vínculo com a Prefeitura de Aparecida de Goiânia, com o Instituto Verbena/UFG nem com o TJ-GO. Não garantem aprovação. Pagamento processado pela Kiwify.</p>
+  <p style="margin-top:8px">Materiais não oficiais, sem vínculo com a Prefeitura de Aparecida de Goiânia, com o Instituto Verbena/UFG, com o TJ-GO, com os TRTs nem com as bancas. Não garantem aprovação. Pagamento processado pela Kiwify.</p>
 </footer>
 <script>
   // Depois de 30/11/2026 a frase do preço de lançamento sai sozinha.
   if (new Date() >= new Date("2026-12-01T00:00:00-03:00")) {
     var p = document.querySelector(".ap p"); if (p) p.textContent = "Educação · Edital nº 01/2026.";
+  }
+  // Depois de 18/11/2026, 23h59, o cupom TRT33 some da página de links.
+  if (new Date() >= new Date("2026-11-19T00:00:00-03:00")) {
+    var t = document.getElementById("trts-texto"); if (t) t.textContent = "Coleção 5D dos TRTs: Analista, Técnico e Oficial de Justiça Avaliador.";
+    var k = document.getElementById("trts-compra"); if (k) { k.href = "https://pay.kiwify.com.br/ZIOVCIg?utm_source=instagram&utm_medium=bio&utm_campaign=trts"; k.querySelector("small").textContent = "R$ 297 à vista, ou 12x no cartão (com juros)"; }
   }
 </script>
 </body>
