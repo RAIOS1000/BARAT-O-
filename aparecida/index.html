@@ -34,6 +34,7 @@
   img{max-width:100%;height:auto;display:block}
   .container{width:100%;max-width:1080px;margin:0 auto;padding:0 16px}
   .topbar{background:var(--laranja);color:#fff;font-size:15px;text-align:center;padding:10px 16px;font-weight:600}
+  .datas{background:var(--azul-escuro);color:#fff;font-size:14.5px;text-align:center;padding:8px 16px;font-weight:600}
   .hero{background:linear-gradient(160deg,var(--azul) 0%,var(--azul-escuro) 100%);color:#fff;padding:48px 0 56px}
   .eyebrow{display:inline-block;background:rgba(255,255,255,.14);font-weight:600;font-size:13px;padding:7px 16px;border-radius:999px;margin-bottom:16px}
   .hero h1{font-size:clamp(28px,5.2vw,46px);font-weight:800;margin-bottom:10px}
@@ -95,6 +96,7 @@
 <body>
 
 <div class="topbar" id="promo">Preço de lançamento: R$ 13,99 cada curso até 30/11/2026; depois, R$ 39,99.</div>
+<div class="datas" id="datas"><span id="datas-insc">Inscrições até 09/12/2026, às 17h · </span>Prova em 31/01/2027 (Edital nº 01/2026)</div>
 
 <header class="hero">
   <div class="container">
@@ -216,6 +218,10 @@
 <script>
   // Depois de 30/11/2026 (horário de Brasília) a promoção sai da página sozinha.
   (function(){
+    // Depois das 17h de 09/12/2026 o prazo de inscrição sai sozinho; depois da prova, a faixa das datas some.
+    var agora = new Date();
+    if (agora >= new Date("2026-12-09T17:00:00-03:00")) { var di = document.getElementById("datas-insc"); if (di) di.hidden = true; }
+    if (agora >= new Date("2027-02-01T00:00:00-03:00")) { var dd = document.getElementById("datas"); if (dd) dd.hidden = true; }
     var fim = new Date("2026-12-01T00:00:00-03:00");
     if (new Date() >= fim) {
       var p = document.getElementById("promo"); if (p) p.hidden = true;
