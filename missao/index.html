@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Missão 1.000 — o primeiro curso é por conta do Ed</title>
+<meta name="description" content="De 23/11 a 20/12/2026, quem entra para a turma do Ed. Concurseiro escolhe 1 curso em PDF, sem pagar nada. Material não oficial.">
+<meta property="og:title" content="Missão 1.000 — o primeiro curso é por conta do Ed">
+<meta property="og:description" content="De 23/11 a 20/12/2026, quem entra para a turma escolhe 1 curso em PDF, sem pagar nada. Material não oficial.">
+<meta property="og:image" content="https://raios1000.github.io/BARAT-O-/aparecida/img/compartilhar.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--azul:#14325c;--azul-escuro:#0b1e3c;--laranja:#e8762b;--tinta:#0f172a;--cinza:#475569;--linha:#e2e8f0;--fundo:#f4f6f8;--verde:#17734a;--erro:#b3261e}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--tinta);background:var(--fundo);line-height:1.55}
+  h1,h2,h3{font-family:"Poppins","Inter",sans-serif;line-height:1.15}
+  header{background:linear-gradient(160deg,var(--azul),var(--azul-escuro));color:#fff;text-align:center;padding:34px 16px 30px}
+  header .selo{display:inline-block;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#ffd9bd;margin-bottom:8px}
+  header h1{font-size:30px}
+  header p{color:#dbe5f7;margin:10px auto 0;font-size:17px;max-width:30em}
+  header .prazo{display:inline-block;margin-top:14px;background:var(--laranja);color:#fff;font-weight:700;border-radius:999px;padding:6px 14px;font-size:14.5px}
+  main{max-width:600px;margin:0 auto;padding:22px 16px 36px;display:grid;gap:20px}
+  .cartao{background:#fff;border:1px solid var(--linha);border-radius:16px;padding:18px;display:grid;gap:12px;box-shadow:0 10px 30px rgba(15,23,42,.06)}
+  .cartao h2{font-size:20px;color:var(--azul)}
+  ol.passos{list-style:none;counter-reset:p;display:grid;gap:8px}
+  ol.passos li{counter-increment:p;display:grid;grid-template-columns:30px 1fr;gap:10px}
+  ol.passos li::before{content:counter(p);font-family:"Poppins",sans-serif;font-weight:800;color:var(--laranja);font-size:20px;line-height:1.2}
+  .para-todos{font-weight:600;color:var(--verde)}
+  form{display:grid;gap:14px}
+  label.rot,legend{font-weight:600;font-size:14.5px;color:var(--tinta);display:block;margin-bottom:4px}
+  input[type=text],input[type=email]{width:100%;font:inherit;padding:12px;border:1.5px solid #cbd5e1;border-radius:10px;background:#fff;color:var(--tinta)}
+  input:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--laranja);outline-offset:2px}
+  fieldset{border:0;display:grid;gap:8px}
+  .op{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;border:1.5px solid #cbd5e1;border-radius:10px;padding:11px 12px;cursor:pointer}
+  .op input{margin-top:3px;width:18px;height:18px;accent-color:var(--laranja)}
+  .op small{display:block;color:var(--cinza);font-size:13px}
+  .marca{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;font-size:14.5px}
+  .marca input{margin-top:3px;width:18px;height:18px;accent-color:var(--laranja)}
+  button.btn{font-family:"Poppins",sans-serif;font-weight:700;font-size:17px;background:var(--laranja);color:#fff;border:0;border-radius:12px;padding:15px 16px;cursor:pointer}
+  button.btn[disabled]{opacity:.6;cursor:default}
+  .msg{font-size:15px;min-height:1.2em}
+  .msg.erro{color:var(--erro);font-weight:600}
+  .pronto{display:grid;gap:12px}
+  .pronto h2{color:var(--verde)}
+  .redes{display:grid;gap:8px}
+  .redes a{display:block;text-align:center;text-decoration:none;font-weight:700;color:var(--azul);border:2px solid var(--azul);border-radius:12px;padding:12px}
+  .convite{background:var(--fundo);border-radius:10px;padding:12px;font-size:14.5px;white-space:pre-line;overflow-wrap:anywhere}
+  details summary{cursor:pointer;font-family:"Poppins",sans-serif;font-weight:700;color:var(--azul);font-size:17px}
+  ol.regras{margin:12px 0 0 20px;display:grid;gap:8px;font-size:14.5px;color:#1e293b}
+  ol.regras li{overflow-wrap:anywhere}
+  footer{max-width:600px;margin:0 auto;padding:0 16px 32px;color:var(--cinza);font-size:12.5px;text-align:center}
+  footer a{color:var(--azul);font-weight:600}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <span class="selo">Missão 1.000 · Ed. Concurseiro</span>
+  <h1>O primeiro curso é por conta do Ed</h1>
+  <p>Quem entra para a turma escolhe 1 curso em PDF, sem pagar nada.</p>
+  <span class="prazo">De 23/11 a 20/12/2026</span>
+</header>
+<main>
+  <section class="cartao">
+    <h2>Como funciona</h2>
+    <ol class="passos">
+      <li><span>Escolha 1 curso e preencha a ficha abaixo.</span></li>
+      <li><span>O acesso chega no seu e-mail em até 5 dias úteis.</span></li>
+      <li><span>Trouxe 3 colegas que também se cadastraram? Você escolhe um segundo curso.</span></li>
+    </ol>
+    <p class="para-todos">É para todo mundo que se cadastrar no prazo. Sem limite de vagas.</p>
+  </section>
+
+  <section class="cartao" id="ficha-cartao">
+    <h2>Ficha da turma</h2>
+    <p id="fora-do-prazo" hidden></p>
+    <form id="ficha" novalidate>
+      <div><label class="rot" for="f-nome">Como você quer ser chamado?</label><input id="f-nome" type="text" autocomplete="given-name" maxlength="60" required></div>
+      <div><label class="rot" for="f-email">Seu e-mail (o acesso chega nele)</label><input id="f-email" type="email" inputmode="email" autocomplete="email" placeholder="nome@exemplo.com" required></div>
+      <div><label class="rot" for="f-email2">Repita o e-mail</label><input id="f-email2" type="email" inputmode="email" autocomplete="off" required></div>
+      <fieldset>
+        <legend>Qual curso você escolhe?</legend>
+        <label class="op"><input type="radio" name="curso" value="Agente Educativo"><span>Agente Educativo<small>Aparecida de Goiânia 2026 · 3 volumes</small></span></label>
+        <label class="op"><input type="radio" name="curso" value="Pedagogo PE-I"><span>Professor Pedagogo PE-I<small>Aparecida de Goiânia 2026 · 2 volumes</small></span></label>
+        <label class="op"><input type="radio" name="curso" value="Aprovadao TJ-GO"><span>Aprovadão TJ-GO<small>Analista Judiciário · Apoio Judiciário e Administrativo</small></span></label>
+        <label class="op"><input type="radio" name="curso" value="TRTs"><span>Coleção 5D dos TRTs<small>Analista, Técnico e Oficial de Justiça Avaliador</small></span></label>
+      </fieldset>
+      <div><label class="rot" for="f-convidou">Quem te convidou? E-mail da pessoa (opcional)</label><input id="f-convidou" type="email" inputmode="email" autocomplete="off"></div>
+      <label class="marca"><input id="f-avisos" type="checkbox"><span>Quero receber por e-mail os avisos da turma. Dá para sair quando quiser.</span></label>
+      <label class="marca"><input id="f-aceite" type="checkbox" required><span>Tenho 18 anos ou mais e li as regras desta página.</span></label>
+      <button class="btn" type="submit">Entrar para a turma</button>
+      <p class="msg" id="f-msg" role="status" aria-live="polite"></p>
+    </form>
+    <div class="pronto" id="pronto" hidden>
+      <h2>Pronto! Você está na turma.</h2>
+      <p>Seu acesso chega por e-mail em até 5 dias úteis. Olhe também a caixa de spam.</p>
+      <p>Enquanto isso, entre na sala. A questão do dia sai lá, às 12h:</p>
+      <div class="redes">
+        <a href="https://www.instagram.com/edoconcurseiro/" rel="noopener">Instagram @edoconcurseiro</a>
+        <a href="https://www.youtube.com/@edconcurseiro" rel="noopener">YouTube @edconcurseiro</a>
+        <a href="https://www.tiktok.com/@edconcurseiro" rel="noopener">TikTok @edconcurseiro</a>
+        <a href="https://edconcurseiro.netlify.app/canal" rel="noopener">Canal do Ed no WhatsApp</a>
+      </div>
+      <p><b>Quer um segundo curso?</b> Mande este texto para 3 colegas de estudo:</p>
+      <div class="convite" id="convite"></div>
+    </div>
+  </section>
+
+  <section class="cartao">
+    <details>
+      <summary>Regras da Missão 1.000</summary>
+      <ol class="regras">
+        <li><b>O que é.</b> Ação de boas-vindas da turma do Ed. Concurseiro. Não é sorteio, concurso nem vale-brinde: não há sorte, competição entre participantes nem limite de quantidade.</li>
+        <li><b>Prazo.</b> Das 08h00 de 23/11/2026 às 23h59 de 20/12/2026, horário de Brasília.</li>
+        <li><b>Quem pode participar.</b> Pessoa maior de 18 anos, com e-mail válido. Quem já comprou um curso do Ed também pode.</li>
+        <li><b>Como receber.</b> Preencher a ficha desta página dentro do prazo e escolher 1 curso. Vale um curso por pessoa.</li>
+        <li><b>O que você recebe.</b> Acesso ao curso escolhido, em PDF, na área de membros. O acesso chega por e-mail em até 5 dias úteis depois do cadastro. Se a área de membros falhar, o material é enviado por link ao e-mail cadastrado, no mesmo prazo.</li>
+        <li><b>Traga 3 colegas.</b> Quem indicar 3 pessoas que também se cadastrem no prazo, e que informem na ficha o e-mail de quem indicou, pode escolher um segundo curso, uma única vez, entregue no prazo da regra 5, contado do terceiro cadastro. Vale para todos os que cumprirem a condição. Não há ranking nem prêmio por indicar mais de 3. Ao indicar, você concorda que o seu e-mail seja informado na ficha por quem você convidou.</li>
+        <li><b>Seguir é convite.</b> Nada do que é entregue depende de seguir, curtir, comentar, compartilhar ou se inscrever em qualquer rede social.</li>
+        <li><b>Sem custo.</b> Não é preciso comprar nada nem informar dado de pagamento.</li>
+        <li><b>Seus dados (Lei nº 13.709/2018).</b> Quem cuida dos seus dados é o responsável indicado na regra 14. A ficha recolhe: nome e e-mail, para entregar o curso; o curso escolhido; a rede por onde você chegou, para medir a campanha; e, se você informar, o e-mail de quem convidou, para contar as indicações. Os avisos da turma só vão para quem marcar que quer receber, e dá para sair a qualquer momento. Os dados são compartilhados só com o Google (formulário e planilha) e com a Kiwify (área de membros), para operar a entrega; essas empresas podem guardá-los fora do Brasil. Ficam guardados enquanto durar o seu acesso ao curso; os dos avisos, até você pedir para sair. Você pode pedir a confirmação, o acesso, a correção e a exclusão dos seus dados, e retirar o consentimento dos avisos, pelo contato da regra 14.</li>
+        <li><b>Material.</b> Não oficial, sem vínculo com órgãos públicos ou bancas. Não garante aprovação.</li>
+        <li><b>Redes sociais.</b> Esta ação não é patrocinada, endossada nem administrada pelo Instagram, pelo TikTok ou pelo YouTube, nem tem associação com eles. Quem participa isenta essas plataformas de qualquer responsabilidade. Valem as regras de cada rede, inclusive as <a href="https://support.google.com/youtube/answer/9288567?hl=pt-BR" rel="noopener">Diretrizes da Comunidade do YouTube</a>; participação que as contrarie é desconsiderada.</li>
+        <li><b>Fraude.</b> Cadastro repetido, e-mail falso ou uso de robôs tira o direito ao curso.</li>
+        <li><b>Prazo final.</b> A data de encerramento não será antecipada nem prorrogada.</li>
+        <li><b>Responsável e contato.</b> Ed. Concurseiro · edconcurseiro2026@gmail.com · resposta em até 5 dias.</li>
+      </ol>
+    </details>
+  </section>
+</main>
+<footer>
+  <p>Material não oficial, sem vínculo com a Prefeitura de Aparecida de Goiânia, com o TJ-GO, com os TRTs nem com as bancas. Não garante aprovação.</p>
+  <p><a href="../links/">Ver todos os cursos do Ed</a></p>
+</footer>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search);
+  var REDE=(q.get('utm_source')||'').toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,20)||'direto';
+  var TESTE=q.get('teste')==='1';
+  // Prazo em horário de Brasília (UTC-3): 23/11/2026 08h00 a 20/12/2026 23h59.
+  var INICIO=Date.UTC(2026,10,23,11,0,0), FIM=Date.UTC(2026,11,21,2,59,59);
+  // Mesma lista do Ed (formulário do Google já usado no site); os dados da ficha vão no campo "Nome".
+  var FORM='https://docs.google.com/forms/d/e/1FAIpQLSchcMAV8E2IOzpucczTkOSPoFVIotQVc9UnEuihQN1Z5ABwMQ/formResponse';
+  var f=document.getElementById('ficha'), aviso=document.getElementById('fora-do-prazo'), agora=Date.now();
+  if(!TESTE && agora<INICIO){f.hidden=true;aviso.hidden=false;aviso.textContent='A ficha abre na segunda-feira, 23/11/2026, às 08h00.';}
+  if(!TESTE && agora>FIM){f.hidden=true;aviso.hidden=false;aviso.textContent='A Missão 1.000 terminou em 20/12/2026. Obrigado a quem entrou para a turma!';}
+  var ok=function(e){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);};
+  f.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var msg=document.getElementById('f-msg'), erro=function(t,el){msg.className='msg erro';msg.textContent=t;if(el)el.focus();};
+    var nome=document.getElementById('f-nome'), em=document.getElementById('f-email'), em2=document.getElementById('f-email2');
+    var conv=document.getElementById('f-convidou'), curso=f.querySelector('input[name=curso]:checked');
+    var n=(nome.value||'').trim().replace(/\|/g,' '), e=(em.value||'').trim().toLowerCase(), e2=(em2.value||'').trim().toLowerCase(), c=(conv.value||'').trim().toLowerCase();
+    if(n.length<2) return erro('Diga como você quer ser chamado.',nome);
+    if(!ok(e)) return erro('Confira o e-mail, por favor.',em);
+    if(e!==e2) return erro('Os dois e-mails estão diferentes.',em2);
+    if(!curso) return erro('Escolha 1 curso.');
+    if(c && !ok(c)) return erro('Confira o e-mail de quem te convidou ou deixe em branco.',conv);
+    if(c && c===e) return erro('O e-mail de quem convidou tem de ser de outra pessoa.',conv);
+    if(!document.getElementById('f-aceite').checked) return erro('Marque que tem 18 anos ou mais e que leu as regras.');
+    var b=f.querySelector('button'); b.disabled=true; b.textContent='Enviando...'; msg.className='msg'; msg.textContent='';
+    var linha=['MISSAO1000',curso.value,REDE,n,'convidou:'+(c||'-'),'avisos:'+(document.getElementById('f-avisos').checked?'sim':'nao')].join(' | ');
+    var d=new URLSearchParams(); d.append('entry.352900362',e); d.append('entry.2146424814',linha); d.append('entry.1101246898','Concordo');
+    var fim=function(){
+      f.hidden=true; document.getElementById('pronto').hidden=false;
+      document.getElementById('convite').textContent='Entrei na turma do Ed. Concurseiro e escolhi um curso em PDF sem pagar nada (material não oficial). Vai até 20/12 e você escolhe o seu: https://edconcurseiro.netlify.app/1000\nNa ficha, em "quem te convidou", põe o meu e-mail: '+e;
+      document.getElementById('pronto').scrollIntoView({behavior:'smooth',block:'start'});
+    };
+    if(TESTE){fim();return;}
+    fetch(FORM,{method:'POST',mode:'no-cors',body:d}).then(fim,function(){b.disabled=false;b.textContent='Entrar para a turma';erro('Não consegui enviar. Confira a internet e tente de novo.');});
+  });
+})();
+</script>
+</body>
+</html>
