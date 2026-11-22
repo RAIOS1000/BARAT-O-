@@ -45,7 +45,7 @@
 <main>
   <section class="grupo ap">
     <h2>Concurso de Aparecida de Goiânia 2026</h2>
-    <p>Educação · Edital nº 01/2026 · Preço de lançamento: R$ 13,99 cada curso até 30/11/2026; depois, R$ 39,99.</p>
+    <p>Educação · Edital nº 01/2026 · R$ 9,90 cada curso até 30/11/2026; depois, R$ 39,99.</p>
     <a class="b cheio" href="https://pay.kiwify.com.br/5i1EC7d?utm_source=instagram&utm_medium=bio&utm_campaign=aparecida" rel="noopener">Curso de Agente Educativo<small>3 volumes · 2.097 questões · 5 simulados</small></a>
     <a class="b cheio" href="https://pay.kiwify.com.br/PFyJMXJ?utm_source=instagram&utm_medium=bio&utm_campaign=aparecida" rel="noopener">Curso de Professor Pedagogo PE-I<small>2 volumes · 1.176 questões · 33 propostas de redação</small></a>
     <a class="b vazio" href="../aparecida/#amostra">Baixar a amostra grátis<small>páginas reais dos dois cursos: é só informar o e-mail</small></a>
@@ -77,7 +77,7 @@
   </section>
   <section class="grupo tj">
     <h2>Aprovadão TJ-GO</h2>
-    <p>Preparatório em PDF para Analista Judiciário, área de Apoio Judiciário e Administrativo.</p>
+    <p>Preparatório em PDF para Analista Judiciário, área de Apoio Judiciário e Administrativo.<span id="tj-preco"> R$ 9,90 até 30/11/2026.</span></p>
     <a class="b cheio" href="../">Ver o Aprovadão TJ-GO</a>
     <a class="b vazio" href="../#gratis">Baixar grátis o Volume 1</a>
   </section>
@@ -87,6 +87,7 @@
   <p style="margin-top:8px">Materiais não oficiais, sem vínculo com a Prefeitura de Aparecida de Goiânia, com o Instituto Verbena/UFG, com o TJ-GO, com os TRTs nem com as bancas. Não garantem aprovação. Pagamento processado pela Kiwify.</p>
 </footer>
 <script>
+  if (new Date() >= new Date("2026-12-01T00:00:00-03:00")) { var tp = document.getElementById("tj-preco"); if (tp) tp.remove(); }
   // Depois de 30/11/2026 a frase do preço de lançamento sai sozinha.
   if (new Date() >= new Date("2026-12-01T00:00:00-03:00")) {
     var p = document.querySelector(".ap p"); if (p) p.textContent = "Educação · Edital nº 01/2026.";
@@ -94,7 +95,7 @@
   // Depois de 18/11/2026, 23h59, o cupom TRT33 some da página de links.
   if (new Date() >= new Date("2026-11-19T00:00:00-03:00")) {
     var t = document.getElementById("trts-texto"); if (t) t.textContent = "Coleção 5D dos TRTs: Analista, Técnico e Oficial de Justiça Avaliador.";
-    var k = document.getElementById("trts-compra"); if (k) { k.href = "https://pay.kiwify.com.br/ZIOVCIg?utm_source=instagram&utm_medium=bio&utm_campaign=trts"; k.querySelector("small").textContent = "R$ 297 à vista, ou 12x no cartão (com juros)"; }
+    var k = document.getElementById("trts-compra"); if (k) { k.href = "https://pay.kiwify.com.br/ZIOVCIg?utm_source=instagram&utm_medium=bio&utm_campaign=trts"; k.querySelector("small").textContent = (new Date() < new Date("2026-12-01T00:00:00-03:00")) ? "R$ 9,90 à vista até 30/11/2026" : "pagamento pela Kiwify"; }
   }
 </script>
 </body>
