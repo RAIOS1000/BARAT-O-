@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="canonical" href="https://raios1000.github.io/BARAT-O-/radar/">
+<link rel="icon" type="image/png" href="icone.png">
+<meta name="theme-color" content="#0b2545">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Radar do Ed: concurso aberto, conferido na fonte oficial">
+<meta property="og:description" content="Concursos com inscrição aberta, conferidos na fonte oficial, com o link oficial e a data da conferência em cada linha.">
+<meta property="og:url" content="https://raios1000.github.io/BARAT-O-/radar/">
+<meta property="og:image" content="https://raios1000.github.io/BARAT-O-/radar/capa.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Radar do Ed</title>
+<meta name="description" content="Concursos com inscrição aberta, conferidos na fonte oficial, com o link oficial e a data da conferência em cada linha.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+
+:root{
+  --fundo:#f4f6f8; --papel:#ffffff; --tinta:#0f172a; --cinza:#475569; --linha:#e2e8f0;
+  --titulo:#0b2545; --link:#14325c; --marinho:#0b2545; --azul:#14325c;
+  --laranja:#e8762b; --laranja-texto:#b4530f; --dourado:#d4a017;
+  --verde:#1b6e45; --verde-fundo:#e6f4ec; --alerta:#b42318; --alerta-fundo:#fdecea;
+  --ambar:#8a5a00; --ambar-fundo:#fff3d9; --sobre:#f4f6f8; --sobre2:#cdd9f2; --sombra:0 1px 2px rgba(11,37,69,.06),0 6px 18px rgba(11,37,69,.07);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --fundo:#08111f; --papel:#101e35; --tinta:#e8eef8; --cinza:#a3b3ca; --linha:#243857;
+  --titulo:#f1f5fb; --link:#9cc0ff; --laranja-texto:#ffa868;
+  --verde:#63d59c; --verde-fundo:#11301f; --alerta:#ff9384; --alerta-fundo:#3a1612;
+  --ambar:#ffd27a; --ambar-fundo:#33270d; --sombra:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35); color-scheme:dark } }
+:root[data-theme="dark"]{
+  --fundo:#08111f; --papel:#101e35; --tinta:#e8eef8; --cinza:#a3b3ca; --linha:#243857;
+  --titulo:#f1f5fb; --link:#9cc0ff; --laranja-texto:#ffa868;
+  --verde:#63d59c; --verde-fundo:#11301f; --alerta:#ff9384; --alerta-fundo:#3a1612;
+  --ambar:#ffd27a; --ambar-fundo:#33270d; --sombra:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35); color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--fundo);color:var(--tinta);font:16px/1.55 "Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2,h3{font-family:"Poppins","Inter",sans-serif;color:var(--titulo);text-wrap:balance;margin:0}
+a{color:var(--link)}
+.w{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.topo{background:var(--marinho);color:var(--sobre)}
+.topo .w{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-block:10px}
+.marca{display:flex;align-items:center;gap:8px;font:800 17px "Poppins",sans-serif;color:var(--sobre);margin-right:auto}
+.marca svg{width:34px;height:38px}
+.topo nav{display:flex;gap:4px;flex-wrap:wrap}
+.topo nav a{color:var(--sobre2);text-decoration:none;font-size:14px;font-weight:600;padding:6px 9px;border-radius:8px}
+.topo nav a:hover{background:rgba(255,255,255,.1);color:#fff}
+.hero{background:linear-gradient(160deg,#0b2545 0%,#14325c 70%,#1b4179 100%);color:var(--sobre)}
+.hero .w{display:grid;gap:24px;padding-block:36px 40px;align-items:center}
+.olho{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--dourado);text-transform:uppercase;margin:0 0 10px}
+.hero h1{color:#fff;font-size:clamp(30px,6.4vw,50px);line-height:1.08;font-weight:800}
+.hero h1 em{font-style:normal;color:#ffb27a;box-shadow:inset 0 -.14em 0 rgba(232,118,43,.55)}
+.hero p.sub{font-size:17px;color:var(--sobre2);max-width:36em;margin:16px 0 22px}
+.botoes{display:flex;gap:10px;flex-wrap:wrap}
+.b{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:10px 18px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;border:2px solid transparent;cursor:pointer;font-family:inherit}
+.b.cheio{background:var(--laranja);color:#1a0d02}
+.b.cheio:hover{filter:brightness(1.07)}
+.b.vazio{border-color:rgba(255,255,255,.45);color:#fff;background:transparent}
+.placar{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.placar div{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 14px;min-width:104px}
+.placar b{display:block;font:800 26px/1 "Poppins",sans-serif;color:#fff;font-variant-numeric:tabular-nums}
+.placar span{font-size:12.5px;color:var(--sobre2)}
+.ed{display:flex;align-items:flex-end;gap:12px;justify-content:center}
+.ed svg{width:min(48vw,230px);height:auto;flex:none}
+.balao{background:#fff;color:#0b2545;border-radius:16px 16px 16px 4px;padding:12px 14px;font-weight:600;font-size:15px;max-width:15em;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.balao small{display:block;font-weight:500;color:#475569;margin-top:4px}
+@media (min-width:820px){ .hero .w{grid-template-columns:1.25fr .75fr} .ed{flex-direction:column;align-items:center} .balao{border-radius:16px 16px 4px 16px} }
+section{padding-block:34px}
+section>.w>h2{font-size:clamp(22px,4.4vw,30px);font-weight:800;margin-bottom:6px}
+.lead{color:var(--cinza);margin:0 0 18px;max-width:44em}
+.faixa{overflow-x:auto;padding-bottom:6px;margin-inline:-4px}
+.fila{display:flex;gap:12px;padding-inline:4px;width:max-content}
+.mini{width:238px;background:var(--papel);border:1px solid var(--linha);border-top:5px solid var(--laranja);border-radius:14px;padding:12px 14px;box-shadow:var(--sombra)}
+.mini.hoje{border-top-color:var(--alerta)}
+.mini b{display:block;font:700 15px/1.25 "Poppins",sans-serif;color:var(--titulo);margin:6px 0 4px}
+.mini span{font-size:13px;color:var(--cinza)}
+.pilula{display:inline-block;font-size:12.5px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--linha);color:var(--tinta);white-space:nowrap}
+.p-hoje{background:var(--alerta-fundo);color:var(--alerta)}
+.p-semana{background:var(--ambar-fundo);color:var(--ambar)}
+.p-aberto{background:var(--verde-fundo);color:var(--verde)}
+.p-breve{background:var(--linha);color:var(--link)}
+.filtros{background:var(--papel);border:1px solid var(--linha);border-radius:16px;padding:14px;box-shadow:var(--sombra);margin-bottom:16px}
+.grupo{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0}
+.grupo>span{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza);width:100%;margin-top:6px}
+.chip{font:600 14px "Inter",sans-serif;padding:7px 12px;border-radius:999px;border:1.5px solid var(--linha);background:transparent;color:var(--tinta);cursor:pointer;min-height:36px}
+.chip[aria-pressed="true"]{background:var(--titulo);color:var(--fundo);border-color:var(--titulo)}
+.conta{font-weight:700;color:var(--titulo);margin:12px 0 0}
+.conta small{font-weight:500;color:var(--cinza)}
+.grade{display:grid;gap:14px}
+@media (min-width:780px){ .grade{grid-template-columns:1fr 1fr} }
+.c{background:var(--papel);border:1px solid var(--linha);border-left:6px solid var(--azul);border-radius:16px;padding:16px;box-shadow:var(--sombra);min-width:0;display:flex;flex-direction:column;gap:10px}
+.c-hoje{border-left-color:var(--alerta)} .c-semana{border-left-color:var(--laranja)} .c-aberto{border-left-color:var(--verde)} .c-breve{border-left-color:var(--dourado)}
+.c-topo{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.uf{font:800 12px "Poppins",sans-serif;letter-spacing:.06em;background:var(--titulo);color:var(--fundo);padding:3px 8px;border-radius:6px}
+.c h3{font-size:19px;line-height:1.22;font-weight:700}
+.cargo{margin:0;color:var(--cinza);font-size:14.5px}
+.fatos{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin:2px 0}
+.fatos div{min-width:0}
+.fatos dt{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cinza)}
+.fatos dd{margin:0;font-size:14.5px;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.fatos .largo{grid-column:1/-1}
+.trilho{position:relative;height:8px;border-radius:99px;background:var(--linha)}
+.cheio-b{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--laranja)}
+.marco{position:absolute;top:-4px;width:3px;height:16px;border-radius:2px;background:var(--titulo);transform:translateX(-1px)}
+.pontas{display:flex;justify-content:space-between;font-size:12.5px;color:var(--cinza);margin-top:5px;font-variant-numeric:tabular-nums}
+.pontas b{color:var(--tinta)}
+.nota{margin:0;font-size:13.5px;background:var(--fundo);border-radius:10px;padding:8px 10px;color:var(--tinta)}
+.busca{width:100%;min-height:46px;border-radius:12px;border:1.5px solid var(--linha);background:var(--fundo);color:var(--tinta);padding:0 12px;font:16px "Inter",sans-serif;margin-bottom:6px}
+.uteis{display:flex;gap:8px;flex-wrap:wrap}
+.uteis a{flex:1 1 140px;min-height:40px;display:flex;align-items:center;justify-content:center;text-align:center;border:1.5px solid var(--linha);border-radius:11px;font:600 13.5px "Inter",sans-serif;color:var(--tinta);text-decoration:none;padding:6px 10px}
+.fonte{margin:0;font-size:12.5px;color:var(--cinza)}
+.selo-linha{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between;border-top:1px dashed var(--linha);padding-top:10px}
+.selo{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--verde);background:var(--verde-fundo);border:1.5px dashed currentColor;border-radius:8px;padding:4px 9px;transform:rotate(-1.2deg)}
+.selo.parcial{color:var(--ambar);background:var(--ambar-fundo)}
+.oficial{font-weight:700;font-size:14px;white-space:nowrap}
+.acao{margin-top:auto}
+.acao a,.acao button{width:100%;min-height:44px;border-radius:11px;font:700 14.5px "Inter",sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px 12px;text-decoration:none;cursor:pointer}
+.acao a{background:var(--titulo);color:var(--fundo);border:0}
+.acao a+a{margin-top:6px}
+.acao button{background:transparent;border:1.5px solid var(--linha);color:var(--tinta)}
+.acao button[aria-pressed="true"]{background:var(--verde-fundo);border-color:var(--verde);color:var(--verde)}
+.vazio-msg{background:var(--papel);border:1px dashed var(--linha);border-radius:14px;padding:18px;color:var(--cinza)}
+.caixa{background:var(--papel);border:1px solid var(--linha);border-radius:16px;padding:16px;box-shadow:var(--sombra)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tags span{font-size:13px;border:1px dashed var(--cinza);color:var(--cinza);border-radius:999px;padding:3px 10px}
+.passos{display:grid;gap:12px;counter-reset:p}
+@media (min-width:780px){ .passos{grid-template-columns:repeat(4,1fr)} }
+.passos li{list-style:none;background:var(--papel);border:1px solid var(--linha);border-radius:14px;padding:14px;counter-increment:p;box-shadow:var(--sombra)}
+.passos li::before{content:counter(p);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--laranja);color:#1a0d02;font:800 15px "Poppins",sans-serif;margin-bottom:8px}
+.passos b{display:block;color:var(--titulo);font-family:"Poppins",sans-serif}
+.passos span{font-size:14px;color:var(--cinza)}
+.escuro{background:var(--marinho);color:var(--sobre)}
+.escuro h2{color:#fff}.escuro .lead{color:var(--sobre2)}
+.prat{display:grid;gap:12px}
+@media (min-width:640px){ .prat{grid-template-columns:1fr 1fr} }
+@media (min-width:980px){ .prat.q4{grid-template-columns:repeat(4,1fr)} .prat.q3{grid-template-columns:repeat(3,1fr)} }
+.item{background:var(--papel);border:1px solid var(--linha);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0;box-shadow:var(--sombra)}
+.item h3{font-size:16px;line-height:1.25}
+.item p{margin:0;font-size:14px;color:var(--cinza)}
+.item .preco{font-weight:800;color:var(--laranja-texto);font-size:15px}
+.item a{margin-top:auto;font-weight:700;font-size:14.5px}
+.rot{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--laranja-texto)}
+.subt{font:700 17px "Poppins",sans-serif;color:var(--titulo);margin:22px 0 10px}
+.publi{background:var(--ambar-fundo);color:var(--ambar);border-radius:12px;padding:10px 12px;font-size:13.5px;font-weight:600;margin-bottom:14px}
+form{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+input[type=email]{flex:1 1 220px;min-height:46px;border-radius:12px;border:1.5px solid var(--linha);background:var(--papel);color:var(--tinta);padding:0 12px;font:16px "Inter",sans-serif;min-width:0}
+.aviso-form{font-size:13.5px;color:var(--cinza);margin:8px 0 0}
+.mimo{margin:14px 0 0;font-size:14.5px;color:var(--sobre2);max-width:34em}
+.mimo b{color:#fff;box-shadow:inset 0 -.14em 0 rgba(232,118,43,.6)}
+.vant{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+.vant li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.vant li::before{content:"✓";flex:none;width:22px;height:22px;border-radius:50%;background:var(--verde-fundo);color:var(--verde);font-weight:800;display:grid;place-items:center;font-size:13px}
+.cupom{display:flex;align-items:stretch;border-radius:14px;overflow:hidden;border:2px dashed var(--laranja);background:var(--ambar-fundo);margin:14px 0 4px;max-width:460px}
+.cupom .lado{background:var(--laranja);color:#1a0d02;font:800 13px "Poppins",sans-serif;letter-spacing:.14em;writing-mode:vertical-rl;transform:rotate(180deg);padding:10px 8px;text-align:center}
+.cupom .miolo{padding:12px 14px;min-width:0}
+.cupom .miolo b{display:block;font:800 18px/1.2 "Poppins",sans-serif;color:var(--titulo);margin-bottom:4px}
+.cupom .miolo span{font-size:13.5px;color:var(--tinta)}
+.item a.tag-cupom{margin-top:0;align-self:flex-start;font-size:12px;font-weight:700;color:var(--ambar);background:var(--ambar-fundo);border:1px dashed currentColor;border-radius:999px;padding:2px 9px;text-decoration:none}
+details{background:var(--papel);border:1px solid var(--linha);border-radius:14px;padding:12px 14px}
+summary{font-weight:700;color:var(--titulo);cursor:pointer}
+details ul{margin:10px 0 0;padding-left:20px;font-size:14.5px;color:var(--tinta)}
+footer{background:var(--marinho);color:var(--sobre2);font-size:13.5px}
+footer .w{padding-block:22px}
+footer p{margin:0 0 6px}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="ed-caneca" viewBox="0 0 300 330">
+    <rect x="40" y="286" width="220" height="34" rx="6" fill="#163A6B"/><rect x="40" y="286" width="220" height="8" rx="4" fill="#D4A017"/>
+    <text x="150" y="311" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-size="16" font-weight="800" fill="#F4F6F8">ED, O CONCURSEIRO</text>
+    <ellipse cx="128" cy="286" rx="18" ry="8" fill="#0B2545"/><ellipse cx="176" cy="286" rx="18" ry="8" fill="#0B2545"/>
+    <path d="M218 150 Q262 150 262 190 Q262 230 218 230" fill="none" stroke="#0B2545" stroke-width="16" stroke-linecap="round"/>
+    <path d="M218 150 Q262 150 262 190 Q262 230 218 230" fill="none" stroke="#3A5C92" stroke-width="2" stroke-linecap="round"/>
+    <rect x="84" y="110" width="136" height="172" rx="22" fill="#0B2545" stroke="#3A5C92" stroke-width="2"/><rect x="84" y="236" width="136" height="16" fill="#D4A017"/>
+    <text x="152" y="249" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-size="12" font-weight="800" fill="#0B2545">ED</text>
+    <ellipse cx="152" cy="110" rx="68" ry="16" fill="#163A6B" stroke="#3A5C92" stroke-width="2"/>
+    <rect x="176" y="58" width="10" height="64" rx="5" fill="#D4A017" transform="rotate(18 181 90)"/><ellipse cx="152" cy="110" rx="56" ry="10" fill="#4A2C17"/>
+    <path d="M122 92 Q116 78 122 64 Q128 50 122 36" fill="none" stroke="#8FA3BF" stroke-width="4" stroke-linecap="round"/><path d="M148 88 Q142 74 148 60 Q154 46 148 32" fill="none" stroke="#8FA3BF" stroke-width="4" stroke-linecap="round"/>
+    <ellipse cx="104" cy="200" rx="12" ry="7" fill="#F09A8A" opacity=".6"/><ellipse cx="200" cy="200" rx="12" ry="7" fill="#F09A8A" opacity=".6"/>
+    <ellipse cx="126" cy="176" rx="21" ry="19" fill="#FFF"/><ellipse cx="178" cy="174" rx="21" ry="20" fill="#FFF"/>
+    <circle cx="129" cy="179" r="10" fill="#6B4423"/><circle cx="181" cy="177" r="10" fill="#6B4423"/><circle cx="129" cy="179" r="5.5" fill="#1B1B1B"/><circle cx="181" cy="177" r="5.5" fill="#1B1B1B"/><circle cx="133" cy="173" r="3.2" fill="#FFF"/><circle cx="185" cy="171" r="3.2" fill="#FFF"/>
+    <path d="M105 172 Q126 162 147 172 L147 154 L105 154 Z" fill="#0B2545"/><path d="M105 172 Q126 162 147 172" fill="none" stroke="#F4F6F8" stroke-width="2.5" stroke-linecap="round"/><path d="M157 160 Q178 152 199 160" fill="none" stroke="#F4F6F8" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M104 146 Q126 140 148 146" fill="none" stroke="#F4F6F8" stroke-width="5" stroke-linecap="round"/><path d="M156 138 Q180 120 202 132" fill="none" stroke="#F4F6F8" stroke-width="5" stroke-linecap="round"/>
+    <path d="M120 214 Q154 250 188 206 Z" fill="#7A3B2E"/><path d="M123 214 Q154 216 185 207 L185 215 Q154 228 123 222 Z" fill="#FFF"/><path d="M120 214 L188 206" fill="none" stroke="#F4F6F8" stroke-width="3" stroke-linecap="round"/>
+    <path d="M86 188 Q50 176 56 142" fill="none" stroke="#0B2545" stroke-width="12" stroke-linecap="round"/><path d="M86 188 Q50 176 56 142" fill="none" stroke="#3A5C92" stroke-width="2" stroke-linecap="round"/><circle cx="56" cy="138" r="13" fill="#0B2545" stroke="#3A5C92" stroke-width="2"/>
+    <path d="M38 128 L30 118 M34 142 L22 140 M46 116 L42 104" fill="none" stroke="#8FA3BF" stroke-width="3" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+
+<header class="topo"><div class="w">
+  <span class="marca"><svg aria-hidden="true" viewBox="0 0 300 330"><use href="#ed-caneca"/></svg>Ed, o Concurseiro</span>
+  <nav aria-label="Seções">
+    <a href="#semana">Fecha esta semana</a><a href="#radar">Radar</a><a href="#metodo">Como confere</a><a href="#estudar">Estudar</a><a href="#inscritos">Inscritos</a><a href="https://edconcurseiro.netlify.app/canal" target="_blank" rel="noopener">Canal no WhatsApp ↗</a>
+  </nav>
+</div></header>
+
+<main>
+<div class="hero"><div class="w">
+  <div>
+    <p class="olho">Radar de concursos do Ed</p>
+    <h1>Concurso aberto de verdade, <em>conferido na fonte oficial</em>.</h1>
+    <p class="sub">Cada linha traz o link oficial e o dia em que o Ed conferiu. Prazo vencido sai da lista sozinho. Boato fica de fora.</p>
+    <div class="botoes">
+      <a class="b cheio" href="#radar">Ver o que está aberto</a>
+      <a class="b vazio" href="#inscritos">Ser Inscrito do Ed</a>
+    </div>
+    <p class="mimo">Inscrito do Ed recebe o <b>resumo do Radar</b> por e-mail.</p>
+    <div class="placar" aria-live="polite">
+      <div><b id="n-abertos">0</b><span>com inscrição aberta</span></div>
+      <div><b id="n-semana">0</b><span>fecham em 7 dias</span></div>
+      <div><b id="n-breve">0</b><span>abrem em breve</span></div>
+    </div>
+  </div>
+  <div class="ed">
+    <svg role="img" viewBox="0 0 300 330" aria-label="Ed, a caneca concurseira, acenando em cima de uma apostila"><use href="#ed-caneca"/></svg>
+    <div class="balao">Li a fonte oficial para você não ter de adivinhar.<small>Toda semana eu confiro de novo. Se a banca mudar a data, a linha muda.</small></div>
+  </div>
+</div></div>
+
+<section id="semana"><div class="w">
+  <h2>Fecha esta semana</h2>
+  <p class="lead">Os prazos que acabam nos próximos 7 dias, do mais apertado para o mais folgado.</p>
+  <div class="faixa"><div class="fila" id="fila-semana"></div></div>
+</div></section>
+
+<section id="radar" style="padding-top:8px"><div class="w">
+  <h2>Meu Radar</h2>
+  <p class="lead">Escolha onde, a escolaridade e a área. A lista mostra só o que serve para você.</p>
+  <p class="nota" style="margin:0 0 12px"><b>O edital é o que vale.</b> Confira na página oficial antes de se inscrever. O Ed não tem vínculo com bancas nem com órgãos públicos.</p>
+  <div class="filtros">
+    <input type="search" id="busca" class="busca" placeholder="Buscar órgão, cargo, banca ou estado" aria-label="Buscar no Radar" autocomplete="off">
+    <div class="grupo" data-filtro="onde"><span>Onde</span>
+      <button class="chip" data-v="todos" aria-pressed="true">Todos</button><button class="chip" data-v="go" aria-pressed="false">Goiás</button><button class="chip" data-v="fora" aria-pressed="false">Outros estados e federais</button></div>
+    <div class="grupo" data-filtro="nivel"><span>Escolaridade (até)</span>
+      <button class="chip" data-v="todos" aria-pressed="true">Todas</button><button class="chip" data-v="f" aria-pressed="false">Fundamental</button><button class="chip" data-v="m" aria-pressed="false">Médio</button><button class="chip" data-v="s" aria-pressed="false">Superior</button></div>
+    <div class="grupo" data-filtro="area"><span>Área</span>
+      <button class="chip" data-v="todos" aria-pressed="true">Todas</button><button class="chip" data-v="tribunais" aria-pressed="false">Tribunais e jurídico</button><button class="chip" data-v="educacao" aria-pressed="false">Educação</button><button class="chip" data-v="prefeituras" aria-pressed="false">Prefeituras</button><button class="chip" data-v="federais" aria-pressed="false">Federais</button></div>
+    <p class="conta" id="conta"></p>
+  </div>
+  <div class="grade" id="grade"></div>
+</div></section>
+
+
+<section id="metodo" style="padding-top:8px"><div class="w">
+  <h2>Como o Ed confere</h2>
+  <p class="lead">A regra da casa é uma só: confiança é tudo.</p>
+  <ol class="passos" style="padding:0;margin:0">
+    <li><b>Fonte oficial ou nada</b><span>Banca, diário oficial ou site do órgão. Notícia serve para descobrir, nunca para publicar.</span></li>
+    <li><b>Conferência independente</b><span>Antes de publicar, um segundo leitor confere os dados na fonte, sem ver o que o primeiro anotou. Quando o edital em PDF ainda não foi lido, o selo amarelo diz isso.</span></li>
+    <li><b>Carimbo com data</b><span>Cada linha mostra o dia da conferência e o link oficial, para você conferir também.</span></li>
+    <li><b>Reconferência</b><span>Toda semana. Se passar de 7 dias sem nova conferência, o selo da linha avisa: "a reconferir".</span></li>
+  </ol>
+  <p class="lead" style="margin-top:14px">Achou um erro? Escreva para <b style="user-select:all">edconcurseiro2026@gmail.com</b>. A correção aparece aqui embaixo, com a data.</p>
+  <div class="caixa" id="erramos" style="margin-top:12px"><h3 style="font-size:18px">Erramos</h3><p class="lead" style="margin:6px 0 0">Nenhuma correção até agora. Quando houver, fica registrada aqui: o que estava errado, o que é o certo e o dia.</p></div>
+</div></section>
+
+<section id="estudar" class="escuro"><div class="w">
+  <h2>Estudar</h2>
+  <p class="lead">Material para o edital que você escolheu: os cursos do Ed, o que é grátis e, mais adiante, autores parceiros.</p>
+  <p class="subt" style="color:#fff;margin-top:6px">Cursos do Ed em PDF</p>
+  <p class="lead" style="margin-top:-4px">Compra pela Kiwify. Você tem 7 dias para desistir e receber o dinheiro de volta (Código de Defesa do Consumidor, art. 49).</p>
+  <div class="prat q4">
+    <div class="item"><span class="rot">Aparecida de Goiânia</span><h3>Agente Educativo</h3><p>3 volumes · 2.097 questões · 5 simulados</p><span class="preco" data-preco></span><a href="https://pay.kiwify.com.br/5i1EC7d?utm_source=site&amp;utm_medium=radar&amp;utm_campaign=aparecida" target="_blank" rel="noopener">Ver o curso ↗</a></div>
+    <div class="item"><span class="rot">Aparecida de Goiânia</span><h3>Professor Pedagogo PE-I</h3><p>2 volumes · 1.176 questões · 33 propostas de redação</p><span class="preco" data-preco></span><a href="https://pay.kiwify.com.br/PFyJMXJ?utm_source=site&amp;utm_medium=radar&amp;utm_campaign=aparecida" target="_blank" rel="noopener">Ver o curso ↗</a></div>
+    <div class="item"><span class="rot">TRTs</span><h3>Coleção 5D dos TRTs</h3><p>Analista, Técnico e Oficial de Justiça Avaliador</p><span class="preco" data-preco></span><a href="https://pay.kiwify.com.br/ZIOVCIg?utm_source=site&amp;utm_medium=radar&amp;utm_campaign=trts" target="_blank" rel="noopener">Ver o curso ↗</a></div>
+    <div class="item"><span class="rot">TJ-GO</span><h3>Aprovadão TJ-GO</h3><p>Analista Judiciário, área de Apoio Judiciário e Administrativo</p><span class="preco" data-preco></span><a href="https://pay.kiwify.com.br/7dk3EDK?utm_source=site&amp;utm_medium=radar&amp;utm_campaign=tjgo" target="_blank" rel="noopener">Ver o curso ↗</a></div>
+  </div>
+  <p class="subt" style="color:#fff">Grátis</p>
+  <div class="prat q4">
+    <div class="item"><h3>Volume 1 do Aprovadão</h3><p>Edição gratuita, para conhecer o material antes de decidir.</p><a href="https://raios1000.github.io/BARAT-O-/#gratis" target="_blank" rel="noopener">Baixar ↗</a></div>
+    <div class="item"><h3>Amostra de Aparecida</h3><p>Páginas reais dos dois cursos.</p><a href="https://edconcurseiro.netlify.app/amostra" target="_blank" rel="noopener">Baixar ↗</a></div>
+    <div class="item"><h3>10 pegadinhas dos TRTs</h3><p>Certo ou errado, com a explicação e o artigo da lei.</p><a href="https://raios1000.github.io/BARAT-O-/trts/" target="_blank" rel="noopener">Fazer o teste ↗</a></div>
+    <div class="item"><h3>Canal do Ed no WhatsApp</h3><p>Frase do dia às 08h, questões e avisos. Ninguém vê o seu número.</p><a href="https://edconcurseiro.netlify.app/canal" target="_blank" rel="noopener">Seguir o canal ↗</a></div>
+  </div>
+  <p class="subt" style="color:#fff">Em breve</p>
+  <div class="prat">
+    <div class="item"><span class="rot">Em breve</span><h3>Autores parceiros</h3><p>Material de outros autores para os editais que o Ed não cobre. Sempre com o aviso: é link de afiliado e o Ed recebe comissão.</p></div>
+  </div>
+</div></section>
+
+
+<section id="inscritos" style="padding-top:8px"><div class="w">
+  <div class="caixa">
+    <h2 style="font-size:24px">Seja Inscrito do Ed</h2>
+    <p class="lead" style="margin:6px 0 0">É grátis e leva um minuto. Quem se inscreve recebe:</p>
+    <ul class="vant">
+      <li><span><b>Resumo do Radar por e-mail:</b> os concursos que entraram e os prazos que mudaram, no máximo uma vez por semana.</span></li>
+      
+      <li><span><b>Pedido de material:</b> responda o e-mail dizendo qual concurso você quer, e o mais pedido entra na fila do Ed.</span></li>
+    </ul>
+    
+        <p class="aviso-form">Ao clicar em "Quero ser inscrito", você aceita receber do Ed, por e-mail, avisos de editais e de materiais, inclusive ofertas dos cursos do Ed. Para sair, responda qualquer e-mail com a palavra "sair".</p>
+        <form id="form-email"><input type="email" placeholder="seu e-mail" aria-label="Seu e-mail" required><button class="b cheio" type="submit">Quero ser inscrito</button></form>
+    <p class="aviso-form" id="form-msg">Só o e-mail. Ele não é vendido nem repassado.</p>
+    <p class="aviso-form">Prefere só acompanhar? <a href="https://edconcurseiro.netlify.app/canal" target="_blank" rel="noopener">Siga o canal do Ed no WhatsApp ↗</a></p>
+  </div>
+</div></section>
+
+
+<section id="sobre" style="padding-top:0"><div class="w">
+  <details>
+    <summary>Quem faz, privacidade e correções</summary>
+    <ul>
+      <li><b>Quem faz:</b> o Radar é do Ed, o Concurseiro, projeto independente de material de estudo para concursos. Contato: <span style="user-select:all">edconcurseiro2026@gmail.com</span>.</li>
+      <li><b>O que o Radar não é:</b> não é site de banca nem de órgão público, e não recebe inscrição. A inscrição é feita só na página oficial.</li>
+      <li><b>Lista em construção:</b> o Radar mostra só os concursos que o Ed já conferiu. Não é a lista de todos os concursos abertos.</li>
+      <li><b>Seu e-mail:</b> quem se inscreve informa só o e-mail, guardado numa lista do Ed para mandar o resumo do Radar e avisos de materiais do Ed. Não é vendido nem repassado. Para sair ou apagar o seu e-mail, escreva para o contato acima.</li>
+      <li><b>Visitas:</b> a página conta visitas com o GoatCounter, sem cookie e sem identificar quem visita. As letras da página são carregadas do Google Fonts.</li>
+      <li><b>Correções:</b> erro apontado é conferido na fonte oficial e corrigido; a correção fica registrada em "Erramos", com a data.</li>
+    </ul>
+  </details>
+</div></section>
+</main>
+
+<footer><div class="w">
+  <p><b style="color:#fff">Materiais não oficiais</b>, sem vínculo com bancas ou órgãos públicos. Não garantem aprovação.</p>
+  <p>O Ed se mantém com a venda dos cursos próprios.</p>
+  <p>Instagram @edoconcurseiro · YouTube e TikTok @edconcurseiro</p>
+  <p>Contato: <span style="user-select:all">edconcurseiro2026@gmail.com</span></p>
+</div></footer>
+
+<script type="application/json" id="dados">
+[
+ {
+  "id": "aparecida",
+  "orgao": "Prefeitura de Aparecida de Goiânia (Educação)",
+  "uf": "GO",
+  "onde": "go",
+  "area": "educacao",
+  "niveis": [
+   "m",
+   "s"
+  ],
+  "cargo": "Agente Educativo, Auxiliar de Secretaria e Profissional da Educação I (PE-I) em 9 áreas",
+  "vagas": "2.956 + 3.903 de cadastro de reserva",
+  "rem": "R$ 2.825,11 a R$ 4.508,28 (vencimento)",
+  "taxa": "R$ 130,00 (médio e técnico) e R$ 150,00 (superior)",
+  "banca": "Instituto Verbena/UFG",
+  "ini": "2026-11-09",
+  "fim": "2026-12-09",
+  "fimHora": "até 17h",
+  "prova": "31/01/2027",
+  "link": "https://sistemas.institutoverbena.ufg.br/2026/concurso-prefeitura-aparecida-de-goiania-educacao/",
+  "conf": "2026-11-23",
+  "fonte": "Edital de Abertura nº 01/2026, consolidado pelo Edital Complementar nº 01/2026",
+  "nota": "Último dia para pagar a taxa: 09/12/2026.",
+  "cursos": [
+   {
+    "nome": "Curso do Ed: Agente Educativo",
+    "url": "https://pay.kiwify.com.br/5i1EC7d?utm_source=site&utm_medium=radar&utm_campaign=aparecida"
+   },
+   {
+    "nome": "Curso do Ed: Pedagogo PE-I",
+    "url": "https://pay.kiwify.com.br/PFyJMXJ?utm_source=site&utm_medium=radar&utm_campaign=aparecida"
+   }
+  ]
+ },
+ {
+  "id": "slmb",
+  "orgao": "Prefeitura de São Luís de Montes Belos",
+  "uf": "GO",
+  "onde": "go",
+  "area": "prefeituras",
+  "niveis": [
+   "f",
+   "m",
+   "s"
+  ],
+  "cargo": "17 cargos, do ensino fundamental ao superior",
+  "vagas": "138 + 690 de cadastro de reserva",
+  "rem": "R$ 1.557,05 a R$ 5.559,33 (vencimento)",
+  "taxa": "R$ 100,00 (fundamental), R$ 130,00 (médio) e R$ 150,00 (superior)",
+  "banca": "Instituto Verbena/UFG",
+  "ini": "2026-11-24",
+  "fim": "2026-12-18",
+  "fimHora": "até 17h",
+  "prova": "24/01/2027",
+  "link": "https://sistemas.institutoverbena.ufg.br/2026/concurso-prefeitura-sao-luis-dos-montes-belos/",
+  "conf": "2026-11-23",
+  "fonte": "Edital de Abertura nº 01/2026 consolidado e Comunicado nº 01/2026",
+  "nota": "Inscrições reabertas pelo Comunicado nº 01/2026. Último dia para pagar a taxa: 18/12/2026. Quem já tinha se inscrito deve ler o comunicado na página da banca."
+ },
+ {
+  "id": "ifg",
+  "orgao": "IFG: Técnicos Administrativos em Educação",
+  "uf": "GO",
+  "onde": "go",
+  "area": "federais",
+  "niveis": [
+   "m",
+   "s"
+  ],
+  "cargo": "Assistente em Administração, técnicos e cargos de nível superior (Edital nº 001/2026)",
+  "vagas": "36 (3 de nível C, 25 de nível D e 8 de nível E)",
+  "rem": "R$ 2.607,70 a R$ 5.215,39 (vencimento básico inicial)",
+  "taxa": "R$ 140,00 (C), R$ 160,00 (D) e R$ 180,00 (E)",
+  "banca": "Instituto AOCP",
+  "ini": "2026-11-24",
+  "fim": "2026-12-23",
+  "fimHora": "até 23h59",
+  "prova": "14/02/2027 (objetiva)",
+  "link": "https://www.ifg.edu.br/ultimas-noticias-campus-goiania/48578-concurso-tae-ifg-2026",
+  "conf": "2026-11-23",
+  "parcial": true,
+  "fonte": "Página oficial do IFG (atualizada em 19/11/2026); o edital em PDF ainda não foi lido",
+  "nota": "Inscrição no site do Instituto AOCP (institutoaocp.org.br). Taxa paga até 24/12/2026."
+ },
+ {
+  "id": "trt4",
+  "orgao": "TRT da 4ª Região (RS)",
+  "uf": "RS",
+  "onde": "fora",
+  "area": "tribunais",
+  "niveis": [
+   "s"
+  ],
+  "cargo": "Analista Judiciário (18 áreas e especialidades) e Técnico Judiciário (5)",
+  "vagas": "Cadastro de reserva",
+  "rem": "R$ 9.776,71 (Técnico) e R$ 16.040,88 (Analista), remuneração inicial",
+  "taxa": "R$ 90,00 (Técnico) e R$ 110,00 (Analista)",
+  "banca": "Fundação Carlos Chagas (FCC)",
+  "ini": "2026-10-26",
+  "fim": "2026-11-25",
+  "fimHora": "até 23h59",
+  "prova": "31/01/2027, em Porto Alegre/RS",
+  "link": "https://www.concursosfcc.com.br/concursos/trt4r125/index.html",
+  "conf": "2026-11-23",
+  "fonte": "Edital nº 01/2026 de Abertura de Inscrições e página da FCC (atualizada em 18/11/2026)",
+  "nota": "Último dia para pagar a taxa: 26/11/2026. Os dois cargos exigem ensino superior completo."
+ },
+ {
+  "id": "ibge",
+  "orgao": "IBGE: Recenseador do 12º Censo Agropecuário, Florestal e Aquícola",
+  "uf": "Brasil",
+  "onde": "fora",
+  "area": "federais",
+  "niveis": [
+   "f"
+  ],
+  "cargo": "Recenseador",
+  "vagas": "27.279",
+  "rem": "R$ 1.741,00 (remuneração inicial)",
+  "taxa": "R$ 70,00",
+  "banca": "Fundação Cesgranrio",
+  "ini": "2026-11-06",
+  "fim": "2026-11-25",
+  "prova": "31/01/2027 (objetivas)",
+  "link": "https://www.cesgranrio.org.br/concurso/ibge-2026/",
+  "conf": "2026-11-23",
+  "parcial": true,
+  "fonte": "Página oficial da Fundação Cesgranrio; o edital em PDF ainda não foi lido",
+  "nota": "A página da banca não informa a hora-limite: confira no edital."
+ },
+ {
+  "id": "tjsc",
+  "orgao": "TJ de Santa Catarina: Juiz Substituto",
+  "uf": "SC",
+  "onde": "fora",
+  "area": "tribunais",
+  "niveis": [
+   "s"
+  ],
+  "cargo": "Juiz Substituto",
+  "vagas": "15 + cadastro de reserva",
+  "rem": "R$ 34.083,15 (subsídio)",
+  "taxa": "R$ 340,00",
+  "banca": "FGV",
+  "ini": "2026-10-19",
+  "fim": "2026-11-26",
+  "fimHora": "até 16h",
+  "prova": "31/01/2027 (objetiva seletiva, data prevista)",
+  "link": "https://conhecimento.fgv.br/concursos/tjscjuiz26",
+  "conf": "2026-11-23",
+  "fonte": "Edital nº 33/2026 de abertura, retificado em 19/10/2026",
+  "nota": "Último dia para pagar a taxa: 27/11/2026. A inscrição exige aprovação no Exame Nacional da Magistratura (ENAM); o cargo exige bacharelado em Direito e 3 anos de atividade jurídica."
+ },
+ {
+  "id": "dpdf",
+  "orgao": "Defensoria Pública do Distrito Federal",
+  "uf": "DF",
+  "onde": "fora",
+  "area": "tribunais",
+  "niveis": [
+   "s"
+  ],
+  "cargo": "Analista de Apoio à Assistência Judiciária: Direito e Legislação, Contabilidade e Informática (3 áreas)",
+  "vagas": "7 + 700 de cadastro de reserva",
+  "rem": "R$ 11.514,95 (remuneração inicial)",
+  "taxa": "R$ 110,00",
+  "banca": "Instituto ACCESS",
+  "ini": "2026-12-03",
+  "fim": "2027-01-07",
+  "fimHora": "até 23h59",
+  "prova": "21/02/2027 (data provável)",
+  "link": "https://concursos.access.org.br/informacoes/172/",
+  "conf": "2026-11-23",
+  "fonte": "Edital nº 1 – DPDF, de 26/10/2026, consolidado com o Edital nº 2, de 10/11/2026",
+  "nota": "Último dia para pagar a taxa: 08/01/2027. Provas objetiva e discursiva no Distrito Federal."
+ }
+]
+</script>
+<script>
+(function(){
+  var DADOS = JSON.parse(document.getElementById('dados').textContent);
+  var SITE = 'https://raios1000.github.io/BARAT-O-/radar/';
+  var AGORA = new Date();
+  var HOJE = (function(){ var p = new Intl.DateTimeFormat('en-CA', {timeZone:'America/Sao_Paulo'}).format(AGORA).split('-').map(Number); return new Date(p[0], p[1]-1, p[2]); })();
+  function fimInst(c){ var p = c.fim.split('-').map(Number), h = 23, m = 59, x = /(\d{1,2})h(\d{2})?/.exec(c.fimHora || ''); if (x) { h = +x[1]; m = x[2] ? +x[2] : 0; } return new Date(Date.UTC(p[0], p[1]-1, p[2], h + 3, m, 59)); }
+  var dia = function(s){ var p = s.split('-').map(Number); return new Date(p[0], p[1]-1, p[2]); };
+  var dif = function(a,b){ return Math.round((a-b)/864e5); };
+  var curto = function(s){ var p = s.split('-'); return p[2]+'/'+p[1]; };
+  var br = function(s){ var p = s.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
+  var e = function(t){ return String(t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+  function estado(c){
+    var i = dia(c.ini), f = dia(c.fim), n;
+    if (HOJE > f || AGORA > fimInst(c)) return {k:'fora'};
+    if (HOJE < i) { n = dif(i,HOJE); return {k:'breve', n:n, t: n===1 ? 'Abre amanhã' : 'Abre em '+n+' dias'}; }
+    n = dif(f,HOJE);
+    return {k: n===0 ? 'hoje' : (n<=7 ? 'semana' : 'aberto'), n:n,
+            t: n===0 ? 'Fecha hoje' : (n===1 ? 'Fecha amanhã' : 'Faltam '+n+' dias')};
+  }
+  DADOS.forEach(function(c){ c.e = estado(c); });
+  var vivos = DADOS.filter(function(c){ return c.e.k !== 'fora'; });
+  var ordem = {hoje:0, semana:1, aberto:2, breve:3};
+  vivos.sort(function(a,b){ return (ordem[a.e.k]-ordem[b.e.k]) || (dia(a.e.k==='breve'?a.ini:a.fim) - dia(b.e.k==='breve'?b.ini:b.fim)); });
+
+  var abertos = vivos.filter(function(c){ return c.e.k !== 'breve'; });
+  var semana = abertos.filter(function(c){ return c.e.n <= 7; });
+  document.getElementById('n-abertos').textContent = abertos.length;
+  document.getElementById('n-semana').textContent = semana.length;
+  document.getElementById('n-breve').textContent = vivos.length - abertos.length;
+
+  var fs = document.getElementById('fila-semana');
+  fs.innerHTML = semana.length ? semana.map(function(c){
+    return '<div class="mini '+(c.e.k==='hoje'?'hoje':'')+'"><span class="pilula p-'+c.e.k+'">'+e(c.e.t)+'</span><b>'+e(c.orgao)+'</b><span>até '+curto(c.fim)+(c.fimHora?', '+e(c.fimHora.replace('até ','')):'')+' · '+e(c.banca)+'</span></div>';
+  }).join('') : '<div class="vazio-msg">Nenhum prazo fecha nos próximos 7 dias.</div>';
+
+
+  var filtro = {onde:'todos', nivel:'todos', area:'todos'};
+  var ORD = {f:1, m:2, s:3};
+  function cartao(c){
+    var i = dia(c.ini), f = dia(c.fim), total = Math.max(1, dif(f,i));
+    var pct = c.e.k==='breve' ? 0 : Math.min(100, Math.max(0, Math.round(dif(HOJE,i)/total*100)));
+    var acao = c.cursos ? c.cursos.map(function(k){ return '<a href="'+e(k.url)+'" target="_blank" rel="noopener">'+e(k.nome)+' ↗</a>'; }).join('') : '';
+    var idade = dif(HOJE, dia(c.conf)), velho = idade > 7;
+    var selo = velho ? 'Conferido em '+br(c.conf)+': a reconferir'
+      : (c.parcial ? 'Conferido na página oficial em ' : '✔ Conferido no edital em ')+br(c.conf);
+    var prazo = br(c.fim) + (c.fimHora ? ', ' + c.fimHora.replace('até ', 'às ') : '');
+    var zap = 'https://wa.me/?text=' + encodeURIComponent(c.orgao + (c.e.k==='breve' ? ': inscrição de ' + br(c.ini) + ' a ' : ': inscrição até ') + prazo + '. Conferido pelo Ed em ' + br(c.conf) + '. O edital é o que vale: ' + SITE + '#' + c.id);
+    var p = c.fim.split('-'), f2 = new Date(+p[0], +p[1]-1, +p[2]+1);
+    var d2 = '' + f2.getFullYear() + ('0'+(f2.getMonth()+1)).slice(-2) + ('0'+f2.getDate()).slice(-2);
+    var agenda = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('Último dia de inscrição: ' + c.orgao)
+      + '&dates=' + p.join('') + '/' + d2 + '&details=' + encodeURIComponent('Inscrição ' + prazo + '. Confira na página oficial: ' + c.link + ' (Radar do Ed: ' + SITE + ')');
+    return '<article class="c c-'+c.e.k+'" id="'+e(c.id)+'">'
+      + '<div class="c-topo"><span class="uf">'+e(c.uf)+'</span><span class="pilula p-'+c.e.k+'">'+e(c.e.t)+'</span></div>'
+      + '<h3>'+e(c.orgao)+'</h3><p class="cargo">'+e(c.cargo)+'</p>'
+      + '<dl class="fatos"><div><dt>Vagas</dt><dd>'+e(c.vagas)+'</dd></div><div><dt>Remuneração</dt><dd>'+e(c.rem)+'</dd></div>'
+      + '<div><dt>Taxa</dt><dd>'+e(c.taxa)+'</dd></div><div><dt>Prova</dt><dd>'+e(c.prova)+'</dd></div>'
+      + '<div class="largo"><dt>Banca</dt><dd>'+e(c.banca)+'</dd></div></dl>'
+      + '<div><div class="trilho"><div class="cheio-b" style="width:'+pct+'%"></div>'+(c.e.k==='breve'?'':'<span class="marco" style="left:'+pct+'%" title="hoje"></span>')+'</div>'
+      + '<div class="pontas"><span>Inscrição: <b>'+curto(c.ini)+'</b></span><span><b>'+curto(c.fim)+'</b>'+(c.fimHora?', '+e(c.fimHora):'')+'</span></div></div>'
+      + (c.nota ? '<p class="nota">'+e(c.nota)+'</p>' : '')
+      + '<p class="fonte">Fonte: '+e(c.fonte)+'.</p>'
+      + '<div class="selo-linha"><span class="selo'+((c.parcial||velho)?' parcial':'')+'">'+e(selo)+'</span>'
+      + '<a class="oficial" href="'+e(c.link)+'" target="_blank" rel="noopener">Página oficial ↗</a></div>'
+      + '<div class="uteis"><a href="'+e(zap)+'" target="_blank" rel="noopener">Enviar no WhatsApp</a><a href="'+e(agenda)+'" target="_blank" rel="noopener">Pôr o prazo na agenda</a></div>'
+      + (acao ? '<div class="acao">'+acao+'</div>' : '') + '</article>';
+  }
+  var semAcento = function(s){ return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); };
+  var termo = '';
+  var UFN = {GO:'goias', RS:'rio grande do sul', SC:'santa catarina', DF:'distrito federal brasilia', Brasil:'brasil nacional federal'};
+  function bate(c){ return !termo || semAcento([c.orgao, c.cargo, c.banca, c.uf, UFN[c.uf] || ''].join(' ')).indexOf(termo) >= 0; }
+  document.getElementById('busca').addEventListener('input', function(ev){ termo = semAcento(ev.target.value.trim()); pinta(); });
+  function pinta(){
+    var lista = vivos.filter(function(c){
+      return bate(c) && (filtro.onde==='todos' || c.onde===filtro.onde)
+          && (filtro.nivel==='todos' || c.niveis.some(function(n){ return ORD[n] <= ORD[filtro.nivel]; }))
+          && (filtro.area==='todos' || c.area===filtro.area);
+    });
+    document.getElementById('grade').innerHTML = lista.length ? lista.map(cartao).join('')
+      : '<div class="vazio-msg">Nada no seu radar com esses filtros hoje. Tire um filtro ou peça o aviso de edital.</div>';
+    var saiu = DADOS.length - vivos.length;
+    document.getElementById('conta').innerHTML = lista.length + (lista.length===1 ? ' concurso' : ' concursos') + ' no seu radar'
+      + (saiu ? ' <small>· '+saiu+(saiu===1?' saiu':' saíram')+' da lista porque o prazo venceu</small>' : '');
+  }
+  document.querySelectorAll('.grupo').forEach(function(g){
+    g.addEventListener('click', function(ev){
+      var b = ev.target.closest('.chip'); if (!b) return;
+      g.querySelectorAll('.chip').forEach(function(x){ x.setAttribute('aria-pressed', x===b ? 'true' : 'false'); });
+      filtro[g.getAttribute('data-filtro')] = b.getAttribute('data-v'); pinta();
+    });
+  });
+  var precoVale = new Date() < new Date(2026, 11, 1);
+  document.querySelectorAll('[data-preco]').forEach(function(s){ s.textContent = precoVale ? 'R$ 9,90 até 30/11/2026' : 'Preço na página do curso'; });
+  var FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSchcMAV8E2IOzpucczTkOSPoFVIotQVc9UnEuihQN1Z5ABwMQ/formResponse';
+  var fe = document.getElementById('form-email');
+  fe.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var inp = fe.querySelector('input[type=email]'), msg = document.getElementById('form-msg');
+    var em = (inp.value || '').trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { msg.textContent = 'Confira o e-mail, por favor.'; inp.focus(); return; }
+    var b = fe.querySelector('button'); b.disabled = true; b.textContent = 'Enviando...';
+    var d = new URLSearchParams();
+    d.append('entry.352900362', em); d.append('entry.1101246898', 'Concordo'); d.append('entry.2146424814', 'RADAR | Inscrito do Ed');
+    var fim = function(){ msg.textContent = 'Pronto, você é Inscrito do Ed. O resumo do Radar chega por e-mail, de ' + 'edconcurseiro2026@gmail.com' + '.'; b.textContent = 'Inscrito ✓'; };
+    if (location.search.indexOf('teste=1') >= 0) { fim(); msg.textContent += ' (modo teste: nada foi enviado)'; return; }
+    fetch(FORM, {method:'POST', mode:'no-cors', body:d}).then(fim, function(){ msg.textContent = 'Não deu para enviar agora. Confira a internet e tente de novo.'; b.disabled = false; b.textContent = 'Quero ser inscrito'; });
+  });
+  pinta();
+})();
+</script>
+<script data-goatcounter="https://edconcurseiro.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
